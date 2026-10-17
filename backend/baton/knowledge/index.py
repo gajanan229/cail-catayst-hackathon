@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -101,6 +102,13 @@ class KnowledgeBase:
         self.matrix: np.ndarray | None = None
         self.glossary: dict[str, list[str]] = {}
         self.records: dict[str, dict] = {}
+        self.reranker = None
+        if os.environ.get("BATON_RERANK", "0") == "1" and embeddings == "local":
+            try:
+                from sentence_transformers import CrossEncoder
+                self.reranker = CrossEncoder("BAAI/bge-reranker-base")
+            except Exception as e:
+                log.warning("reranker unavailable (%s); search runs without it", e)
 
     # ------------------------------------------------------------ ingestion
 
@@ -440,6 +448,8 @@ class KnowledgeBase:
         if boosts:
             ranked = [(cid, base, final * boosts.get(self.records[cid]["doc_type"], 1.0)) for cid, base, final in ranked]
         ranked.sort(key=lambda x: -x[2])
+        if self.reranker is not None:
+            ranked = self._rerank(q, ranked, pins)
         results = []
         for cid, base, final in ranked[:k]:
             c = self.records[cid]
@@ -452,6 +462,27 @@ class KnowledgeBase:
                                   "pinned": cid in pins}
             results.append(item)
         return {"query": q, "expanded_terms": terms, "entities": ents, "results": results}
+
+    def _rerank(self, q: str, ranked: list[tuple], pins: list[str]) -> list[tuple]:
+        """P1 cross-encoder (BAAI/bge-reranker-base) over the top 20; exact-match pins stay first."""
+        pinned = [r for r in ranked if r[0] in pins]
+        rest = [r for r in ranked if r[0] not in pins]
+        head, tail = rest[:20], rest[20:]
+        if not head:
+            return ranked
+        try:
+            pairs = [(q, f"{self.records[cid]['header']}\n{self.records[cid]['text'][:600]}") for cid, _, _ in head]
+            scores = self.reranker.predict(pairs)
+        except Exception as e:   # never let the reranker break search
+            log.warning("rerank failed: %s", e)
+            return ranked
+        top = max(r[2] for r in ranked)
+        rescored = []
+        for (cid, base, _), s in zip(head, scores):
+            prob = 1.0 / (1.0 + float(np.exp(-float(s))))
+            rescored.append((cid, base, top * prob * self.records[cid]["authority"]))
+        rescored.sort(key=lambda x: -x[2])
+        return pinned + rescored + tail
 
     def item(self, cid: str) -> dict:
         c = self.records.get(cid)

@@ -51,7 +51,7 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
 
 ## In progress
 
-- P1 in order: Brief graph, reranker (what-if and S2 done). Then G4 (freeze, re-record replay, tag `v0.9-demo`).
+- G4 feature freeze: all P1 Engine items done (S3 + eval, what-if, S2, Brief, reranker). Only bug fixes from here. Then G4 (freeze, re-record replay, tag `v0.9-demo`).
 
 ## Eval (latest `make eval`, embeddings on, models off, about 30 s)
 
@@ -140,6 +140,12 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
 - Thanks for the three side tasks; all received. Seed now has 325 chunks with the 150-record operator-message pack.
 
 ## Notes for humans
+
+- Brief (P1): ask "How are we doing?" / "give me a brief" in any thread → a text card titled
+  "Shift brief HH:MM · Green/Amber/Red" with what changed, what is at risk, what to do; every line cites fact IDs.
+  The model narration is discarded if any number in it is not in the facts.
+- Reranker (P1): built but OFF by default. With `BATON_RERANK=1` (bge-reranker-base, about 1 GB, 0.5 s per 20 pairs
+  on CPU) retrieval recall@5 drops from 0.94 to 0.86 and each search takes about 1.5 s longer. Recommend leaving it off.
 
 - S2 (month-end audit trail) is built and in the eval: Director → S2 → "audit pressure" fault, or test profile
   (scheduled at 22:42). Two modeling choices: the fault multiplies only `$MEB01`'s audit generation (spec §6.4), and

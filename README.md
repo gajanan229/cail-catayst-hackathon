@@ -47,6 +47,7 @@ Put secrets in the project-root `.env` (never committed).
 | `BATON_NVIDIA_BASE_URL` | URL | `https://integrate.api.nvidia.com/v1` | |
 | `BATON_NEMOTRON_THINKING` | `0`, `1` | `0` | Enable Nemotron reasoning mode (slower) |
 | `BATON_REPLAY` | `off`, `record`, `replay` | `replay` | Replay cache in `data/replay/*.jsonl` |
+| `BATON_RERANK` | `0`, `1` | `0` | Cross-encoder reranker (P1); off by default, it lowered recall in eval |
 | `BATON_MODEL_RPM` | integer | `34` | Client-side request cap per minute (the NVIDIA endpoint allows 40) |
 | `BATON_LIVE_MODELS` | `0`, `1` | `0` | Tests only: `1` runs the models-on golden test |
 | `BATON_EMBEDDINGS` | `local`, `none` | `local` | `none` = BM25 only |
