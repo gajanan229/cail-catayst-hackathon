@@ -20,6 +20,27 @@ import { Button } from "../ui/button";
 import { Dialog } from "../ui/dialog";
 import { cn, human } from "@/lib/utils";
 import { SafeMarkdown } from "../Markdown";
+import { PredictionChart, asPrediction } from "../charts/PredictionChart";
+
+/** What-if comparison (P1): predicted ATM p95 after 10 sim-minutes for each option, from the backend's simulator fork. */
+function PredictionStrip({ options }: { options: Schema<"DecisionOption">[] }) {
+  const rows = options
+    .map((o) => ({ o, p: asPrediction(o.prediction) }))
+    .filter((r) => r.p && r.p.summary["svc.atm.p95_ms"]);
+  if (!rows.length) return null;
+  const short = (o: Schema<"DecisionOption">) =>
+    o.id === "opt_none" ? "Do nothing" : o.includes.length ? o.label : o.id.replace("opt_", "").toUpperCase();
+  return (
+    <div className="prediction-strip" aria-label="Predicted ATM p95 in 10 minutes per option">
+      <span className="meta">Predicted ATM p95 in 10 min:</span>
+      {rows.map(({ o, p }) => (
+        <span key={o.id} className={cn("prediction-chip", o.recommended && "recommended")}>
+          {short(o)} <strong>{Math.round(p!.summary["svc.atm.p95_ms"].to).toLocaleString()} ms</strong>
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export type Inspect = (id: string) => void;
 export function Citations({ card, inspect }: { card: Card; inspect: Inspect }) {
@@ -728,6 +749,7 @@ function Decision({ card }: { card: Schema<"DecisionCard"> }) {
       <p className="meta">
         Review the cited recommendation, risks and recovery actions.
       </p>
+      <PredictionStrip options={options} />
       <div className="decision-options">
         {options
           .filter((o) => !o.includes.length)
@@ -771,6 +793,9 @@ function Decision({ card }: { card: Schema<"DecisionCard"> }) {
                 </div>
               ))}
               <p>{o.expected_effect || o.block_reason}</p>
+              {asPrediction(o.prediction) && (
+                <PredictionChart prediction={asPrediction(o.prediction)!} />
+              )}
               {o.risks && <p className="meta">Risk: {o.risks}</p>}
               {o.escalation && <p className="warn-text meta">{o.escalation}</p>}
               {o.required_approvers && (

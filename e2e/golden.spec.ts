@@ -339,3 +339,22 @@ test("all P0 routes render without browser exceptions", async ({ page }) => {
   }
   expect(errors).toEqual([]);
 });
+
+// P1 what-if mini charts on the decision card (mock mode, recorded run).
+test("decision card shows what-if predictions", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("All streams connected")).toBeVisible();
+  await page.getByRole("button", { name: "Director", exact: true }).click();
+  await page.getByRole("button", { name: "CPU 3 halt", exact: true }).click();
+  await page.getByRole("button", { name: "Close", exact: true }).click();
+  await page.getByRole("link", { name: "Incidents", exact: true }).click();
+  const auditCard = page.getByRole("article", { name: "TMF audit trail status", exact: true });
+  await auditCard.getByRole("button", { name: "Approve", exact: true }).click();
+  await page.getByRole("button", { name: "Confirm as Priya" }).click();
+  const decision = page.getByRole("article", { name: "Options", exact: true });
+  await expect(decision).toBeVisible();
+  await expect(decision.locator(".prediction-strip")).toContainText("Do nothing");
+  await expect(decision.locator(".prediction").first()).toBeVisible();
+  await decision.scrollIntoViewIfNeeded();
+  await decision.screenshot({ path: "test-results/whatif-decision.png" });
+});

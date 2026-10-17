@@ -3436,3 +3436,35 @@ small {
   min-width: 35px;
   justify-content: center;
 }
+
+/* What-if predictions (P1): comparison strip and per-option mini charts on the decision card */
+.prediction-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.prediction-chip {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.prediction-chip strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.prediction-chip.recommended strong {
+  color: var(--baton);
+}
+.prediction {
+  margin-top: 8px;
+}
+.prediction-caption {
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
