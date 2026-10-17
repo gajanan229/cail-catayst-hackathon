@@ -1,0 +1,18 @@
+id: S1
+name: CPU loss at Black Friday peak
+synthetic: true
+start: "2026-11-27T11:45:00"
+calendar: black_friday
+seed: 42
+speed: 4
+profiles:
+  demo: {faults: manual, on_incident_speed: 1, after_actions_speed: 4}
+  test: {faults: scheduled, speed: 16}
+steps:
+  - {at: "11:52:00", fault: cpu_halt, params: {cpu: 3}, profile: test}
+chatter: {per_min: 300, injection_test: true}
+expect:
+  situation_template: cpu_loss_cascade
+  top_hypothesis: cpu_capacity_loss
+  options_include: [tacl.suspend_process, pathcom.alter_numstatic]
+  recovered_within_sim_s: 240

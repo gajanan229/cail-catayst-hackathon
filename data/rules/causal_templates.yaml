@@ -1,0 +1,23 @@
+# Correlation templates (MVP spec §7.1 step 6). Evaluated in order; the first match wins.
+version: 1
+window_s: 300
+templates:
+  - id: cpu_loss_cascade
+    anchor: cpu_down
+    any_of: [takeover, link_errors, latency_out_of_band]
+    title: "CPU {cpu} down; {service} latency rising"
+    origin: anchor
+    severity: 5
+    suggested_playbooks: [PB-CPU-LOSS-PEAK]
+  - id: audit_trail_pressure
+    anchor: audit_fill_high
+    any_of: [audit_over_threshold_event, audit_fill_rising]
+    title: "Audit trail filling during {window}"
+    origin: anchor
+    severity: 4
+    suggested_playbooks: [PB-AUDIT-PRESSURE]
+fallback:
+  id: fallback
+  min_signals: 2
+  title: "{n} signals on {component}"
+  suggested_playbooks_by_signal: {sc_at_max: [PB-SC-STARVATION], sc_queue: [PB-SC-STARVATION], cpu_busy_high: [PB-RUNAWAY-BATCH]}

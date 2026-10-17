@@ -12,6 +12,7 @@ from ..schemas.shapes import (
     SystemStatus, Topology, AuditVerify, Claim, MetricsResponse, Thread,
 )
 from .deps import rt
+from .errors import ApiError
 
 ERRORS = {400: {"model": ErrorResponse}, 403: {"model": ErrorResponse}, 404: {"model": ErrorResponse},
           409: {"model": ErrorResponse}, 422: {"model": ErrorResponse}}
@@ -102,7 +103,10 @@ def situations():
 
 @router.get("/situations/{situation_id}", response_model=SituationDetail, tags=["telemetry"])
 def situation(situation_id: str):
-    return rt().pipeline.situation_detail(situation_id)
+    detail = rt().pipeline.situation_detail(situation_id)
+    if detail is None:
+        raise ApiError("NOT_FOUND", f"Situation {situation_id} not found")
+    return detail
 
 
 @router.post("/situations/{situation_id}/investigate", response_model=R.InvestigateResponse, tags=["agent"])

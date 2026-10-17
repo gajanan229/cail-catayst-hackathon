@@ -1,0 +1,8 @@
+# Personas (MVP spec §6.1, §9.1). No passwords: the top-bar switcher picks one.
+synthetic: true
+users:
+  - {id: u_priya, name: Priya, role: operator, initials: PR, title: Operator}
+  - {id: u_sam, name: Sam, role: senior, initials: SA, title: Senior operator}
+  - {id: u_dave, name: Dave, role: expert, initials: DA, title: NonStop expert}
+  - {id: u_maria, name: Maria, role: expert, initials: MA, title: TMF expert}
+  - {id: u_lee, name: Lee, role: steward, initials: LE, title: Catalog steward}

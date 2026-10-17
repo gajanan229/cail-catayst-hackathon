@@ -1,0 +1,13 @@
+id: S0
+name: Healthy normal day
+synthetic: true
+start: "2026-11-17T10:00:00"
+calendar: normal
+seed: 42
+speed: 4
+profiles:
+  demo: {faults: manual}
+  test: {faults: scheduled, speed: 16}
+steps: []
+chatter: {per_min: 300, injection_test: true}
+expect: {situation_template: null, top_hypothesis: null}

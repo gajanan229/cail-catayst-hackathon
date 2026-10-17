@@ -1,0 +1,18 @@
+id: S2
+name: Audit trail climbing at month-end
+synthetic: true
+start: "2026-11-30T22:40:00"
+calendar: month_end
+seed: 42
+speed: 8
+profiles:
+  demo: {faults: manual, on_incident_speed: 2, after_actions_speed: 8}
+  test: {faults: scheduled, speed: 16}
+initial: {tmf_fill_pct: 58.0}
+steps:
+  - {at: "22:42:00", fault: audit_pressure, params: {factor: 3.0}, profile: test}
+chatter: {per_min: 300, injection_test: true}
+expect:
+  situation_template: audit_trail_pressure
+  top_hypothesis: tmf_audit_pressure
+  options_include: [tacl.suspend_process]

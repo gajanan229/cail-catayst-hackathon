@@ -1,0 +1,21 @@
+# Held out: eval only, never used while tuning (MVP spec §6.4, §17).
+id: S3
+name: ATM-AUTH starved after a config change
+synthetic: true
+held_out: true
+start: "2026-11-17T09:10:00"
+calendar: normal
+# Tuesday after a long weekend: ATM demand about 1.9x a normal Tuesday morning (synthetic).
+load_multiplier: {atm: 1.9}
+seed: 42
+speed: 4
+profiles:
+  demo: {faults: manual, on_incident_speed: 1, after_actions_speed: 4}
+  test: {faults: scheduled, speed: 16}
+steps:
+  - {at: "09:15:00", fault: maxservers_change, params: {server_class: ATM-AUTH, value: 12}, profile: test}
+chatter: {per_min: 300, injection_test: true}
+expect:
+  situation_template: fallback
+  top_hypothesis: server_class_starvation
+  options_include: [pathcom.alter_maxservers]
