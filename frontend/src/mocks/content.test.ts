@@ -31,7 +31,10 @@ describe("knowledge content contract", () => {
         .map((line) => JSON.parse(line));
       expect(new Set(rows.map((r) => r.id)).size).toBe(rows.length);
       for (const r of rows) {
-        expect(r.synthetic).toBe(true);
+        // Records copied from the HPE manual are real, not synthetic; they must cite the manual instead.
+        if (r.real === true && r.synthetic !== true)
+          expect(r.source).toMatch(/^https:\/\/ftp\.hp\.com\//);
+        else expect(r.synthetic).toBe(true);
         expect(r.source).toMatch(/^https:\/\//);
       }
     }

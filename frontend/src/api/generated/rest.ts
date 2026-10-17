@@ -569,7 +569,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Whatif */
+        /**
+         * Whatif
+         * @description P1: 600 sim-second prediction for candidate actions; use incident_id "none" outside an incident.
+         */
         post: operations["whatif_api_incidents__incident_id__whatif_post"];
         delete?: never;
         options?: never;
