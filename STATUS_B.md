@@ -36,7 +36,7 @@
 ## Requests to A
 
 - **B-REQ-1 (resolved by live integration):** Frontend now submits all selected option IDs to the parent decision approval once. Backend creates per-option approvals and counts Priya's first decisions. Subsequent decisions use per-option IDs. Verified with the real `_decide_options` protocol through the UI; no contract change needed.
-- **B-REQ-2 (open):** Please add the full manual crawl when your fetcher is ready. Content uses the permitted Appendix A fallback plus PATHWAY 2049 (20 records) instead of claiming the 60–150 target is complete. Other content counts meet §10.1.
+- **B-REQ-2 (resolved by B, A-REQ-3):** `scripts/fetch_opmsgs.py` fetches/caches and parses the real HPE chapters 68/78. The merged 150-record pack retains every simulator message and its rule-file template; manual cause/effect/recovery replace synthetic fallback annotations. Raw HTML stays in ignored `var/opmsgs_cache/`. Offline regeneration passes.
 - **B-REQ-3 (resolved):** Imported successful `contracts/recordings/golden_s1.json` into B-owned `frontend/src/mocks/recordings/`. Interactive adapter uses recorded card/output fixtures and ordered SIM-clock telemetry/health phases. All 687 raw envelopes validate; all five mock browser tests pass using recorded data.
 - **B-REQ-4 (blocking models ON):** Real UI run with `BATON_LLM_PROVIDER=nemotron`, embeddings none, replay preserved: S1 demo → Priya asks “Is ATM auth keeping up?”. Backend emits `run.failed` with Pydantic `command.body.rendered: Input should be a valid string, input_value=None`. No STATS command card arrives. UI displays the server failure; B does not repair backend plans. Please fix the invalid/null-rendered command-card path (and deterministic fallback on an invalid model plan) so Flow B survives models on. Models-off real UI passed through resolution, claim reviews, grant and audit.
   - Retried after Engine commit `7b320c2` with a fresh B-owned process: same null-rendered error in command graph `_execute` → `patch` → `CardStore.upsert`, during `run_auto`. Router also exceeded the old 12 s UI request limit; B increased only message-submission timeout to 60 s to accommodate Engine fallback. No server logic changed.
@@ -46,6 +46,14 @@
 - **A-REQ-1 acknowledged:** use `contracts/examples/`; preserve hypothesis `for`; upsert whole cards by ID and sort by seq; queue ghost/output by exec_id and show label; all mutations carry actor; URL-encode ledger keys. Contracts 1.0.0 additive notes acknowledged.
 - **A-REQ-2 resolved:** real models-off UI run passed using incident-thread subscription plus REST snapshot merge. Parent decision is submitted once with all chosen IDs; B then uses the option approval ID for Sam. Manual terminal response `thread_id` now opens/subscribes its confirmation thread. Catalog request logging needs no new endpoint. Your successful 687-event recording is integrated with the mock clock and interactive approvals, validated against schemas and covered by Chrome acceptance tests.
   - Redesign retains contracts 1.0.0 and the same endpoint/actor protocol. Isolated real UI check passed with two-person undo as well; no A-owned code, process or runtime directory was altered for this QA.
+
+## Side tasks for Engine (A-requested)
+
+- **Task 1 — done:** created `scripts/fetch_opmsgs.py`, `tests/test_unit_opmsgs.py`; updated `data/content/operator_messages.jsonl`, `manifest.json`, `README.md`. 150 records (147 HPE, 3 synthetic APP); ch68/ch78 parsed 150/364 complete messages before bounded selection. Three fetcher tests pass. Run `.venv\Scripts\python.exe scripts/fetch_opmsgs.py --offline`; seed with `BATON_EMBEDDINGS=none`, `BATON_VAR=var/b_side_seed`, `BATON_DB=var/b_side_seed/baton.db`, `BATON_CHECKPOINTS=var/b_side_seed/checkpoints.db`, then `make seed` and `make test`. Seed: 325 chunks, zero vectors, 11 ledger entries, 20 claims. Windows asyncio socketpair stalls in the execution sandbox; seed/full-suite checks require the approved unsandboxed runner.
+- **Task 2 — in progress:** reading the assigned backend APIs; only new `tests/test_unit_*.py` and `data/catalog/fixtures/*.txt` will be created. Existing Engine test/source edits remain untouched.
+- **Task 3 — pending:** `data/eval/retrieval.jsonl` will be authored after unit tests; no eval search/tuning performed.
+
+New side-task bugs start at **B-REQ-5** because B-REQ-4 above is already assigned to the models-on UI failure.
 
 ## Notes for humans
 

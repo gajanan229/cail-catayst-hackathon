@@ -1,9 +1,9 @@
 {
   "synthetic": true,
-  "source_spec": "BATON_MVP_SPEC.md §10.1 / §16 / Appendix C",
-  "operator_message_mode": "Appendix A fallback; full manual crawl is an Engine/human follow-up",
+  "source_spec": "BATON_MVP_SPEC.md \u00a710.1 / \u00a716 / Appendix C",
+  "operator_message_mode": "HPE manual selection with Appendix A simulator templates preserved; raw HTML cached locally, synthetic APP chatter retained",
   "counts": {
-    "operator_messages": 20,
+    "operator_messages": 150,
     "command_reference": 21,
     "concepts": 20,
     "playbooks": 4,
@@ -12,5 +12,9 @@
     "pending_claims": 4,
     "incidents": 8,
     "glossary": 60
-  }
+  },
+  "operator_message_chapters": [
+    68,
+    78
+  ]
 }
