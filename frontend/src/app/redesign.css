@@ -1573,3 +1573,47 @@ main {
 .resource-overview:not(.resource-detailed) .headroom-note {
   display: none;
 }
+.recovery-steps li {
+  display: block;
+  padding: 0;
+}
+.plan-step-link {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 12px;
+}
+.plan-step-link:hover {
+  background: #f7f5fc;
+}
+.plan-step-link > .step-index {
+  display: grid;
+  place-items: center;
+  height: 26px;
+  width: 26px;
+  border-radius: 50%;
+  background: var(--baton-bg);
+  color: var(--baton);
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.plan-step-link > div {
+  flex: 1;
+}
+.plan-step-link strong {
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.recovery-preview h2 {
+  margin-top: 20px;
+}
+.recovery-preview .preview-provenance {
+  margin-bottom: 0;
+  padding: 12px 0;
+}
+.service-state-icon.critical {
+  color: #b54836;
+  background: #f9eae5;
+}

@@ -37,10 +37,28 @@ test("mock golden path: guarded diagnosis, recovery, learning and audit", async 
   await page.getByRole("button", { name: "Confirm as Priya" }).click();
   const decision = page.getByRole("article", { name: "Options", exact: true });
   await expect(decision).toBeVisible();
-  await page.getByRole("link",{name:"Overview",exact:true}).click();
-  await expect(page.getByRole("heading",{name:"Recover service capacity",exact:true})).toBeVisible();
-  await page.screenshot({path:"test-results/console-incident.png",fullPage:true});
-  await page.getByRole("button",{name:"Review plan & approvals",exact:true}).click();
+  await page.getByRole("link", { name: "Overview", exact: true }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Recover service capacity",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.locator(".plan-step-link").first()).toHaveAttribute(
+    "title",
+    "SUSPEND $STMT1",
+  );
+  await expect(page.locator(".plan-step-link").nth(1)).toHaveAttribute(
+    "title",
+    /NUMSTATIC 28/,
+  );
+  await page.screenshot({
+    path: "test-results/console-incident.png",
+    fullPage: true,
+  });
+  await page
+    .getByRole("button", { name: "Review plan & approvals", exact: true })
+    .click();
   await expect(decision).toBeVisible();
   await decision
     .getByRole("button", { name: "Approve selected", exact: true })
@@ -80,9 +98,12 @@ test("mock golden path: guarded diagnosis, recovery, learning and audit", async 
       exact: true,
     }),
   ).toBeVisible({ timeout: 25000 });
-  await page.getByRole("button",{name:"Postmortem",exact:true}).click();
+  await page.getByRole("button", { name: "Postmortem", exact: true }).click();
   await expect(page.locator(".postmortem-document")).toBeVisible();
-  await page.locator(".incident-screen > .tabs").getByRole("button",{name:"Overview",exact:true}).click();
+  await page
+    .locator(".incident-screen > .tabs")
+    .getByRole("button", { name: "Overview", exact: true })
+    .click();
   await page
     .locator(".undo-entry")
     .first()
@@ -140,6 +161,10 @@ test("professional workspace: diagnostics, keyboard tabs and governed manual com
 }) => {
   await page.goto("/");
   await expect(page.getByText("All streams connected")).toBeVisible();
+  await page.getByRole("button", { name: /N-1 at risk/ }).click();
+  await expect(page.getByRole("dialog")).toContainText("N-1 capacity headroom");
+  await expect(page.getByRole("dialog")).toContainText(/worst survivor/i);
+  await page.getByRole("button", { name: "Close", exact: true }).click();
   const diagnosticTabs = page.getByRole("tablist", {
     name: "System diagnostics",
   });

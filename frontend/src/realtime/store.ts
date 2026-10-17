@@ -148,8 +148,14 @@ export const useConsole = create<ConsoleState>((set, get) => ({
         break;
       case "incident.upsert": {
         const incident = p as Incident;
+        const previous = s.incidents.find((i) => i.id === incident.id);
         patch.incidents = upsert(s.incidents, incident, (x) => x.id);
-        patch.threadId = incident.thread_id;
+        // Follow a newly created incident, but don't steal a manual confirmation thread on status updates.
+        if (
+          incident.thread_id &&
+          (!s.threadId || !previous || !previous.thread_id)
+        )
+          patch.threadId = incident.thread_id;
         break;
       }
       case "situation.upsert":

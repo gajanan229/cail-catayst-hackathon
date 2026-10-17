@@ -304,6 +304,11 @@ function beginFault() {
   );
   const incident = {
     ...fixture<Incident>("rest/GET_incidents_id"),
+    impact: {
+      ...fixture<Incident>("rest/GET_incidents_id").impact,
+      p95_ms_peak: state().values["svc.atm.p95_ms"],
+      timeout_pct_peak: state().values["svc.atm.timeout_pct"],
+    },
     undo_stack: [],
     status: "open",
   };
@@ -582,6 +587,32 @@ export function startMock() {
         `ws/telemetry.tick${fault ? ".fault" : ""}`,
       ).payload.values;
     emit("telemetry.tick", { sim_ts: date.toISOString(), values }, "telemetry");
+    const incident = state().incidents.at(-1);
+    if (
+      fault &&
+      incident &&
+      ((values["svc.atm.p95_ms"] ?? 0) > (incident.impact.p95_ms_peak ?? 0) ||
+        (values["svc.atm.timeout_pct"] ?? 0) >
+          (incident.impact.timeout_pct_peak ?? 0))
+    )
+      emit(
+        "incident.upsert",
+        {
+          ...incident,
+          impact: {
+            ...incident.impact,
+            p95_ms_peak: Math.max(
+              incident.impact.p95_ms_peak ?? 0,
+              values["svc.atm.p95_ms"] ?? 0,
+            ),
+            timeout_pct_peak: Math.max(
+              incident.impact.timeout_pct_peak ?? 0,
+              values["svc.atm.timeout_pct"] ?? 0,
+            ),
+          },
+        },
+        "incidents",
+      );
     const health = recordedHealth(date.toISOString());
     if (health) emit("health.snapshot", health, "health");
     emit(
@@ -1078,7 +1109,7 @@ export async function mockRequest(
   }
   if (url.endsWith("/messages") || url === "/terminal/input") {
     if (url === "/terminal/input" && !state().threadId)
-      useConsole.setState({threadId:`thr_mock_terminal_${actor}`});
+      useConsole.setState({ threadId: `thr_mock_terminal_${actor}` });
     const text = String(b.text || b.line || "");
     const lower = text.toLowerCase();
     await audit("message.sent", text, actor);
@@ -1183,7 +1214,10 @@ export async function mockRequest(
           "I can check ATM authorization, explain NUMSTATIC and MAXSERVERS, or investigate an active situation. Try one of those requests.";
       put(c);
     }
-    return { run_id: `run_mock_${id}`, ...(url === "/terminal/input" ? {thread_id:state().threadId} : {}) };
+    return {
+      run_id: `run_mock_${id}`,
+      ...(url === "/terminal/input" ? { thread_id: state().threadId } : {}),
+    };
   }
   if (url.startsWith("/claims/") && url.endsWith("/review")) {
     const c = state().claims.find((c) => c.id === url.split("/")[2]);

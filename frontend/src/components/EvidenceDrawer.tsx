@@ -23,6 +23,7 @@ export function EvidenceDrawer({
   const approvals = useConsole((s) => s.approvals);
   const incidents = useConsole((s) => s.incidents);
   const localRecord =
+    (id === "system:n1" ? health?.n1 : null) ||
     approvals.find((a) => a.id === id) ||
     incidents.find((i) => i.id === id) ||
     timeline.find((t) => t.id === id);
@@ -58,12 +59,15 @@ export function EvidenceDrawer({
       ),
     enabled: isRemote,
   });
-  const title = metric
-    ? metric.replaceAll(".", " / ")
-    : localCard?.title ||
-      localComponent?.name ||
-      (episode ? `${episode.subsystem} ${episode.event_number}` : id) ||
-      "Evidence";
+  const title =
+    id === "system:n1"
+      ? "N-1 capacity headroom"
+      : metric
+        ? metric.replaceAll(".", " / ")
+        : localCard?.title ||
+          localComponent?.name ||
+          (episode ? `${episode.subsystem} ${episode.event_number}` : id) ||
+          "Evidence";
   return (
     <Dialog
       open={!!id}

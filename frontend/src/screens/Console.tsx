@@ -223,6 +223,14 @@ function ServiceHealth({ inspect, navigate }: Props) {
           const c = health?.components.find((c) => c.id === `svc:${s}`);
           const sc = s === "atm" ? "ATM-AUTH" : "POS-AUTH";
           const status = c?.state || "unknown";
+          const tone =
+            status === "ok"
+              ? "ok"
+              : status === "critical" || status === "down"
+                ? "crit"
+                : status === "unknown"
+                  ? "neutral"
+                  : "warn";
           return (
             <button
               key={s}
@@ -237,7 +245,9 @@ function ServiceHealth({ inspect, navigate }: Props) {
                     ? "healthy"
                     : status === "unknown"
                       ? "unknown"
-                      : "attention",
+                      : tone === "crit"
+                        ? "critical"
+                        : "attention",
                 )}
               >
                 {status === "ok" ? (
@@ -271,10 +281,10 @@ function ServiceHealth({ inspect, navigate }: Props) {
               <span
                 className={cn(
                   "service-state-label",
-                  status === "ok" ? "ok-text" : "warn-text",
+                  tone === "neutral" ? "muted" : `${tone}-text`,
                 )}
               >
-                <i className={cn("dot", status === "ok" ? "ok" : "warn")} />
+                <i className={cn("dot", tone)} />
                 {status === "ok" ? "Normal" : human(status)}
               </span>
               <span className="service-response">
@@ -423,7 +433,7 @@ function SystemResources({
           "headroom-note",
           health?.n1.safe ? "ok-text" : "warn-text",
         )}
-        onClick={() => inspect("concept:n1-headroom")}
+        onClick={() => inspect("system:n1")}
       >
         <CircleAlert size={13} />
         <span>{health?.n1.text || "Waiting for N-1 analysis…"}</span>
@@ -925,11 +935,16 @@ function DecisionPreview({
   inspect: Inspect;
 }) {
   const recommended = card.body.options.find((o) => o.recommended);
-  const steps = recommended?.steps || [];
+  const steps = recommended?.steps.length
+    ? recommended.steps
+    : (recommended?.includes || []).flatMap(
+        (id) =>
+          card.body.options.find((option) => option.id === id)?.steps || [],
+      );
   const expert = cards.find((c) => c.type === "expert") as
     Schema<"ExpertCard"> | undefined;
   return (
-    <section className="recovery-preview">
+    <section className="recovery-preview" aria-label="Recovery plan preview">
       <div className="investigation-status">
         <Check size={15} /> Recovery options ready{" "}
         <button onClick={() => navigate("/incidents")}>
@@ -948,20 +963,32 @@ function DecisionPreview({
       <ol className="recovery-steps">
         {steps.map((step, i) => (
           <li key={`${step.catalog_id}:${i}`}>
-            <span>{i + 1}</span>
-            <div>
-              <code>{step.rendered}</code>
-              <small>
-                {card.body.options.find(
-                  (o) =>
-                    o.steps.length === 1 &&
-                    o.steps[0].catalog_id === step.catalog_id,
-                )?.required_approvers === 2
-                  ? "Two distinct approvers required"
-                  : `${step.tier} · review before execution`}
-              </small>
-            </div>
-            <ChevronRight size={14} />
+            <button
+              className="plan-step-link"
+              title={step.rendered}
+              onClick={() => navigate("/incidents")}
+            >
+              <span className="step-index">{i + 1}</span>
+              <div>
+                <strong>
+                  {card.body.options.find(
+                    (o) =>
+                      o.steps.length === 1 &&
+                      o.steps[0].catalog_id === step.catalog_id,
+                  )?.label || step.rendered}
+                </strong>
+                <small>
+                  {card.body.options.find(
+                    (o) =>
+                      o.steps.length === 1 &&
+                      o.steps[0].catalog_id === step.catalog_id,
+                  )?.required_approvers === 2
+                    ? "Two distinct approvers required"
+                    : `${step.tier} · review before execution`}
+                </small>
+              </div>
+              <ChevronRight size={14} />
+            </button>
           </li>
         ))}
       </ol>

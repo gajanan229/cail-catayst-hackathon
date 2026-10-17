@@ -120,7 +120,8 @@ export function TerminalPane() {
         const line = buffer.trim();
         buffer = "";
         terminal.write("\r\n");
-        if (line) void mutate("/terminal/input", { line }).catch(() => {});
+        if (line && useConsole.getState().connected)
+          void mutate("/terminal/input", { line }).catch(() => {});
         return;
       }
       if (data === "\x7f") {

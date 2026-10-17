@@ -120,7 +120,7 @@ export function App() {
         </div>
         <button
           className="topbar-health"
-          onClick={() => setInspect("concept:n1-headroom")}
+          onClick={() => setInspect("system:n1")}
           title={health?.n1.text}
         >
           <TriangleAlert size={13} />

@@ -19,6 +19,8 @@ describe("realtime continuity", () => {
       series: {},
       values: {},
       terminal: [],
+      incidents: [],
+      threadId: null,
     }),
   );
   it("replaces complete cards and ignores duplicate replay frames", () => {
@@ -81,5 +83,39 @@ describe("realtime continuity", () => {
         .ledger.find((e) => e.key === promotion.payload.entry.key)
         ?.eligible_for,
     ).toBe("L2");
+  });
+  it("keeps a manual command confirmation in focus when an incident status refreshes", () => {
+    useConsole.setState({ threadId: "thr_console" });
+    useConsole
+      .getState()
+      .ingest(event("incident.upsert", { id: "inc_one", thread_id: null }, 1));
+    expect(useConsole.getState().threadId).toBe("thr_console");
+    useConsole
+      .getState()
+      .ingest(
+        event(
+          "incident.upsert",
+          { id: "inc_one", thread_id: "thr_incident" },
+          2,
+        ),
+      );
+    expect(useConsole.getState().threadId).toBe("thr_incident");
+    useConsole.setState({ threadId: "thr_manual" });
+    useConsole
+      .getState()
+      .ingest(
+        event(
+          "incident.upsert",
+          { id: "inc_one", thread_id: "thr_incident", status: "mitigating" },
+          3,
+        ),
+      );
+    expect(useConsole.getState().threadId).toBe("thr_manual");
+    useConsole
+      .getState()
+      .ingest(
+        event("incident.upsert", { id: "inc_two", thread_id: "thr_new" }, 4),
+      );
+    expect(useConsole.getState().threadId).toBe("thr_new");
   });
 });
