@@ -1,0 +1,10 @@
+{
+  "valid": false,
+  "errors": [
+    "NUMSTATIC 40 exceeds MAXSERVERS 32 (PATHWAY 2049, NUMSTATIC EXCEEDS MAXSERVERS)"
+  ],
+  "rendered": "PATHCOM $PM1; ALTER SERVER ATM-AUTH, NUMSTATIC 40",
+  "tier": "T2",
+  "policy": null,
+  "undo": null
+}

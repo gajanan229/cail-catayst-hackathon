@@ -1,0 +1,27 @@
+{
+  "topic": "sim",
+  "seq": 2300,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:04Z",
+  "type": "sim.state",
+  "payload": {
+    "scenario": "S1",
+    "scenario_name": "CPU loss at Black Friday peak",
+    "profile": "demo",
+    "seed": 42,
+    "sim_ts": "2026-11-27T11:52:04Z",
+    "speed": 1,
+    "paused": false,
+    "running": true,
+    "active_faults": [
+      {
+        "fault": "cpu_halt",
+        "params": {
+          "cpu": 3
+        },
+        "injected_sim_ts": "2026-11-27T11:52:04Z"
+      }
+    ],
+    "calendar": "black_friday"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "topic": "terminal",
+  "seq": 2323,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:10Z",
+  "type": "terminal.system",
+  "payload": {
+    "text": "*** Not available in the Baton simulator (catalog commands only)"
+  }
+}

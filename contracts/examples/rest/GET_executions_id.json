@@ -1,0 +1,27 @@
+{
+  "id": "exe_01JDXK7R2S3T4V5W6X7Y8Z9A0B",
+  "step_id": "stp_01JDXK5N9P0Q1R2S3T4V5W6X7Y",
+  "catalog_id": "tmfcom.status_audittrail",
+  "params": {},
+  "rendered": "TMFCOM; STATUS AUDITTRAIL",
+  "approved_by": [
+    "u_priya"
+  ],
+  "auto": false,
+  "actor": "u_priya",
+  "status": "done",
+  "started_at": "2026-10-17T07:31:02.511Z",
+  "ended_at": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:54:10Z",
+  "raw_text": "$SYSTEM STARTUP 16> TMFCOM; STATUS AUDITTRAIL\nTRAIL  FILE-ID   FILL-%  OVERFLOW-%  BEGIN-TRANS-DISABLE-%  DUMPS\nMAT    AA000041    31.2        80.0                   90.0  ENABLED",
+  "facts": {
+    "trail": "MAT",
+    "fill_pct": 31.2,
+    "overflow_pct": 80.0,
+    "btd_pct": 90.0,
+    "dumps": "ENABLED"
+  },
+  "parse_confidence": 1.0,
+  "undo_entry_id": null,
+  "summary": "Audit trail is 31% full, well below the 80% overflow threshold: TMF is not under pressure."
+}

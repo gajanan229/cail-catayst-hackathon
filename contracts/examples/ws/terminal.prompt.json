@@ -1,0 +1,10 @@
+{
+  "topic": "terminal",
+  "seq": 2322,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:10Z",
+  "type": "terminal.prompt",
+  "payload": {
+    "text": "$SYSTEM STARTUP 15> "
+  }
+}

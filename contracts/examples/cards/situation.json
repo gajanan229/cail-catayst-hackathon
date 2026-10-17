@@ -1,0 +1,44 @@
+{
+  "id": "card_01JDXK3N1P2Q3R4S5T6V7W8X9Y",
+  "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "status": "info",
+  "title": "CPU 3 down; ATM latency rising",
+  "citations": [],
+  "actions": [
+    "investigate",
+    "open_incident_room"
+  ],
+  "source": null,
+  "created_at": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "seq": 1,
+  "type": "situation",
+  "body": {
+    "situation_id": "sit_01JDXK3M4H5J6K7M8N9P0Q1R2S",
+    "severity": 5,
+    "components": [
+      "cpu:3",
+      "cpu:5",
+      "proc:$PM1",
+      "vol:$DATA02",
+      "sc:ATM-AUTH",
+      "svc:atm"
+    ],
+    "services": [
+      "svc:atm"
+    ],
+    "counts": {
+      "raw_events": 612,
+      "episodes": 7,
+      "signals": 4
+    },
+    "collapse_text": "612 events → 1 situation",
+    "template": "cpu_loss_cascade",
+    "first_at": "2026-11-27T11:52:04Z",
+    "age_s": 37,
+    "suggested_playbooks": [
+      "PB-CPU-LOSS-PEAK"
+    ]
+  }
+}

@@ -1,0 +1,3330 @@
+{
+  "$defs": {
+    "Autonomy": {
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "enum": [
+            "L0",
+            "L1",
+            "L2",
+            "L3",
+            "system"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "progress": {
+          "title": "Progress",
+          "type": "string"
+        },
+        "granted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Granted By"
+        }
+      },
+      "required": [
+        "level",
+        "key",
+        "progress",
+        "granted_by"
+      ],
+      "title": "Autonomy",
+      "type": "object"
+    },
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Knowledge item ID, e.g. 'opmsg:PATHWAY:1034', 'cmdref:tmfcom.status_audittrail', 'claim:C-001'",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "hpe_manual",
+            "command_ref",
+            "concept",
+            "claim",
+            "playbook",
+            "incident",
+            "site",
+            "glossary",
+            "evidence"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "kind"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "ClaimReviewBody": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "structured": {
+          "additionalProperties": true,
+          "title": "Structured",
+          "type": "object"
+        },
+        "scope": {
+          "additionalProperties": true,
+          "title": "Scope",
+          "type": "object"
+        },
+        "author": {
+          "title": "Author",
+          "type": "string"
+        },
+        "assigned_reviewer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Assigned Reviewer"
+        },
+        "source": {
+          "additionalProperties": true,
+          "title": "Source",
+          "type": "object"
+        }
+      },
+      "required": [
+        "claim_id",
+        "statement",
+        "structured",
+        "scope",
+        "author",
+        "assigned_reviewer",
+        "source"
+      ],
+      "title": "ClaimReviewBody",
+      "type": "object"
+    },
+    "ClaimReviewCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "claim_review",
+          "default": "claim_review",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/ClaimReviewBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "ClaimReviewCard",
+      "type": "object"
+    },
+    "CommandBody": {
+      "additionalProperties": false,
+      "properties": {
+        "step_id": {
+          "title": "Step Id",
+          "type": "string"
+        },
+        "catalog_id": {
+          "title": "Catalog Id",
+          "type": "string"
+        },
+        "interpreter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Interpreter"
+        },
+        "rendered": {
+          "title": "Rendered",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Params",
+          "type": "object"
+        },
+        "purpose": {
+          "title": "Purpose",
+          "type": "string"
+        },
+        "why_now": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Why Now"
+        },
+        "expected": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected"
+        },
+        "risks": {
+          "title": "Risks",
+          "type": "string"
+        },
+        "tier": {
+          "enum": [
+            "T0",
+            "T1",
+            "T2",
+            "T3"
+          ],
+          "title": "Tier",
+          "type": "string"
+        },
+        "internal": {
+          "default": false,
+          "description": "Baton check: not typed into the terminal",
+          "title": "Internal",
+          "type": "boolean"
+        },
+        "autonomy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Autonomy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "policy": {
+          "$ref": "#/$defs/PolicyDecision"
+        },
+        "undo": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UndoSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "approval_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Approval Id"
+        },
+        "approval_progress": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approval Progress"
+        },
+        "approvers": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Approvers",
+          "type": "array"
+        },
+        "execution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommandExecution"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "validation_errors": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Validation Errors",
+          "type": "array"
+        }
+      },
+      "required": [
+        "step_id",
+        "catalog_id",
+        "interpreter",
+        "rendered",
+        "purpose",
+        "risks",
+        "tier",
+        "autonomy",
+        "policy",
+        "undo",
+        "approval_id",
+        "execution"
+      ],
+      "title": "CommandBody",
+      "type": "object"
+    },
+    "CommandCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "command",
+          "default": "command",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/CommandBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "CommandCard",
+      "type": "object"
+    },
+    "CommandExecution": {
+      "additionalProperties": false,
+      "properties": {
+        "exec_id": {
+          "title": "Exec Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "running",
+            "done",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Duration Ms"
+        },
+        "raw_output": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Raw Output"
+        },
+        "facts": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Facts"
+        },
+        "facts_table": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/FactsRow"
+          },
+          "title": "Facts Table",
+          "type": "array"
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Summary"
+        },
+        "summary_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Summary Source"
+        },
+        "approved_by": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Approved By",
+          "type": "array"
+        },
+        "auto": {
+          "default": false,
+          "title": "Auto",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "exec_id",
+        "status",
+        "duration_ms",
+        "raw_output",
+        "facts"
+      ],
+      "title": "CommandExecution",
+      "type": "object"
+    },
+    "DecisionBody": {
+      "additionalProperties": false,
+      "properties": {
+        "approval_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Set once options have been selected and approvals created",
+          "title": "Approval Id"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/DecisionOption"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "selected": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Selected",
+          "type": "array"
+        }
+      },
+      "required": [
+        "options"
+      ],
+      "title": "DecisionBody",
+      "type": "object"
+    },
+    "DecisionCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "decision",
+          "default": "decision",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/DecisionBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "DecisionCard",
+      "type": "object"
+    },
+    "DecisionOption": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "steps": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OptionStep"
+          },
+          "title": "Steps",
+          "type": "array"
+        },
+        "tier": {
+          "anyOf": [
+            {
+              "enum": [
+                "T0",
+                "T1",
+                "T2",
+                "T3"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tier"
+        },
+        "required_approvers": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Approvers"
+        },
+        "recommender": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Recommender"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "expected_effect": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Effect"
+        },
+        "risks": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Risks"
+        },
+        "prediction": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prediction"
+        },
+        "recommended": {
+          "default": false,
+          "title": "Recommended",
+          "type": "boolean"
+        },
+        "blocked": {
+          "default": false,
+          "title": "Blocked",
+          "type": "boolean"
+        },
+        "block_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Block Reason"
+        },
+        "escalation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Escalation"
+        },
+        "includes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Includes",
+          "type": "array"
+        },
+        "approval_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approval Id"
+        },
+        "status": {
+          "default": "available",
+          "enum": [
+            "available",
+            "selected",
+            "awaiting_approval",
+            "partially_approved",
+            "approved",
+            "executed",
+            "rejected",
+            "blocked"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "DecisionOption",
+      "type": "object"
+    },
+    "EscalationBody": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "contact": {
+          "title": "Contact",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "evidence_pack": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Pack",
+          "type": "array"
+        }
+      },
+      "required": [
+        "reason",
+        "contact",
+        "summary"
+      ],
+      "title": "EscalationBody",
+      "type": "object"
+    },
+    "EscalationCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "escalation",
+          "default": "escalation",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/EscalationBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "EscalationCard",
+      "type": "object"
+    },
+    "EvidenceBody": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "description": "[{id, type: metric|event|episode|output_fact|knowledge|site_fact, label, source, preview}]",
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "EvidenceBody",
+      "type": "object"
+    },
+    "EvidenceCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "evidence",
+          "default": "evidence",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/EvidenceBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "EvidenceCard",
+      "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "label"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "ExpertBody": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "playbook",
+            "claim"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "integer"
+        },
+        "author": {
+          "$ref": "#/$defs/PersonRef"
+        },
+        "verified_by": {
+          "items": {
+            "$ref": "#/$defs/PersonRef"
+          },
+          "title": "Verified By",
+          "type": "array"
+        },
+        "last_validated": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Last Validated"
+        },
+        "tip": {
+          "title": "Tip",
+          "type": "string"
+        },
+        "steps": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Steps",
+          "type": "array"
+        },
+        "claim_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Claim Ids",
+          "type": "array"
+        },
+        "claims": {
+          "default": [],
+          "description": "[{id, statement, author, verified_by}]",
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Claims",
+          "type": "array"
+        },
+        "synthetic": {
+          "default": true,
+          "title": "Synthetic",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "title",
+        "version",
+        "author",
+        "verified_by",
+        "last_validated",
+        "tip"
+      ],
+      "title": "ExpertBody",
+      "type": "object"
+    },
+    "ExpertCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "expert",
+          "default": "expert",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/ExpertBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "ExpertCard",
+      "type": "object"
+    },
+    "FactsRow": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "title": "FactsRow",
+      "type": "object"
+    },
+    "HypothesesBody": {
+      "additionalProperties": false,
+      "properties": {
+        "round": {
+          "title": "Round",
+          "type": "integer"
+        },
+        "stop_rule": {
+          "$ref": "#/$defs/StopRule"
+        },
+        "hypotheses": {
+          "items": {
+            "$ref": "#/$defs/Hypothesis"
+          },
+          "title": "Hypotheses",
+          "type": "array"
+        },
+        "narrative": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Narrative"
+        },
+        "narrative_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Narrative Source"
+        }
+      },
+      "required": [
+        "round",
+        "stop_rule",
+        "hypotheses"
+      ],
+      "title": "HypothesesBody",
+      "type": "object"
+    },
+    "HypothesesCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "hypotheses",
+          "default": "hypotheses",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/HypothesesBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "HypothesesCard",
+      "type": "object"
+    },
+    "Hypothesis": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "p": {
+          "title": "P",
+          "type": "number"
+        },
+        "delta": {
+          "title": "Delta",
+          "type": "number"
+        },
+        "for": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "title": "For",
+          "type": "array"
+        },
+        "against": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "title": "Against",
+          "type": "array"
+        },
+        "would_change_mind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Would Change Mind"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "p",
+        "delta"
+      ],
+      "title": "Hypothesis",
+      "type": "object"
+    },
+    "OptionStep": {
+      "additionalProperties": false,
+      "properties": {
+        "catalog_id": {
+          "title": "Catalog Id",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "rendered": {
+          "title": "Rendered",
+          "type": "string"
+        },
+        "tier": {
+          "enum": [
+            "T0",
+            "T1",
+            "T2",
+            "T3"
+          ],
+          "title": "Tier",
+          "type": "string"
+        },
+        "undo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Undo"
+        }
+      },
+      "required": [
+        "catalog_id",
+        "params",
+        "rendered",
+        "tier"
+      ],
+      "title": "OptionStep",
+      "type": "object"
+    },
+    "PersonRef": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "PersonRef",
+      "type": "object"
+    },
+    "PlanBody": {
+      "additionalProperties": false,
+      "properties": {
+        "request": {
+          "title": "Request",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/PlanStepItem"
+          },
+          "title": "Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "request",
+        "rationale",
+        "steps"
+      ],
+      "title": "PlanBody",
+      "type": "object"
+    },
+    "PlanCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "plan",
+          "default": "plan",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/PlanBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "PlanCard",
+      "type": "object"
+    },
+    "PlanStepItem": {
+      "additionalProperties": false,
+      "properties": {
+        "step_id": {
+          "title": "Step Id",
+          "type": "string"
+        },
+        "catalog_id": {
+          "title": "Catalog Id",
+          "type": "string"
+        },
+        "rendered": {
+          "title": "Rendered",
+          "type": "string"
+        },
+        "tier": {
+          "enum": [
+            "T0",
+            "T1",
+            "T2",
+            "T3"
+          ],
+          "title": "Tier",
+          "type": "string"
+        },
+        "parallel_group": {
+          "default": 0,
+          "title": "Parallel Group",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "card_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Card Id"
+        }
+      },
+      "required": [
+        "step_id",
+        "catalog_id",
+        "rendered",
+        "tier",
+        "status"
+      ],
+      "title": "PlanStepItem",
+      "type": "object"
+    },
+    "PolicyDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "effect": {
+          "enum": [
+            "allow_auto",
+            "require_approval",
+            "deny"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "required_approvers": {
+          "title": "Required Approvers",
+          "type": "integer"
+        },
+        "required_roles": {
+          "default": [],
+          "items": {
+            "enum": [
+              "operator",
+              "senior",
+              "expert",
+              "steward"
+            ],
+            "type": "string"
+          },
+          "title": "Required Roles",
+          "type": "array"
+        },
+        "at_least_one_of": {
+          "default": [],
+          "items": {
+            "enum": [
+              "operator",
+              "senior",
+              "expert",
+              "steward"
+            ],
+            "type": "string"
+          },
+          "title": "At Least One Of",
+          "type": "array"
+        },
+        "rule_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rule Ids",
+          "type": "array"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "escalation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Escalation"
+        }
+      },
+      "required": [
+        "effect",
+        "required_approvers",
+        "rule_ids",
+        "explanation"
+      ],
+      "title": "PolicyDecision",
+      "type": "object"
+    },
+    "PostmortemBody": {
+      "additionalProperties": false,
+      "properties": {
+        "incident_id": {
+          "title": "Incident Id",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "impact": {
+          "title": "Impact",
+          "type": "string"
+        },
+        "timeline_md": {
+          "title": "Timeline Md",
+          "type": "string"
+        },
+        "cause": {
+          "title": "Cause",
+          "type": "string"
+        },
+        "actions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "follow_ups": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Follow Ups",
+          "type": "array"
+        }
+      },
+      "required": [
+        "incident_id",
+        "summary",
+        "impact",
+        "timeline_md",
+        "cause",
+        "actions",
+        "follow_ups"
+      ],
+      "title": "PostmortemBody",
+      "type": "object"
+    },
+    "PostmortemCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "postmortem",
+          "default": "postmortem",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/PostmortemBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "PostmortemCard",
+      "type": "object"
+    },
+    "Recommender": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "playbook",
+            "claim",
+            "library"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "author": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "verified_by": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Verified By",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ],
+      "title": "Recommender",
+      "type": "object"
+    },
+    "SituationBody": {
+      "additionalProperties": false,
+      "properties": {
+        "situation_id": {
+          "title": "Situation Id",
+          "type": "string"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "integer"
+        },
+        "components": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "services": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Services",
+          "type": "array"
+        },
+        "counts": {
+          "$ref": "#/$defs/SituationCounts"
+        },
+        "collapse_text": {
+          "description": "e.g. '612 events → 1 situation'",
+          "title": "Collapse Text",
+          "type": "string"
+        },
+        "template": {
+          "title": "Template",
+          "type": "string"
+        },
+        "first_at": {
+          "title": "First At",
+          "type": "string"
+        },
+        "age_s": {
+          "title": "Age S",
+          "type": "integer"
+        },
+        "suggested_playbooks": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Suggested Playbooks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "situation_id",
+        "severity",
+        "components",
+        "services",
+        "counts",
+        "collapse_text",
+        "template",
+        "first_at",
+        "age_s"
+      ],
+      "title": "SituationBody",
+      "type": "object"
+    },
+    "SituationCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "situation",
+          "default": "situation",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/SituationBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "SituationCard",
+      "type": "object"
+    },
+    "SituationCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "raw_events": {
+          "title": "Raw Events",
+          "type": "integer"
+        },
+        "episodes": {
+          "title": "Episodes",
+          "type": "integer"
+        },
+        "signals": {
+          "title": "Signals",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "raw_events",
+        "episodes",
+        "signals"
+      ],
+      "title": "SituationCounts",
+      "type": "object"
+    },
+    "StopRule": {
+      "additionalProperties": false,
+      "properties": {
+        "met": {
+          "title": "Met",
+          "type": "boolean"
+        },
+        "top": {
+          "title": "Top",
+          "type": "number"
+        },
+        "margin": {
+          "title": "Margin",
+          "type": "number"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "met",
+        "top",
+        "margin"
+      ],
+      "title": "StopRule",
+      "type": "object"
+    },
+    "TextBody": {
+      "additionalProperties": false,
+      "properties": {
+        "markdown": {
+          "title": "Markdown",
+          "type": "string"
+        },
+        "sentences": {
+          "default": [],
+          "description": "[{text, citation_ids[]}] when the answer is sentence-cited",
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Sentences",
+          "type": "array"
+        },
+        "unknown": {
+          "default": false,
+          "title": "Unknown",
+          "type": "boolean"
+        },
+        "ask_whom": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ask Whom"
+        },
+        "link": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. {label: 'Open Incident Room', incident_id: 'inc_...'}",
+          "title": "Link"
+        },
+        "alternatives": {
+          "default": [],
+          "description": "Nearest safe catalog alternatives for 'not in catalog'",
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "title": "TextBody",
+      "type": "object"
+    },
+    "TextCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "text",
+          "default": "text",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/TextBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "TextCard",
+      "type": "object"
+    },
+    "UndoSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "catalog_id": {
+          "title": "Catalog Id",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "rendered": {
+          "title": "Rendered",
+          "type": "string"
+        }
+      },
+      "required": [
+        "catalog_id",
+        "params",
+        "rendered"
+      ],
+      "title": "UndoSpec",
+      "type": "object"
+    },
+    "VerificationBody": {
+      "additionalProperties": false,
+      "properties": {
+        "failure_mode": {
+          "title": "Failure Mode",
+          "type": "string"
+        },
+        "criteria": {
+          "items": {
+            "$ref": "#/$defs/VerificationCriterion"
+          },
+          "title": "Criteria",
+          "type": "array"
+        },
+        "window_s": {
+          "title": "Window S",
+          "type": "integer"
+        },
+        "window_start_sim_ts": {
+          "title": "Window Start Sim Ts",
+          "type": "string"
+        },
+        "window_end_sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Window End Sim Ts"
+        },
+        "result": {
+          "enum": [
+            "pending",
+            "recovered",
+            "not_recovered",
+            "regression"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "propose_undo": {
+          "default": [],
+          "description": "Undo entry IDs to offer on regression",
+          "items": {
+            "type": "string"
+          },
+          "title": "Propose Undo",
+          "type": "array"
+        }
+      },
+      "required": [
+        "failure_mode",
+        "criteria",
+        "window_s",
+        "window_start_sim_ts",
+        "window_end_sim_ts",
+        "result",
+        "summary"
+      ],
+      "title": "VerificationBody",
+      "type": "object"
+    },
+    "VerificationCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thread Id"
+        },
+        "incident_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Incident Id"
+        },
+        "status": {
+          "enum": [
+            "info",
+            "proposed",
+            "awaiting_approval",
+            "partially_approved",
+            "auto_running",
+            "running",
+            "done",
+            "failed",
+            "blocked",
+            "rejected",
+            "expired",
+            "resolved"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "enum": [
+              "approve",
+              "edit",
+              "reject",
+              "undo",
+              "investigate",
+              "open_incident",
+              "approve_selected",
+              "approve_all_readonly",
+              "propose_undo",
+              "copy_summary",
+              "confirm",
+              "edit_confirm",
+              "open_source",
+              "open_incident_room"
+            ],
+            "type": "string"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model ID, 'replay', 'fallback', or null when no model was used",
+          "title": "Source"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "sim_ts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sim Ts"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Order within the thread; cards render sorted by seq",
+          "title": "Seq",
+          "type": "integer"
+        },
+        "type": {
+          "const": "verification",
+          "default": "verification",
+          "title": "Type",
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/VerificationBody"
+        }
+      },
+      "required": [
+        "id",
+        "thread_id",
+        "status",
+        "title",
+        "created_at",
+        "sim_ts",
+        "body"
+      ],
+      "title": "VerificationCard",
+      "type": "object"
+    },
+    "VerificationCriterion": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "met": {
+          "title": "Met",
+          "type": "boolean"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "text",
+        "met"
+      ],
+      "title": "VerificationCriterion",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "claim_review": "#/$defs/ClaimReviewCard",
+      "command": "#/$defs/CommandCard",
+      "decision": "#/$defs/DecisionCard",
+      "escalation": "#/$defs/EscalationCard",
+      "evidence": "#/$defs/EvidenceCard",
+      "expert": "#/$defs/ExpertCard",
+      "hypotheses": "#/$defs/HypothesesCard",
+      "plan": "#/$defs/PlanCard",
+      "postmortem": "#/$defs/PostmortemCard",
+      "situation": "#/$defs/SituationCard",
+      "text": "#/$defs/TextCard",
+      "verification": "#/$defs/VerificationCard"
+    },
+    "propertyName": "type"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/TextCard"
+    },
+    {
+      "$ref": "#/$defs/SituationCard"
+    },
+    {
+      "$ref": "#/$defs/CommandCard"
+    },
+    {
+      "$ref": "#/$defs/PlanCard"
+    },
+    {
+      "$ref": "#/$defs/HypothesesCard"
+    },
+    {
+      "$ref": "#/$defs/EvidenceCard"
+    },
+    {
+      "$ref": "#/$defs/ExpertCard"
+    },
+    {
+      "$ref": "#/$defs/DecisionCard"
+    },
+    {
+      "$ref": "#/$defs/VerificationCard"
+    },
+    {
+      "$ref": "#/$defs/EscalationCard"
+    },
+    {
+      "$ref": "#/$defs/PostmortemCard"
+    },
+    {
+      "$ref": "#/$defs/ClaimReviewCard"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "topic": "events",
+  "seq": 2399,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:53:05Z",
+  "type": "events.rate",
+  "payload": {
+    "per_min": 351.0,
+    "raw_total": 2847,
+    "episodes_open": 19,
+    "situations_open": 1
+  }
+}

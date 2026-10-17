@@ -1,0 +1,28 @@
+{
+  "topic": "incidents",
+  "seq": 2313,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:05Z",
+  "type": "timeline.append",
+  "payload": {
+    "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+    "item": {
+      "id": "tli_01JDXK3P",
+      "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+      "sim_ts": "2026-11-27T11:52:05Z",
+      "wall_ts": "2026-10-17T07:31:02.511Z",
+      "kind": "situation",
+      "actor": {
+        "type": "system",
+        "id": "system",
+        "name": "Baton pipeline"
+      },
+      "title": "Situation opened: CPU 3 down; ATM latency rising",
+      "detail": "612 events → 1 situation",
+      "ref": {
+        "type": "situation",
+        "id": "sit_01JDXK3M4H5J6K7M8N9P0Q1R2S"
+      }
+    }
+  }
+}

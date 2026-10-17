@@ -1,0 +1,15 @@
+{
+  "topic": "thread:thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "seq": 2450,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:54:09Z",
+  "type": "interrupt.resolved",
+  "payload": {
+    "interrupt_id": "int_01JDXK5R",
+    "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+    "response": {
+      "approval_id": "apr_01JDXK5Q1R2S3T4V5W6X7Y8Z9A",
+      "status": "approved"
+    }
+  }
+}

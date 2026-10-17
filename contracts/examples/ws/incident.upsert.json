@@ -1,0 +1,31 @@
+{
+  "topic": "incidents",
+  "seq": 2312,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:05Z",
+  "type": "incident.upsert",
+  "payload": {
+    "id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+    "display_id": "INC-0001",
+    "title": "CPU 3 down; ATM latency rising",
+    "severity": 5,
+    "status": "open",
+    "situation_id": "sit_01JDXK3M4H5J6K7M8N9P0Q1R2S",
+    "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+    "opened_at": "2026-11-27T11:52:05Z",
+    "resolved_at": null,
+    "impact": {
+      "service": "svc:atm",
+      "p95_ms_peak": 912.0,
+      "timeout_pct_peak": 3.1
+    },
+    "hypotheses_top": [
+      {
+        "id": "cpu_capacity_loss",
+        "label": "Capacity loss after CPU 3 failure",
+        "p": 0.94
+      }
+    ],
+    "undo_stack": []
+  }
+}

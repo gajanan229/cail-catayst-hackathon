@@ -1,0 +1,17 @@
+{
+  "topic": "thread:thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "seq": 2332,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "type": "interrupt.raised",
+  "payload": {
+    "id": "int_01JDXK5R",
+    "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+    "run_id": "run_01JDXK3M8A9B0C1D2E3F4G5H6J",
+    "kind": "approval",
+    "approval_id": "apr_01JDXK5Q1R2S3T4V5W6X7Y8Z9A",
+    "prompt": "Approve TMFCOM; STATUS AUDITTRAIL?",
+    "raised_at": "2026-10-17T07:31:02.511Z",
+    "resolved": false
+  }
+}

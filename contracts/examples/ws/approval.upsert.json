@@ -1,0 +1,45 @@
+{
+  "topic": "approvals",
+  "seq": 2333,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "type": "approval.upsert",
+  "payload": {
+    "id": "apr_01JDXK5Q1R2S3T4V5W6X7Y8Z9A",
+    "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+    "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+    "card_id": "card_01JDXK5P0Q1R2S3T4V5W6X7Y8Z",
+    "step_ids": [
+      "stp_01JDXK5N9P0Q1R2S3T4V5W6X7Y"
+    ],
+    "option_ids": [],
+    "rendered": [
+      "TMFCOM; STATUS AUDITTRAIL"
+    ],
+    "tier": "T0",
+    "required": {
+      "count": 1,
+      "roles": [
+        "operator",
+        "senior",
+        "expert"
+      ],
+      "at_least_one_of": []
+    },
+    "decisions": [],
+    "status": "pending",
+    "expires_sim_ts": "2026-11-27T12:02:41Z",
+    "policy": {
+      "effect": "require_approval",
+      "required_approvers": 1,
+      "required_roles": [],
+      "at_least_one_of": [],
+      "rule_ids": [
+        "t0-default"
+      ],
+      "explanation": "Read-only, but Operator has not yet earned auto-run (19 of 20 clean runs)",
+      "escalation": null
+    },
+    "progress_text": "Needs 1 approval"
+  }
+}

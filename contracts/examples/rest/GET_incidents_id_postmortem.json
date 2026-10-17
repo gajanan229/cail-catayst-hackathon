@@ -1,0 +1,18 @@
+{
+  "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "summary": "CPU 3 on \\TORBANK halted at 11:52:04 during the Black Friday peak. ATM-AUTH lost its servers on CPU 3 and CPU 5 absorbed the $PM1 takeover plus the noon statement batch, pushing ATM p95 to 912 ms.",
+  "impact": "ATM authorization p95 above band for about 6 minutes (peak 912 ms, timeouts peak 3.1%). POS unaffected beyond band.",
+  "timeline_md": "- 11:52:04 CPU 3 down (OMF 103)\n- 11:52:05 Situation opened; INC-0001\n- 11:52:09 Auto checks: meas.cpu_busy, pathcom.status_server\n- 11:54:10 Priya approved TMFCOM; STATUS AUDITTRAIL (31%)\n- 11:56:41 SUSPEND $STMT1 (Priya)\n- 11:57:30 NUMSTATIC 28 (Priya ✓ Sam ✓)\n- 11:59:30 Verified: ATM p95 in band for 60 s",
+  "cause": "Loss of CPU 3 removed 4 ATM-AUTH servers while CPU 5 carried the noon statement batch: capacity loss after a CPU failure.",
+  "actions": [
+    "Suspended $STMT1 (undo: ACTIVATE $STMT1)",
+    "Raised ATM-AUTH NUMSTATIC 20 → 28 (undo: NUMSTATIC 20)"
+  ],
+  "follow_ups": [
+    "After hardware repair, set NUMSTATIC back to 20",
+    "ACTIVATE $STMT1 after 13:00",
+    "Rebalance server classes before the next peak (C-016)"
+  ],
+  "source": "fallback",
+  "created_sim_ts": "2026-11-27T11:59:31Z"
+}

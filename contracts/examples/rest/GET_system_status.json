@@ -1,0 +1,22 @@
+{
+  "system": "\\TORBANK",
+  "sim": {
+    "scenario": "S1",
+    "scenario_name": "CPU loss at Black Friday peak",
+    "profile": "demo",
+    "seed": 42,
+    "sim_ts": "2026-11-27T11:45:00Z",
+    "speed": 4,
+    "paused": false,
+    "running": true,
+    "active_faults": [],
+    "calendar": "black_friday"
+  },
+  "llm_provider": "none",
+  "model_fast": null,
+  "model_strong": null,
+  "replay_mode": "replay",
+  "embeddings": "local",
+  "read_only": false,
+  "contract_version": "1.0.0"
+}

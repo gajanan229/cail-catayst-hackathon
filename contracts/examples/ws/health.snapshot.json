@@ -1,0 +1,225 @@
+{
+  "topic": "health",
+  "seq": 1202,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:45:20Z",
+  "type": "health.snapshot",
+  "payload": {
+    "sim_ts": "2026-11-27T11:45:20Z",
+    "overall": "degraded",
+    "components": [
+      {
+        "id": "cpu:0",
+        "type": "cpu",
+        "name": "CPU 0",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "busy": 48.2
+        }
+      },
+      {
+        "id": "cpu:1",
+        "type": "cpu",
+        "name": "CPU 1",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "busy": 55.4
+        }
+      },
+      {
+        "id": "cpu:2",
+        "type": "cpu",
+        "name": "CPU 2",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "busy": 58.9
+        }
+      },
+      {
+        "id": "cpu:3",
+        "type": "cpu",
+        "name": "CPU 3",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "busy": 60.3
+        }
+      },
+      {
+        "id": "cpu:4",
+        "type": "cpu",
+        "name": "CPU 4",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "busy": 57.1
+        }
+      },
+      {
+        "id": "cpu:5",
+        "type": "cpu",
+        "name": "CPU 5",
+        "state": "ok",
+        "reasons": [
+          {
+            "rule_id": "n1-risk",
+            "text": "Would reach ~96% if CPU 3 is lost",
+            "value": 96.0,
+            "threshold": 90.0
+          }
+        ],
+        "at_risk": true,
+        "metrics": {
+          "busy": 62.0
+        }
+      },
+      {
+        "id": "cpu:6",
+        "type": "cpu",
+        "name": "CPU 6",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "busy": 53.6
+        }
+      },
+      {
+        "id": "cpu:7",
+        "type": "cpu",
+        "name": "CPU 7",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "busy": 46.8
+        }
+      },
+      {
+        "id": "sc:ATM-AUTH",
+        "type": "server_class",
+        "name": "ATM-AUTH",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "running": 24.0,
+          "max": 32.0,
+          "queued": 0.0,
+          "avg_ms": 31.0
+        }
+      },
+      {
+        "id": "sc:POS-AUTH",
+        "type": "server_class",
+        "name": "POS-AUTH",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "running": 30.0,
+          "max": 40.0,
+          "queued": 0.0,
+          "avg_ms": 24.0
+        }
+      },
+      {
+        "id": "sc:BAL-INQ",
+        "type": "server_class",
+        "name": "BAL-INQ",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "running": 8.0,
+          "max": 16.0,
+          "queued": 0.0,
+          "avg_ms": 14.0
+        }
+      },
+      {
+        "id": "sc:CARD-MGMT",
+        "type": "server_class",
+        "name": "CARD-MGMT",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "running": 4.0,
+          "max": 8.0,
+          "queued": 0.0,
+          "avg_ms": 33.0
+        }
+      },
+      {
+        "id": "tmf:mat",
+        "type": "tmf",
+        "name": "TMF audit trail (MAT)",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "fill_pct": 31.0,
+          "overflow_pct": 80.0,
+          "btd_pct": 90.0
+        }
+      },
+      {
+        "id": "svc:atm",
+        "type": "service",
+        "name": "ATM authorization",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "p95_ms": 171.0,
+          "band_low": 137.0,
+          "band_high": 240.0,
+          "target_ms": 250.0,
+          "timeout_pct": 0.05
+        }
+      },
+      {
+        "id": "svc:pos",
+        "type": "service",
+        "name": "POS authorization",
+        "state": "ok",
+        "reasons": [],
+        "at_risk": false,
+        "metrics": {
+          "p95_ms": 158.0,
+          "band_low": 126.0,
+          "band_high": 221.0,
+          "target_ms": 250.0,
+          "timeout_pct": 0.03
+        }
+      }
+    ],
+    "n1": {
+      "safe": false,
+      "worst_lost_cpu": 3,
+      "worst_survivor_cpu": 5,
+      "worst_survivor_busy": 96.0,
+      "threshold": 90.0,
+      "text": "N-1 at risk: losing CPU 3 puts CPU 5 at ~96%",
+      "per_cpu": {
+        "3": {
+          "survivor_cpu": 5.0,
+          "survivor_busy": 96.0
+        },
+        "5": {
+          "survivor_cpu": 3.0,
+          "survivor_busy": 81.0
+        }
+      }
+    }
+  }
+}

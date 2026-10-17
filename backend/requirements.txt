@@ -1,0 +1,21 @@
+# Baton backend (Python 3.12). Install: make setup
+fastapi==0.143.3
+uvicorn[standard]==0.54.0
+pydantic==2.14.1
+langgraph==1.2.16
+langgraph-checkpoint-sqlite==3.1.2
+aiosqlite==0.22.1
+langchain-core==1.6.12
+langchain-nvidia-ai-endpoints==1.5.0
+python-dotenv==1.2.4
+sqlite-vec==0.1.9
+numpy==2.5.4
+PyYAML==6.0.3
+orjson==3.13.0
+structlog==26.1.0
+httpx==0.28.1
+websockets==16.1.1
+pytest==9.1.1
+pytest-asyncio==1.4.0
+# Embeddings (BATON_EMBEDDINGS=local). CPU torch: pip install torch --index-url https://download.pytorch.org/whl/cpu
+sentence-transformers==6.1.0

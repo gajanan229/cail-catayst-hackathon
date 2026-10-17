@@ -1,0 +1,49 @@
+{
+  "query": "1034 link errors ATM",
+  "expanded_terms": [
+    "link",
+    "errors",
+    "atm",
+    "atm-auth"
+  ],
+  "entities": [
+    "1034",
+    "ATM-AUTH"
+  ],
+  "results": [
+    {
+      "id": "opmsg:PATHWAY:1034",
+      "doc_type": "operator_message",
+      "title": "PATHWAY 1034: NO SERVER AVAILABLE FOR REQUESTING TCP",
+      "snippet": "PATHMON cannot grant a link: no server process is available (all linked or at MAXLINKS).",
+      "provenance": "hpe_manual",
+      "source_url": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html",
+      "synthetic": false,
+      "scores": {
+        "bm25_rank": 1,
+        "vector_rank": 2,
+        "fused": 0.0325,
+        "authority": 1.0,
+        "final": 0.0325,
+        "pinned": true
+      }
+    },
+    {
+      "id": "claim:C-003",
+      "doc_type": "claim",
+      "title": "C-003: 1007/1034 bursts on ATM-AUTH at peak",
+      "snippet": "Bursts of 1007 with nested 1034 on ATM-AUTH at peak mean the class is out of servers, not that the link managers are broken.",
+      "provenance": "expert_verified",
+      "source_url": null,
+      "synthetic": true,
+      "scores": {
+        "bm25_rank": 2,
+        "vector_rank": 1,
+        "fused": 0.0325,
+        "authority": 1.2,
+        "final": 0.039,
+        "pinned": false
+      }
+    }
+  ]
+}

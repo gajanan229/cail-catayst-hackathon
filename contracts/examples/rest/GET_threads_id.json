@@ -1,0 +1,414 @@
+{
+  "thread": {
+    "id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+    "mode": "investigate",
+    "actor": "baton",
+    "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+    "title": "INC-0001 · CPU 3 down; ATM latency rising",
+    "status": "waiting",
+    "created_at": "2026-10-17T07:31:02.511Z"
+  },
+  "cards": [
+    {
+      "id": "card_01JDXK3N1P2Q3R4S5T6V7W8X9Y",
+      "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+      "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+      "status": "info",
+      "title": "CPU 3 down; ATM latency rising",
+      "citations": [],
+      "actions": [
+        "investigate",
+        "open_incident_room"
+      ],
+      "source": null,
+      "created_at": "2026-10-17T07:31:02.511Z",
+      "sim_ts": "2026-11-27T11:52:41Z",
+      "seq": 1,
+      "type": "situation",
+      "body": {
+        "situation_id": "sit_01JDXK3M4H5J6K7M8N9P0Q1R2S",
+        "severity": 5,
+        "components": [
+          "cpu:3",
+          "cpu:5",
+          "proc:$PM1",
+          "vol:$DATA02",
+          "sc:ATM-AUTH",
+          "svc:atm"
+        ],
+        "services": [
+          "svc:atm"
+        ],
+        "counts": {
+          "raw_events": 612,
+          "episodes": 7,
+          "signals": 4
+        },
+        "collapse_text": "612 events → 1 situation",
+        "template": "cpu_loss_cascade",
+        "first_at": "2026-11-27T11:52:04Z",
+        "age_s": 37,
+        "suggested_playbooks": [
+          "PB-CPU-LOSS-PEAK"
+        ]
+      }
+    },
+    {
+      "id": "card_01JDXK4G7H8J9K0M1N2P3Q4R5S",
+      "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+      "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+      "status": "info",
+      "title": "Evidence",
+      "citations": [],
+      "actions": [],
+      "source": null,
+      "created_at": "2026-10-17T07:31:02.511Z",
+      "sim_ts": "2026-11-27T11:52:41Z",
+      "seq": 2,
+      "type": "evidence",
+      "body": {
+        "items": [
+          {
+            "id": "ev_01",
+            "type": "metric",
+            "label": "CPU 5 at 97%",
+            "source": "telemetry cpu.5.busy",
+            "preview": {
+              "key": "cpu.5.busy",
+              "value": 97.1
+            }
+          },
+          {
+            "id": "ev_02",
+            "type": "output_fact",
+            "label": "ATM-AUTH lost 4 servers",
+            "source": "pathcom.status_server",
+            "preview": {
+              "running": 20,
+              "before": 24
+            }
+          },
+          {
+            "id": "ev_03",
+            "type": "episode",
+            "label": "1034 link errors ×212",
+            "source": "PATHWAY 1007/1034",
+            "preview": {
+              "text": "*1007* $ZLM5, CAN'T GRANT LINK: *1034* $ZLM5, NO SERVER AVAILABLE FOR REQUESTING TCP"
+            }
+          },
+          {
+            "id": "ev_05",
+            "type": "event",
+            "label": "CPU 3 down (OMF 103)",
+            "source": "EMS",
+            "preview": {
+              "text": "CPU 3, Current State = DOWN, Previous State = UP, Sampling Interval = 1 minutes"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "card_01JDXK4F6G7H8J9K0M1N2P3Q4R",
+      "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+      "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+      "status": "info",
+      "title": "Hypotheses",
+      "citations": [],
+      "actions": [],
+      "source": null,
+      "created_at": "2026-10-17T07:31:02.511Z",
+      "sim_ts": "2026-11-27T11:52:41Z",
+      "seq": 3,
+      "type": "hypotheses",
+      "body": {
+        "round": 2,
+        "stop_rule": {
+          "met": true,
+          "top": 0.94,
+          "margin": 0.92,
+          "reason": "Top ≥ 0.85 and margin ≥ 0.30"
+        },
+        "hypotheses": [
+          {
+            "id": "cpu_capacity_loss",
+            "label": "Capacity loss after CPU 3 failure",
+            "p": 0.94,
+            "delta": 0.4,
+            "for": [
+              {
+                "evidence_id": "ev_01",
+                "label": "CPU 5 at 97%"
+              },
+              {
+                "evidence_id": "ev_02",
+                "label": "ATM-AUTH lost 4 servers"
+              }
+            ],
+            "against": [],
+            "would_change_mind": "ATM-AUTH running at MAXSERVERS with a queue"
+          },
+          {
+            "id": "server_class_starvation",
+            "label": "ATM-AUTH starved at MAXSERVERS",
+            "p": 0.02,
+            "delta": -0.28,
+            "for": [
+              {
+                "evidence_id": "ev_03",
+                "label": "1034 link errors"
+              }
+            ],
+            "against": [
+              {
+                "evidence_id": "ev_04",
+                "label": "20 of 32 running: not at max"
+              }
+            ],
+            "would_change_mind": null
+          },
+          {
+            "id": "tmf_audit_pressure",
+            "label": "TMF audit trail pressure",
+            "p": 0.01,
+            "delta": -0.07,
+            "for": [],
+            "against": [],
+            "would_change_mind": null
+          },
+          {
+            "id": "external_dependency",
+            "label": "Slow external switch or network",
+            "p": 0.01,
+            "delta": -0.02,
+            "for": [],
+            "against": [],
+            "would_change_mind": null
+          },
+          {
+            "id": "runaway_process",
+            "label": "Runaway batch process",
+            "p": 0.01,
+            "delta": -0.03,
+            "for": [],
+            "against": [],
+            "would_change_mind": null
+          },
+          {
+            "id": "other",
+            "label": "Unknown",
+            "p": 0.01,
+            "delta": -0.03,
+            "for": [],
+            "against": [],
+            "would_change_mind": null
+          }
+        ],
+        "narrative": "Leading: capacity loss after CPU 3 failure (0.94) because CPU 5 is at 97% and ATM-AUTH lost 4 servers; ruled down: starvation because 20 of 32 servers are running.",
+        "narrative_source": "fallback"
+      }
+    },
+    {
+      "id": "card_01JDXK4D5E6F7G8H9J0K1M2N3P",
+      "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+      "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+      "status": "done",
+      "title": "ATM-AUTH server status",
+      "citations": [
+        {
+          "id": "cmdref:pathcom.status_server",
+          "label": "Command reference",
+          "kind": "command_ref",
+          "url": null
+        }
+      ],
+      "actions": [],
+      "source": "fallback",
+      "created_at": "2026-10-17T07:31:02.511Z",
+      "sim_ts": "2026-11-27T11:52:41Z",
+      "seq": 4,
+      "type": "command",
+      "body": {
+        "step_id": "stp_01JDXK4C4D5E6F7G8H9J0K1M2N",
+        "catalog_id": "pathcom.status_server",
+        "interpreter": "PATHCOM $PM1",
+        "rendered": "PATHCOM $PM1; STATUS SERVER ATM-AUTH",
+        "params": {
+          "server_class": "ATM-AUTH"
+        },
+        "purpose": "How many ATM-AUTH servers were lost with CPU 3?",
+        "why_now": {
+          "hypothesis_id": "cpu_capacity_loss"
+        },
+        "expected": "Running below 24 if servers died with CPU 3",
+        "risks": "Read-only; negligible load",
+        "tier": "T0",
+        "internal": false,
+        "autonomy": {
+          "level": "L2",
+          "key": "pathcom.status_server|any|operator",
+          "progress": "214 clean runs",
+          "granted_by": "Dave"
+        },
+        "policy": {
+          "effect": "allow_auto",
+          "required_approvers": 0,
+          "required_roles": [],
+          "at_least_one_of": [],
+          "rule_ids": [
+            "t0-ledger"
+          ],
+          "explanation": "Read-only; Operator earned auto-run (L2, granted by Dave)",
+          "escalation": null
+        },
+        "undo": null,
+        "approval_id": null,
+        "approval_progress": null,
+        "approvers": [],
+        "execution": {
+          "exec_id": "exe_01JDXK4E5F6G7H8J9K0M1N2P3Q",
+          "status": "done",
+          "duration_ms": 1140,
+          "raw_output": "$SYSTEM STARTUP 14> PATHCOM $PM1; STATUS SERVER ATM-AUTH\nSERVER     STATE    RUNNING  NUMSTATIC  MAXSERVERS  LINKS  QUEUED  AVG-MS\nATM-AUTH   RUNNING       20         20          32     20     142     846",
+          "facts": {
+            "server_class": "ATM-AUTH",
+            "state": "RUNNING",
+            "running": 20,
+            "numstatic": 20,
+            "maxservers": 32,
+            "links": 20,
+            "queued": 142,
+            "avg_ms": 846
+          },
+          "facts_table": [
+            {
+              "label": "Running",
+              "value": "20 of 32"
+            },
+            {
+              "label": "Queued",
+              "value": "142"
+            },
+            {
+              "label": "Average",
+              "value": "846 ms"
+            }
+          ],
+          "summary": "20 of 32 servers running, 142 queued, average 846 ms",
+          "summary_source": "fallback",
+          "approved_by": [],
+          "auto": true
+        },
+        "validation_errors": []
+      }
+    },
+    {
+      "id": "card_01JDXK5P0Q1R2S3T4V5W6X7Y8Z",
+      "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+      "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+      "status": "awaiting_approval",
+      "title": "TMF audit trail status",
+      "citations": [
+        {
+          "id": "cmdref:tmfcom.status_audittrail",
+          "label": "Command reference",
+          "kind": "command_ref",
+          "url": null
+        },
+        {
+          "id": "claim:C-007",
+          "label": "C-007 · Maria",
+          "kind": "claim",
+          "url": null
+        }
+      ],
+      "actions": [
+        "approve",
+        "edit",
+        "reject"
+      ],
+      "source": null,
+      "created_at": "2026-10-17T07:31:02.511Z",
+      "sim_ts": "2026-11-27T11:52:41Z",
+      "seq": 6,
+      "type": "command",
+      "body": {
+        "step_id": "stp_01JDXK5N9P0Q1R2S3T4V5W6X7Y",
+        "catalog_id": "tmfcom.status_audittrail",
+        "interpreter": "TMFCOM",
+        "rendered": "TMFCOM; STATUS AUDITTRAIL",
+        "params": {},
+        "purpose": "Rule out TMF audit-trail pressure, rare but costly on a peak day",
+        "why_now": {
+          "hypothesis_id": "tmf_audit_pressure",
+          "claim_id": "C-007"
+        },
+        "expected": "Fill well below the 80% overflow threshold",
+        "risks": "Read-only; negligible load",
+        "tier": "T0",
+        "internal": false,
+        "autonomy": {
+          "level": "L1",
+          "key": "tmfcom.status_audittrail|any|operator",
+          "progress": "19/20 clean runs",
+          "granted_by": null
+        },
+        "policy": {
+          "effect": "require_approval",
+          "required_approvers": 1,
+          "required_roles": [],
+          "at_least_one_of": [],
+          "rule_ids": [
+            "t0-default"
+          ],
+          "explanation": "Read-only, but Operator has not yet earned auto-run (19 of 20 clean runs)",
+          "escalation": null
+        },
+        "undo": null,
+        "approval_id": "apr_01JDXK5Q1R2S3T4V5W6X7Y8Z9A",
+        "approval_progress": "Needs 1 approval",
+        "approvers": [],
+        "execution": null,
+        "validation_errors": []
+      }
+    }
+  ],
+  "trace": [
+    {
+      "run_id": "run_01JDXK3M8A9B0C1D2E3F4G5H6J",
+      "step_id": "stp_trace_01JDXK4B",
+      "node": "score",
+      "label": "Score hypotheses",
+      "status": "done",
+      "started_at": "2026-10-17T07:31:02.511Z",
+      "duration_ms": 12,
+      "summary": "Leading: capacity loss (0.54); starvation 0.30",
+      "detail": {
+        "tools": [
+          "diagnosis.score"
+        ],
+        "evidence_ids": [
+          "ev_01",
+          "ev_02"
+        ],
+        "model": null,
+        "prompt_hash": null,
+        "inputs": null,
+        "output": null
+      }
+    }
+  ],
+  "pending_interrupts": [
+    {
+      "id": "int_01JDXK5R",
+      "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+      "run_id": "run_01JDXK3M8A9B0C1D2E3F4G5H6J",
+      "kind": "approval",
+      "approval_id": "apr_01JDXK5Q1R2S3T4V5W6X7Y8Z9A",
+      "prompt": "Approve TMFCOM; STATUS AUDITTRAIL?",
+      "raised_at": "2026-10-17T07:31:02.511Z",
+      "resolved": false
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "card_01JDXK4D5E6F7G8H9J0K1M2N3P",
+  "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "status": "done",
+  "title": "ATM-AUTH server status",
+  "citations": [
+    {
+      "id": "cmdref:pathcom.status_server",
+      "label": "Command reference",
+      "kind": "command_ref",
+      "url": null
+    }
+  ],
+  "actions": [],
+  "source": "fallback",
+  "created_at": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "seq": 4,
+  "type": "command",
+  "body": {
+    "step_id": "stp_01JDXK4C4D5E6F7G8H9J0K1M2N",
+    "catalog_id": "pathcom.status_server",
+    "interpreter": "PATHCOM $PM1",
+    "rendered": "PATHCOM $PM1; STATUS SERVER ATM-AUTH",
+    "params": {
+      "server_class": "ATM-AUTH"
+    },
+    "purpose": "How many ATM-AUTH servers were lost with CPU 3?",
+    "why_now": {
+      "hypothesis_id": "cpu_capacity_loss"
+    },
+    "expected": "Running below 24 if servers died with CPU 3",
+    "risks": "Read-only; negligible load",
+    "tier": "T0",
+    "internal": false,
+    "autonomy": {
+      "level": "L2",
+      "key": "pathcom.status_server|any|operator",
+      "progress": "214 clean runs",
+      "granted_by": "Dave"
+    },
+    "policy": {
+      "effect": "allow_auto",
+      "required_approvers": 0,
+      "required_roles": [],
+      "at_least_one_of": [],
+      "rule_ids": [
+        "t0-ledger"
+      ],
+      "explanation": "Read-only; Operator earned auto-run (L2, granted by Dave)",
+      "escalation": null
+    },
+    "undo": null,
+    "approval_id": null,
+    "approval_progress": null,
+    "approvers": [],
+    "execution": {
+      "exec_id": "exe_01JDXK4E5F6G7H8J9K0M1N2P3Q",
+      "status": "done",
+      "duration_ms": 1140,
+      "raw_output": "$SYSTEM STARTUP 14> PATHCOM $PM1; STATUS SERVER ATM-AUTH\nSERVER     STATE    RUNNING  NUMSTATIC  MAXSERVERS  LINKS  QUEUED  AVG-MS\nATM-AUTH   RUNNING       20         20          32     20     142     846",
+      "facts": {
+        "server_class": "ATM-AUTH",
+        "state": "RUNNING",
+        "running": 20,
+        "numstatic": 20,
+        "maxservers": 32,
+        "links": 20,
+        "queued": 142,
+        "avg_ms": 846
+      },
+      "facts_table": [
+        {
+          "label": "Running",
+          "value": "20 of 32"
+        },
+        {
+          "label": "Queued",
+          "value": "142"
+        },
+        {
+          "label": "Average",
+          "value": "846 ms"
+        }
+      ],
+      "summary": "20 of 32 servers running, 142 queued, average 846 ms",
+      "summary_source": "fallback",
+      "approved_by": [],
+      "auto": true
+    },
+    "validation_errors": []
+  }
+}

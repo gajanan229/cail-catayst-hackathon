@@ -1,0 +1,43 @@
+{
+  "claims": [
+    {
+      "id": "clm_01JDXKC1D2E3F4G5H6J7K8M9N0",
+      "statement": "When a CPU halts at peak on \\TORBANK, suspending $STMT1 and raising ATM-AUTH NUMSTATIC by 8 restores ATM p95 to band within about 2 minutes.",
+      "structured": {
+        "subject": [
+          "$STMT1",
+          "ATM-AUTH",
+          "CPU 5"
+        ],
+        "condition": "Peak day, one CPU down, ATM-AUTH lost servers",
+        "assertion": "Suspending the noon batch and adding 8 static servers recovers ATM latency",
+        "recommendation": {
+          "catalog_id": "pathcom.alter_numstatic",
+          "params": {
+            "server_class": "ATM-AUTH",
+            "n": 28
+          }
+        },
+        "rationale": "INC-0001: ATM p95 back in band 60 s after both actions; CPU 5 at 80%"
+      },
+      "scope": {
+        "site": "TORBANK",
+        "calendar": [
+          "black_friday"
+        ]
+      },
+      "confidence": "likely",
+      "status": "pending_review",
+      "author": "u_priya",
+      "author_name": "Priya",
+      "assigned_reviewer": "u_dave",
+      "reviews": [],
+      "version": 1,
+      "provenance": {
+        "source_type": "incident",
+        "source_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X"
+      },
+      "synthetic": true
+    }
+  ]
+}

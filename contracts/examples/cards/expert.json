@@ -1,0 +1,82 @@
+{
+  "id": "card_01JDXK6A7B8C9D0E1F2G3H4J5K",
+  "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "status": "info",
+  "title": "CPU loss at peak: Dave's playbook, verified by Maria, v3",
+  "citations": [
+    {
+      "id": "playbook:PB-CPU-LOSS-PEAK",
+      "label": "PB-CPU-LOSS-PEAK v3",
+      "kind": "playbook",
+      "url": null
+    },
+    {
+      "id": "claim:C-001",
+      "label": "C-001 · Dave",
+      "kind": "claim",
+      "url": null
+    },
+    {
+      "id": "claim:C-005",
+      "label": "C-005 · Dave",
+      "kind": "claim",
+      "url": null
+    }
+  ],
+  "actions": [],
+  "source": null,
+  "created_at": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "seq": 8,
+  "type": "expert",
+  "body": {
+    "kind": "playbook",
+    "id": "PB-CPU-LOSS-PEAK",
+    "title": "CPU loss at peak",
+    "version": 3,
+    "author": {
+      "id": "u_dave",
+      "name": "Dave",
+      "at": null
+    },
+    "verified_by": [
+      {
+        "id": "u_maria",
+        "name": "Maria",
+        "at": "2026-09-14"
+      }
+    ],
+    "last_validated": "2026-09-14",
+    "tip": "The noon statement batch $STMT1 on CPU 5 is safe to suspend during peaks; resume after 13:00.",
+    "steps": [
+      "Check survivors' CPU busy",
+      "Find batch work on the hottest survivor",
+      "Add static servers on the least-busy CPUs",
+      "Never reload the CPU yourself; call hardware support"
+    ],
+    "claim_ids": [
+      "C-001",
+      "C-005"
+    ],
+    "claims": [
+      {
+        "id": "C-001",
+        "statement": "On peak days the noon statement batch $STMT1 is safe to suspend between 11:00 and 13:00; resume it with ACTIVATE after 13:00.",
+        "author": "Dave",
+        "verified_by": [
+          "Maria"
+        ]
+      },
+      {
+        "id": "C-005",
+        "statement": "After losing a CPU at peak, add ATM-AUTH static servers on the least-busy CPUs before touching MAXSERVERS.",
+        "author": "Dave",
+        "verified_by": [
+          "Maria"
+        ]
+      }
+    ],
+    "synthetic": true
+  }
+}

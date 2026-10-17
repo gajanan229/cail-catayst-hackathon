@@ -1,0 +1,66 @@
+{
+  "id": "card_01JDXK5B6C7D8E9F0G1H2J3K4M",
+  "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "status": "info",
+  "title": "ATM withdrawals are slow",
+  "citations": [
+    {
+      "id": "evidence:ev_01",
+      "label": "CPU 5 at 97%",
+      "kind": "evidence",
+      "url": null
+    },
+    {
+      "id": "opmsg:PATHWAY:1034",
+      "label": "PATHWAY 1034",
+      "kind": "hpe_manual",
+      "url": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html"
+    },
+    {
+      "id": "claim:C-003",
+      "label": "C-003 · Dave",
+      "kind": "claim",
+      "url": null
+    }
+  ],
+  "actions": [
+    "open_incident_room"
+  ],
+  "source": "fallback",
+  "created_at": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "seq": 7,
+  "type": "text",
+  "body": {
+    "markdown": "CPU 3 halted at 11:52 and its ATM-AUTH servers died with it. CPU 5 is now 97% busy and 142 ATM requests are queued, so p95 is 846 ms against a 240 ms band. The 1007/1034 link errors are a symptom of the missing servers, not a link-manager fault.",
+    "sentences": [
+      {
+        "text": "CPU 3 halted at 11:52 and its ATM-AUTH servers died with it.",
+        "citation_ids": [
+          "evidence:ev_02"
+        ]
+      },
+      {
+        "text": "CPU 5 is now 97% busy and 142 ATM requests are queued, so p95 is 846 ms against a 240 ms band.",
+        "citation_ids": [
+          "evidence:ev_01"
+        ]
+      },
+      {
+        "text": "The 1007/1034 link errors are a symptom of the missing servers, not a link-manager fault.",
+        "citation_ids": [
+          "opmsg:PATHWAY:1034",
+          "claim:C-003"
+        ]
+      }
+    ],
+    "unknown": false,
+    "ask_whom": null,
+    "link": {
+      "label": "Open Incident Room",
+      "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X"
+    },
+    "alternatives": []
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "topic": "thread:thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "seq": 2316,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:05Z",
+  "type": "node.ended",
+  "payload": {
+    "run_id": "run_01JDXK3M8A9B0C1D2E3F4G5H6J",
+    "step_id": "stp_trace_01JDXK4B",
+    "node": "score",
+    "label": "Score hypotheses",
+    "status": "done",
+    "started_at": "2026-10-17T07:31:02.511Z",
+    "duration_ms": 12,
+    "summary": "Leading: capacity loss (0.54); starvation 0.30",
+    "detail": {
+      "tools": [
+        "diagnosis.score"
+      ],
+      "evidence_ids": [
+        "ev_01",
+        "ev_02"
+      ],
+      "model": null,
+      "prompt_hash": null,
+      "inputs": null,
+      "output": null
+    }
+  }
+}
