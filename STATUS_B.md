@@ -19,6 +19,7 @@
 
 ## In progress
 
+- User requested a substantial redesign to reduce overload. Built-in ImageGen concept saved as `frontend/docs/console-redesign-v2.png`, with full prompt alongside it. Direction: light neutral canvas, visual service status, one primary chart, quiet processor strip, recent activity and collapsed command log; spacious Baton panel with one recommendation and collapsed trace. This is a concept only; implementation remains unchanged. User's new design direction supersedes the original dark three-pane treatment for the next frontend revision.
 - Real UI (`e2e/live.spec.ts`, `BATON_LIVE=1`) passed with `BATON_LLM_PROVIDER=none` and embeddings off: Flow B edit/preview → fault → TMF approval → decision gate → Priya A+B → Sam B → verified recovery → Dave confirms/edits two claims → L2 grant → audit chain verification. 52.4 s, no browser exceptions.
 - Models-on real UI failure reported with reproduction in B-REQ-4. Recorded mock browser regression is passing; awaiting Engine correction before retrying the same live test.
 
