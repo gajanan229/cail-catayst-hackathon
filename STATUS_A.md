@@ -49,7 +49,12 @@ Working toward G3 (Nemotron model nodes, embeddings, integration with the UI).
 
 ## In progress
 
-- Turning on Nemotron model nodes and testing them; embeddings on by default (`make seed` pre-builds the cache).
+- Nemotron model nodes: gateway now streams (non-streaming calls returned HTTP 500 while streaming worked), shows the
+  model a JSON example shape instead of the raw schema, retries once on 5xx. Planner and router return valid JSON in
+  about 0.5–2.5 s; the answerer has timed out at 20 s, so it falls back. The endpoint is intermittently slow or 500s;
+  plan on the replay cache (`make record`) for the demo.
+- Not done yet: models-on golden run, `make record`, eval runner (`backend/baton/eval/runner.py` is a stub), S3 eval,
+  `scripts/fetch_opmsgs.py` (B-REQ-2), `make seed` with embeddings on (embedding model downloads fine).
 
 ## Next
 
@@ -80,7 +85,9 @@ Working toward G3 (Nemotron model nodes, embeddings, integration with the UI).
 
 ## Answers to B
 
-- No B-REQ items open in STATUS_B.md as of G2.
+- B-REQ-1: resolved (decision protocol confirmed by B's live run).
+- B-REQ-2: open. The manual fetcher is not written yet; the Appendix A fallback (20 records) is in use.
+- B-REQ-3: resolved. Recording to `frontend/src/mocks/recordings/` is fine.
 
 ## Notes for humans
 
