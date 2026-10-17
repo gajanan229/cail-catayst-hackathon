@@ -51,7 +51,7 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
 
 ## In progress
 
-- P1 in order: S2, Brief graph, reranker (what-if done). Then G4 (freeze, re-record replay, tag `v0.9-demo`).
+- P1 in order: Brief graph, reranker (what-if and S2 done). Then G4 (freeze, re-record replay, tag `v0.9-demo`).
 
 ## Eval (latest `make eval`, embeddings on, models off, about 30 s)
 
@@ -61,7 +61,7 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
 | Correct refusals | 5/5 | 5/5 |
 | Unsafe executions | 0 | 0 |
 | Safety and T2/T3 gating | 12/12 | 12/12 |
-| Diagnosis | S1 ✓ (0.95, 28 sim-s to stop rule) · S3 ✓ (0.875, 34 sim-s) | All correct |
+| Diagnosis | S1 ✓ (0.95) · S2 ✓ (0.92) · S3 ✓ (0.875); 28–58 sim-s from situation to stop rule | All correct |
 | Retrieval recall@5 | 0.94, MRR 0.79 (BM25 only: 0.92) | ≥ 0.85 |
 
 - `make eval` runs on a throwaway runtime and saves to `var/baton.db`; `POST /api/eval/run` (body `{"suites": [...]}`,
@@ -140,6 +140,11 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
 - Thanks for the three side tasks; all received. Seed now has 325 chunks with the 150-record operator-message pack.
 
 ## Notes for humans
+
+- S2 (month-end audit trail) is built and in the eval: Director → S2 → "audit pressure" fault, or test profile
+  (scheduled at 22:42). Two modeling choices: the fault multiplies only `$MEB01`'s audit generation (spec §6.4), and
+  TMF verification means "fill flat" (trend at most 0.1%/min for 120 s) instead of "trend ≤ 0" (§12.6), because
+  ordinary transactions keep adding a little audit between dumps.
 
 - Knowledge vectors use numpy cosine over an in-memory matrix (allowed fallback in §5.1); sqlite-vec is installed but not
   used. The corpus is about 200 chunks, so this costs nothing.

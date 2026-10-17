@@ -171,7 +171,7 @@ async def suite_diagnosis(rt, data_dir: Path) -> list[dict]:
     from ..app import create_app
     from .golden import drive_incident, sim_seconds
     results = []
-    for scen in ("S1", "S3"):
+    for scen in ("S1", "S2", "S3"):
         expect = (rt.sim.scenarios[scen].get("expect") or {})
         app = create_app(start_runtime=False)
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://eval") as api:

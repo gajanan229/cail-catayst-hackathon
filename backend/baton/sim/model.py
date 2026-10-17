@@ -404,7 +404,8 @@ class SimModel:
         t.aborts_per_s = 0.0004 * tps + sum(sc.timeout_pct / 100 * sc.arrivals for sc in self.classes.values()) * 0.1
         per_s = t.fill_per_ktps_min * (tps / 1000.0) / 60.0
         batch_audit = sum(p.audit_per_min for p in self.processes.values() if p.audit_per_min and self.batch_active(p)) / 60.0
-        t.fill_pct += (per_s + batch_audit) * t.audit_factor
+        # the S2 fault multiplies the month-end batch's audit generation, not ordinary transaction audit (§6.4)
+        t.fill_pct += per_s + batch_audit * t.audit_factor
         interval = int(t.dump_every_s * t.dump_slow)
         if self.tick - t.last_dump_tick >= interval:
             t.last_dump_tick = self.tick

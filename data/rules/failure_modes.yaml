@@ -67,7 +67,7 @@ modes:
         benefit: 1
     do_nothing: {expected_effect: "Audit trail reaches the 80% overflow threshold", risks: "Begin-transaction disable at 90% stops new transactions"}
     verification:
-      - {metric: "tmf_fill_trend", op: "<=", value: 0, for_s: 120, text: "Audit fill trend at or below 0 for 120 sim-seconds"}
+      - {metric: "tmf_fill_trend", op: "<=", value: 0.1, for_s: 120, text: "Audit fill flat (trend at most 0.1%/min) for 120 sim-seconds"}
   - id: external_dependency
     name: Slow external switch or network
     label: "Slow external switch or network"
