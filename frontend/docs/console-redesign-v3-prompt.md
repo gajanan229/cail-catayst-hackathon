@@ -1,0 +1,35 @@
+# Console redesign concept v3: professional workspace
+
+Built-in ImageGen iteration from `console-redesign-v2.png`, preserving the calmer visual direction while adding professional working depth. Output: `console-redesign-v3.png`. Concept only; values and rendered labels are illustrative. Implementation must use backend values and canonical identifiers (including POS-AUTH), and plot the actual expected band accurately.
+
+Design intent: useful diagnostic facts beside each service, a chart with axes and time controls, inspectable processors, an expandable command workspace with raw output, direct access to server/event tools, and a compact investigation trail beside the recommendation. Sources, approval review and audit stay visible. Nothing has been removed from the existing functional app; this is a design reference for its next revision.
+
+## Final generation prompt
+
+Use case: ui-mockup. Create a refined high-fidelity desktop screen for Baton, HPE NonStop operations software, approximately 1440 x 900 landscape. Input image is the accepted v2 design reference. Preserve its calm light theme, simple sidebar, spacious typography and restrained colors; evolve it into a credible PROFESSIONAL OPERATOR WORKSPACE with useful technical depth. The user likes the direction but finds it a little too simple. Add precision and purposeful working tools, not more boxes or random metrics. Flat crisp UI screenshot, no device mockup, no surrounding annotations.
+
+Visual system: warm-white canvas, soft gray navigation, charcoal text, restrained sage/ochre/terracotta state colors and subdued violet actions. Flat fills, no gradients or glow. Body text legible at about 14-16px, labels 12-13 minimum, monospace only for technical identifiers, commands and output. Elegant fine dividers, modest corners, no nested card stacks or giant KPI tiles. Maintain whitespace and clear hierarchy. Feel like an excellent mature desktop operations tool. Avoid decorative illustration, AI sparkles, chat bubbles everywhere, giant welcome headlines, invented slogans.
+
+Layout: quiet left nav 165px. Slim top bar with baton. logo, TORBANK, Simulation, SIM 11:52:09 pause control, Priya / Operator and small Read-only control. Left navigation Overview selected, Incidents 1, Knowledge, Trust ledger, Audit, Evaluation; Director at bottom. Remaining area has main workspace about 870px plus a 340px Baton context pane. A 20px gutter and comfortable padding. Main area and pane fit the full height.
+
+Main workspace top: small breadcrumb 'Overview / INC-0001', modest 25px heading 'ATM response time is rising'. One-line context 'CPU 3 is offline. POS payments remain normal.' Right aligned understated 'Open incident' link. No huge marketing title.
+Immediately underneath compact tab bar: 'Service health' selected, 'Servers', 'Processors', 'Events'. These show that deeper operational tools are one click away; never make a giant wall of all detail at once.
+
+Central service panel: two clean aligned service rows. ATM authorization with amber status 'Degraded' and 910 ms. POS payments green check 'Normal' and 166 ms. Beneath ATM row a concise operational readout in a single quiet horizontal line: '20 / 32 servers' | '146 queued' | '3.1% timeouts'. Those are meaningful diagnostic facts, not giant numbers. Technical ID 'ATM-AUTH' shown in small monospace beside name. Use a delicate divider between services, not separate rounded cards.
+
+Below: one wide technical timeseries headed 'ATM response time', small 15m / 1h / 4h time selector and source link. Plot with subtle readable y-axis tick labels 200, 600, 1,000 ms, expected band pale sage around 200 ms, actual ochre line rising to 910 ms, action/incident vertical marker labelled 'CPU 3 offline'. Thin baseline and few ticks 11:40, 11:45, 11:50, Now. Correct line sits IN the expected band before the fault, then rises; label 'Expected range' on band. This is an operational graph, not decorative waves. Chart height around 190px.
+
+Below chart a slim processor overview, 8 compact bars labelled CPU 0 through CPU 7, mostly sage, CPU 3 Offline terracotta, CPU 5 97% ochre. Do not label every healthy CPU percentage. Adjacent small status note 'TMF audit trail 30% · Normal' as one line. Small link 'Inspect CPU 5'. It should communicate resource conditions efficiently.
+
+BOTTOM WORKING DOCK visible and OPEN, around 205px high, light neutral gray surface, distinct from the service chart. Tab strip 'Command workspace' selected, 'Event stream', 'Activity'. On right 'Expand' icon and '3 recorded commands'. Show one command entry with small metadata 'Priya approved · Read-only check · 11:52:08', then mono 'PATHCOM $PM1; STATUS SERVER ATM-AUTH'. Below clean aligned command output in dark slate monospace on very pale gray, 3 short lines:
+'SERVER       STATUS      RUNNING   MAX   QUEUED'
+'ATM-AUTH     RUNNING     20        32    146'
+'PATHMON $PM1 · CPU 5'
+At bottom a tidy command input with a subtle > prompt, placeholder 'Enter a catalog command…' and Enter key button, with little catalog icon. This must look like a precise comfortable engineering workbench, NOT a black neon green hacker terminal. The dock can expand for serious command work; show an expansion control. Technical identifiers are real and readable.
+
+RIGHT BATON pane separated by a fine divider, airy and contextual. Header 'Baton' with a tiny ready indicator. Beneath it one compact activity line 'Investigation complete' and three small steps 'Checks → Evidence → Plan' with check marks, plus 'View trace' link. This is a compact inspectable process, not a sprawling agent log.
+Main recommendation heading 'Recover ATM capacity'. One short sentence 'Pause the statement batch, then add eight ATM servers.' Two concise sequential plan rows with number circles: '1  Pause $STMT1' and '2  Raise ATM-AUTH to 28 servers'. On second row understated label 'Two approvers'. Below the rows tiny text 'Reversible · recovery will be monitored'. One clean provenance line with book icon 'Dave’s playbook · verified by Maria · v3' and external-link icon.
+Single primary violet button 'Review plan & approvals'. Secondary quiet 'Compare options' text link. No execution is implied; approvals appear in review. A concise boundary sentence 'Nothing runs without approval.'
+Then substantial white space. Small bottom contextual links 'Sources' and 'Audit trail'. Roomy bottom composer 'Ask Baton or explain a command…' with attach-context icon and send icon. No prompt suggestion cards or promotional hero. Composer remains distinct and usable.
+
+Priority: this is a professional tool that offers immediate technical facts, raw command access, events, trace, provenance, approvals, undo via plan review and inspectable diagnostics without overwhelming the overview. It should feel MORE CAPABLE than the reference but equally calm. Keep crisp alignment, professional natural copy and exceptionally thoughtful information hierarchy. No made-up data widgets, donut charts, decorative topology or gratuitous badges. This is a conceptual design with example values, not a live system.
