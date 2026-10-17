@@ -130,8 +130,12 @@ class Runtime(Ops):
         await install_services(self)
         self._loop_task = asyncio.create_task(self._clock_loop())
         if self.config.autostart and not self.sim.status.running:
+            # Load the scenario but keep runtime state (threads, approvals, checkpoints), so a pending approval
+            # survives a server restart (MVP spec §18 resume test). Director Start and Reset still clear everything.
             scen, _, prof = self.config.autostart.partition(":")
-            await self.sim_start(scen or "S1", prof or "demo", None, None, "system")
+            self.sim.load(scen or "S1", prof or "demo")
+            self.health.sample(self.sim.model, 0.0)
+            self.publish_sim_state()
 
     async def stop(self) -> None:
         self._stopping = True

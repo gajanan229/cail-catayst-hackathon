@@ -2,11 +2,11 @@
 
 ## Gate
 
-**G3 (backend side) passed.** Golden path with models off: `make golden` (about 8 s). With Nemotron 120B on:
-`BATON_LIVE_MODELS=1` + `pytest tests/test_golden_s1.py::test_golden_s1_models_on` passes (about 50 s), and a scripted
-Flows B, C and A run completes with model-written plan, interpretation, answers, diagnosis narrative, postmortem and
-claims. B confirmed models-off in the real UI; models-on in the UI is waiting on B's re-run after the B-REQ-4 fix.
-Replay cache recorded early (`make record`, two runs); re-record at G4 after any prompt change.
+**G4 reached (Engine side): feature freeze, tagged `v0.9-demo`.** Before tagging: `make test` 153 passed / 1 skipped /
+1 xfailed (B-REQ-6 calibration gap); `make golden` passes models off (about 7 s); models-on golden passes against Nemotron
+with the replay cache (about 35 s); `make eval` passes every tile (commands 35/35, refusals 5/5, unsafe 0, safety 12/12,
+diagnosis S1/S2/S3, retrieval 0.94). Resume across a server restart is tested (`tests/test_resume.py`).
+From here: only bugs found in rehearsals. G3 models-on in the UI still awaits B's re-run.
 
 ## Done
 
@@ -96,6 +96,10 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
 - Nothing.
 
 ## Requests to B
+
+- A-REQ-5: Behaviour change at startup: `BATON_AUTOSTART` (used by `make dev`) now loads the scenario WITHOUT clearing
+  runtime state, so pending approvals survive a restart. Director Start and Reset still clear everything. If the UI
+  expects a clean slate on page load, use Reset.
 
 - A-REQ-4: Contracts 1.1.0 (additive, see `CONTRACTS_CHANGELOG.md`): what-if is live. Every non-blocked decision option
   (and `opt_none`) now has `prediction` = `{series, summary, horizon_s}` for your P1 what-if mini charts;
