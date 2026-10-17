@@ -1,0 +1,28 @@
+# Observations and log-odds weights (MVP spec §12.2). Blank = 0.
+version: 1
+observations:
+  cpu_down: {from: "health state or OMF 103", weights: {cpu_capacity_loss: 1.0, external_dependency: -0.4}}
+  takeover: {from: "PATHWAY 1077 or OMF 217", weights: {cpu_capacity_loss: 0.4}}
+  link_errors: {from: "PATHWAY 1007/1034 episodes", weights: {cpu_capacity_loss: 0.4, server_class_starvation: 1.0}}
+  latency_out_of_band: {from: "service metrics", weights: {cpu_capacity_loss: 0.4, server_class_starvation: 0.4, external_dependency: 0.4}}
+  cpu_busy_high_survivor: {from: "meas.cpu_busy facts (an up CPU at or above 90%)", produced_by: [meas.cpu_busy],
+                           weights: {cpu_capacity_loss: 1.0, external_dependency: -1.0, runaway_process: 0.4}}
+  sc_lost_servers: {from: "status_server running fell 15% or more within 5 min", produced_by: [pathcom.status_server],
+                    weights: {cpu_capacity_loss: 1.0, server_class_starvation: -0.4}}
+  sc_not_at_max: {from: "status_server running below MAXSERVERS", produced_by: [pathcom.status_server, pathcom.info_server],
+                  weights: {server_class_starvation: -1.0}}
+  sc_at_max_queued: {from: "running = MAXSERVERS and queued above 0", produced_by: [pathcom.status_server],
+                     weights: {server_class_starvation: 2.0}}
+  audit_fill_high: {from: "status_audittrail at or above 70%", produced_by: [tmfcom.status_audittrail], weights: {tmf_audit_pressure: 2.0}}
+  audit_fill_normal: {from: "status_audittrail below 50%", produced_by: [tmfcom.status_audittrail], weights: {tmf_audit_pressure: -2.0}}
+  audit_over_threshold_event: {from: "OMF 1204", weights: {tmf_audit_pressure: 1.0}}
+  audit_fill_rising: {from: "fill trend above 0.5% per minute", produced_by: [tmfcom.status_audittrail], weights: {tmf_audit_pressure: 1.0}}
+  internals_healthy: {from: "all CPUs below 75% and no class at max", produced_by: [meas.cpu_busy],
+                      weights: {cpu_capacity_loss: -1.0, server_class_starvation: -1.0, external_dependency: 2.0}}
+  one_process_hot: {from: "one process at 40% or more of a CPU", produced_by: [tacl.status_cpu], weights: {runaway_process: 2.0}}
+  no_cpu_down: {from: "telemetry: every CPU up", weights: {cpu_capacity_loss: -2.0}}
+  process_restarts: {from: "OMF 608 then PATHWAY 1043 for the same process", weights: {runaway_process: 1.0}}
+  disk_fill_rising: {from: "a volume filling faster than 0.2% per minute", produced_by: [dsap.disk_space], weights: {runaway_process: 1.0}}
+  disk_fill_high: {from: "a volume at or above its 80% alarm", produced_by: [dsap.disk_space], weights: {runaway_process: 0.5}}
+stop_rule: {top: 0.85, margin: 0.30, max_rounds: 3}
+budgets: {checks_per_incident: 6, nodes_per_turn: 20}

@@ -1,0 +1,40 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: dsap.disk_space
+title: Disk space used on a volume
+utility: DSAP
+interpreter: null
+template: DSAP {volume}, SHORT
+description: Capacity, used and free space of a disk volume, and how fast used space grew over the last five minutes.
+tier: T0
+params:
+  volume:
+    type: volume
+    source: inventory.volumes
+parser: dsap_disk_space
+facts: Used and free space, growth per minute
+examples:
+- utterance: how full is $DATA03
+  params:
+    volume: $DATA03
+- utterance: check disk space on $DATA03
+  params:
+    volume: $DATA03
+- utterance: is $DATA01 running out of space
+  params:
+    volume: $DATA01
+aliases:
+- disk space
+- disk full
+- free space
+- disk usage
+- volume full
+- how full
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; scans the volume's free-space table
+doc_refs: []
+param_class: any
+internal: false

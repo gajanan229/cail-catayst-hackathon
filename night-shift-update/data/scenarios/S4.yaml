@@ -1,0 +1,24 @@
+# Night shift, "four alarms, one cause" (vision demo). A new nightly reconciliation batch starts at 01:40 and loops.
+# It runs above the transaction servers' priority on CPU 3, so: CPU 3 saturates, ATM and POS servers on CPU 3
+# stall (p95 out of band), two starved servers are restarted, and its log fills $DATA03 from 72% past 80%.
+id: S4
+name: Night shift, four alarms one cause
+synthetic: true
+start: "2026-11-18T01:30:00"
+calendar: normal
+seed: 42
+speed: 16
+initial: {volume_fill: {"$DATA03": 72.0}}
+profiles:
+  # "Play the night": the job starts on schedule at 01:40 in both profiles.
+  # Approvals Baton asks for during the night must still be there in the morning (policy default: 600 sim-s).
+  demo: {faults: scheduled, after_actions_speed: 16, approval_expiry_sim_s: 21600}
+  test: {faults: scheduled, speed: 16, approval_expiry_sim_s: 21600}
+steps:
+  - {at: "01:40:00", fault: runaway_batch, params: {process: "$RECN1"}}
+chatter: {per_min: 300, injection_test: true}
+expect:
+  situation_template: runaway_batch_cascade
+  top_hypothesis: runaway_process
+  options_include: [tacl.suspend_process]
+  recovered_within_sim_s: 240

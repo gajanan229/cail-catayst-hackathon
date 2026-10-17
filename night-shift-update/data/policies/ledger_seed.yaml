@@ -1,0 +1,16 @@
+# Trust-ledger seed (MVP spec Appendix B). Synthetic history; approver lists stand in for the distinct-approver counts.
+version: 1
+synthetic: true
+entries:
+  - {key: "pathcom.status_server|any|operator", level: L2, approved_unchanged: 214, rejected: 0, approvers: [u_priya, u_sam, u_lee, u_dave, u_maria], granted_by: u_dave, granted_at: "2026-09-02", grant_reason: "214 clean runs; read-only"}
+  - {key: "meas.cpu_busy|any|operator", level: L2, approved_unchanged: 180, rejected: 0, approvers: [u_priya, u_sam, u_lee, u_dave], granted_by: u_dave, granted_at: "2026-08-21", grant_reason: "180 clean runs; read-only"}
+  - {key: "pathcom.info_server|any|operator", level: L2, approved_unchanged: 66, rejected: 0, approvers: [u_sam, u_lee, u_maria], granted_by: u_maria, granted_at: "2026-07-30", grant_reason: "Configuration read; no risk"}
+  - {key: "tmfcom.status_audittrail|any|operator", level: L1, approved_unchanged: 19, rejected: 0, approvers: [u_sam, u_lee]}
+  - {key: "pathcom.stats_server|any|operator", level: L1, approved_unchanged: 12, rejected: 1, approvers: [u_sam, u_lee]}
+  - {key: "tacl.status_cpu|any|operator", level: L1, approved_unchanged: 7, rejected: 0, approvers: [u_sam, u_lee]}
+  - {key: "scf.status_disk|any|operator", level: L1, approved_unchanged: 15, rejected: 0, approvers: [u_sam, u_lee, u_dave]}
+  - {key: "tmfcom.status_tmf|any|operator", level: L1, approved_unchanged: 9, rejected: 0, approvers: [u_sam, u_lee]}
+  - {key: "dsap.disk_space|any|operator", level: L1, approved_unchanged: 6, rejected: 0, approvers: [u_sam, u_lee]}
+  - {key: "tacl.suspend_process|batch|operator", level: L1, approved_unchanged: 41, rejected: 1, approvers: [u_priya, u_sam, u_lee, u_dave]}
+  - {key: "pathcom.alter_numstatic|critical|operator", level: L1, approved_unchanged: 3, rejected: 0, approvers: [u_sam, u_dave]}
+  - {key: "baton.*|any|any", level: system, approved_unchanged: 0, rejected: 0, approvers: [], granted_by: system}

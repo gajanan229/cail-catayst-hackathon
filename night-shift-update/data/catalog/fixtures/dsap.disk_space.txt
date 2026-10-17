@@ -1,0 +1,10 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {"volume": "$DATA03"}
+# phase: healthy
+VOLUME    CAPACITY-MB  USED-MB  FREE-MB  USED-%  GROWTH-%/MIN
+$DATA03       1048576   754975   293601    72.0         +0.00
+# phase: cpu3_halted
+VOLUME    CAPACITY-MB  USED-MB  FREE-MB  USED-%  GROWTH-%/MIN
+$DATA03       1048576   754975   293601    72.0         +0.00

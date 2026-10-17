@@ -1,0 +1,107 @@
+# \TORBANK site model (MVP spec §6.1). All values synthetic: calibration targets for the simulator,
+# not claims about real systems.
+synthetic: true
+system: "\\TORBANK"
+release: "L25.09 (simulated)"
+cpus:
+  count: 8
+  capacity: 100
+  base_overhead: 7.0
+  # Other synthetic application work per CPU (busy points), on top of the processes below.
+  overhead: [19, 16, 21, 3, 23, 23, 7, 23]
+
+processes:
+  - {name: "$PM1", role: pathmon, primary_cpu: 3, backup_cpu: 5, protected: true, load: 3.0, tags: [system], env: payments}
+  - {name: "$DATA01", role: disk, primary_cpu: 0, backup_cpu: 1, protected: true, volume: "$DATA01", load_per_tps: {pos: 0.0050}, tags: [system]}
+  - {name: "$DATA02", role: disk, primary_cpu: 3, backup_cpu: 5, protected: true, volume: "$DATA02", load_per_tps: {atm: 0.0180}, tags: [system]}
+  - {name: "$DATA03", role: disk, primary_cpu: 2, backup_cpu: 4, protected: true, volume: "$DATA03", load_per_tps: {bal: 0.0060, atm: 0.0020}, tags: [system]}
+  - {name: "$DATA04", role: disk, primary_cpu: 6, backup_cpu: 7, protected: true, volume: "$DATA04", load_per_tps: {pos: 0.0010, card: 0.02}, tags: [system]}
+  - {name: "$ZLM0", role: link_manager, primary_cpu: 0, protected: true, load: 0.6, tags: [system], simulated_name: true}
+  - {name: "$ZLM1", role: link_manager, primary_cpu: 1, protected: true, load: 0.6, tags: [system], simulated_name: true}
+  - {name: "$ZLM2", role: link_manager, primary_cpu: 2, protected: true, load: 0.6, tags: [system], simulated_name: true}
+  - {name: "$ZLM3", role: link_manager, primary_cpu: 3, protected: true, load: 0.6, tags: [system], simulated_name: true}
+  - {name: "$ZLM4", role: link_manager, primary_cpu: 4, protected: true, load: 0.6, tags: [system], simulated_name: true}
+  - {name: "$ZLM5", role: link_manager, primary_cpu: 5, protected: true, load: 0.6, tags: [system], simulated_name: true}
+  - {name: "$ZLM6", role: link_manager, primary_cpu: 6, protected: true, load: 0.6, tags: [system], simulated_name: true}
+  - {name: "$ZLM7", role: link_manager, primary_cpu: 7, protected: true, load: 0.6, tags: [system], simulated_name: true}
+  - {name: "$TMP", role: tmf, primary_cpu: 0, backup_cpu: 7, protected: true, load: 2.0, tags: [system]}
+  - {name: "$STMT1", role: batch, primary_cpu: 5, priority: 140, tags: [batch], demand: 16.0, window: ["11:30", "12:30"], description: "Noon statement batch"}
+  - {name: "$RPT2", role: batch, primary_cpu: 6, priority: 150, tags: [batch], demand: 4.0, window: ["08:00", "18:00"], description: "Report batch"}
+  - {name: "$MEB01", role: batch, primary_cpu: 2, priority: 145, tags: [batch], demand: 14.0, window: ["22:00", "23:59"], calendar: [month_end], audit_per_min: 0.25, description: "Month-end batch"}
+  # New in the November release; started by the scheduler only (S4 night shift). Priority 170 is above the
+  # transaction servers (150): when it loops, servers on its CPU get almost no processor time.
+  - {name: "$RECN1", role: batch, primary_cpu: 3, priority: 170, tags: [batch], demand: 0.0, state: STOPPED, log_volume: "$DATA03", description: "Nightly reconciliation batch"}
+
+server_classes:
+  - {name: ATM-AUTH, service: atm, cpus: [1, 2, 3, 4, 5, 6], numstatic: 20, maxservers: 32, maxlinks: 32, service_ms: 22, cpu_cost: 0.095, tag: critical,
+     link_managers: {"$ZLM2": 1.0, "$ZLM4": 1.0, "$ZLM5": 0.08}}
+  - {name: POS-AUTH, service: pos, cpus: [0, 1, 3, 6, 7], numstatic: 24, maxservers: 40, maxlinks: 40, service_ms: 18, cpu_cost: 0.070, tag: critical}
+  - {name: BAL-INQ, service: bal, cpus: [2, 4, 6], numstatic: 8, maxservers: 16, maxlinks: 16, service_ms: 12, cpu_cost: 0.060, tag: normal}
+  - {name: CARD-MGMT, service: card, cpus: [0, 7], numstatic: 4, maxservers: 8, maxlinks: 8, service_ms: 30, cpu_cost: 0.100, tag: normal}
+
+services:
+  - {id: atm, name: ATM authorization, server_class: ATM-AUTH, p95_target_ms: 250, base_latency_ms: 0, base_tps: 326}
+  - {id: pos, name: POS authorization, server_class: POS-AUTH, p95_target_ms: 250, base_latency_ms: 125, base_tps: 303}
+  - {id: bal, name: Balance inquiry, server_class: BAL-INQ, p95_target_ms: 150, base_latency_ms: 20, base_tps: 190}
+  - {id: card, name: Card maintenance, server_class: CARD-MGMT, p95_target_ms: 400, base_latency_ms: 40, base_tps: 25}
+
+# Hour-of-day demand shape (multiplier on base_tps), interpolated linearly. Weekday profile.
+demand_curve:
+  "00:00": 0.25
+  "06:00": 0.45
+  "09:00": 0.95
+  "10:00": 1.15
+  "11:00": 1.38
+  "11:45": 1.62
+  "12:00": 1.66
+  "12:10": 1.67
+  "12:30": 1.62
+  "13:00": 1.55
+  "15:00": 1.35
+  "18:00": 1.20
+  "21:00": 0.70
+  "22:40": 0.55
+  "23:59": 0.30
+
+calendar:
+  "2026-11-27": {type: black_friday, multipliers: {atm: 1.8, pos: 2.2, bal: 1.3, card: 1.0}}
+  "2026-11-30": {type: month_end, multipliers: {atm: 1.0, pos: 1.0, bal: 1.0, card: 1.0}}
+  default: {type: normal, multipliers: {atm: 1.0, pos: 1.0, bal: 1.0, card: 1.0}}
+
+tmf:
+  trail: MAT
+  file_id: AA000041
+  overflow_pct: 80.0
+  btd_pct: 90.0
+  fill_per_ktps_min: 0.18     # fill points per minute per 1,000 TPS
+  dump_floor_pct: 20.0
+  dump_every_s: 600
+  dump_drain_pct: 30.0
+  initial_fill_pct: 30.0
+
+volumes: ["$DATA01", "$DATA02", "$DATA03", "$DATA04"]
+# Used space per volume (%) at scenario start; a scenario may override under initial.volume_fill.
+volume_fill: {"$DATA01": 54.0, "$DATA02": 61.0, "$DATA03": 72.0, "$DATA04": 47.0}
+volume_alarm_pct: 80.0
+
+contacts:
+  - {id: hpe_hw, name: "HPE hardware support (simulated)", for: [cpu, hardware]}
+  - {id: u_dave, name: "On-call expert Dave", for: [pathway, capacity]}
+  - {id: network, name: "Network team", for: [network, switch]}
+  - {id: u_maria, name: "TMF expert Maria", for: [tmf]}
+
+# Simulator constants (see backend/baton/sim/model.py DEFAULT_DYNAMICS for meanings). Tuned to §6.2.
+dynamics:
+  init_target_rho: {ATM-AUTH: 0.88, POS-AUTH: 0.60, BAL-INQ: 0.60, CARD-MGMT: 0.50}
+  dyn_start_rho: 0.95
+  dyn_stop_rho: 0.50
+  queue_soft_k: 100.0
+  queue_soft_rho0: 0.96
+  queue_k: 700.0
+  timeout_k: 25.0
+  takeover_overhead: 12.0
+  takeover_decay_s: 1800.0
+  link_storm_per_queued: 0.13   # busy points per queued request on each link manager serving the class
+  pressure_tau_s: 360.0         # overload pressure builds over ~6 sim-minutes (retries, link backlog)
+  pressure_p95_k: 0.5
+  pressure_timeout_k: 3.5
