@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Baton realtime contract",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Server -> client envelopes ({topic, type, seq, ts, sim_ts, payload}) on GET /api/ws. Client -> server messages: subscribe, unsubscribe, resume {since_seq}, ping.",
   "oneOf": [
     {

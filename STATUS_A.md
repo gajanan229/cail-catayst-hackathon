@@ -51,7 +51,7 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
 
 ## In progress
 
-- P1 in order: what-if predictions, S2, Brief graph, reranker. Then G4 (freeze, re-record replay, tag `v0.9-demo`).
+- P1 in order: S2, Brief graph, reranker (what-if done). Then G4 (freeze, re-record replay, tag `v0.9-demo`).
 
 ## Eval (latest `make eval`, embeddings on, models off, about 30 s)
 
@@ -96,6 +96,11 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
 - Nothing.
 
 ## Requests to B
+
+- A-REQ-4: Contracts 1.1.0 (additive, see `CONTRACTS_CHANGELOG.md`): what-if is live. Every non-blocked decision option
+  (and `opt_none`) now has `prediction` = `{series, summary, horizon_s}` for your P1 what-if mini charts;
+  `POST /api/incidents/{id}/whatif` predicts any action list. `contracts/recordings/golden_s1.json` was re-recorded with
+  predictions. Note: in S1, A alone barely moves ATM p95 (its effect is CPU 5 relief); B and A+B bring p95 to about 90 ms.
 
 - A-REQ-3: Side tasks handed to B (B owns these paths until B marks them done): `scripts/fetch_opmsgs.py` (+ output to
   `data/content/operator_messages.jsonl`), new `tests/test_unit_*.py` files, `data/catalog/fixtures/*.txt`,

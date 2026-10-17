@@ -110,6 +110,10 @@ async def run_golden(tmp_path, step_timeout: float = 60.0, **overrides) -> list:
             assert opts["opt_a"]["steps"][0]["rendered"] == "SUSPEND $STMT1"
             assert opts["opt_b"]["steps"][0]["rendered"] == "PATHCOM $PM1; ALTER SERVER ATM-AUTH, NUMSTATIC 28"
             assert opts["opt_ab"]["recommended"] and opts["opt_c"]["blocked"] and "opt_none" in opts
+            # P1 what-if: predictions on the options; A+B ends far below doing nothing
+            p95 = lambda o: opts[o]["prediction"]["summary"]["svc.atm.p95_ms"]["to"]
+            assert p95("opt_ab") < 300 < 1000 < p95("opt_none")
+            assert opts["opt_c"].get("prediction") is None
             d = (await api.get(f"/api/threads/{thread}")).json()
             hyp = next(c for c in d["cards"] if c["type"] == "hypotheses")
             assert hyp["body"]["hypotheses"][0]["p"] >= 0.85 and hyp["body"]["stop_rule"]["met"]

@@ -699,6 +699,7 @@ async def build_options(state: InvState, config) -> dict:
                         "recommender": None, "expected_effect": dn.get("expected_effect"), "risks": dn.get("risks"),
                         "prediction": None, "recommended": False, "blocked": False, "block_reason": None, "escalation": None,
                         "includes": [], "status": "available", "benefit": 0})
+        await _attach_predictions(rt, options, v.get("service", "atm"))
         for o in options:
             o.pop("benefit", None)
         policy = {"effect": "require_approval", "required_approvers": 1, "required_roles": ["operator", "senior", "expert"],
@@ -719,6 +720,31 @@ async def build_options(state: InvState, config) -> dict:
         s.summary = "; ".join(f"{o['label']}{' (recommended)' if o['recommended'] else ''}" for o in options)
         s.tools = ["failure_modes", "playbooks", "claims"]
     return {"options": options, "decision_approval_id": a["id"], "cards": {**state["cards"], "decision": dc["id"]}}
+
+
+async def _attach_predictions(rt, options: list[dict], service: str) -> None:
+    """P1 what-if: 600 sim-second prediction per option (and for doing nothing) from a simulator fork."""
+    from ...ops import predict_async
+    jobs = []
+    for o in options:
+        if o.get("blocked"):
+            continue
+        if o["id"] == "opt_none":
+            acts = []
+        elif o.get("includes"):
+            acts = [st for x in options if x["id"] in o["includes"] for st in x.get("steps", [])]
+        elif o.get("steps"):
+            acts = o["steps"]
+        else:
+            continue
+        jobs.append((o, [{"catalog_id": st["catalog_id"], "params": st["params"]} for st in acts]))
+    try:
+        results = await asyncio.gather(*[predict_async(rt, acts, service) for _, acts in jobs], return_exceptions=True)
+    except Exception:
+        return
+    for (o, _), res in zip(jobs, results):
+        if isinstance(res, dict):
+            o["prediction"] = res
 
 
 def _fmt(template: str, values: dict) -> str:

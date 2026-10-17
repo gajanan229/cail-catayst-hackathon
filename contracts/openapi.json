@@ -3,7 +3,7 @@
   "info": {
     "title": "Baton API",
     "description": "Baton: AI operations co-pilot for HPE NonStop (simulated node \\TORBANK). REST contract per MVP spec §14; realtime contract in contracts/ws-events.schema.json.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "paths": {
     "/api/system/status": {
@@ -2729,6 +2729,7 @@
           "incidents"
         ],
         "summary": "Whatif",
+        "description": "P1: 600 sim-second prediction for candidate actions; use incident_id \"none\" outside an incident.",
         "operationId": "whatif_api_incidents__incident_id__whatif_post",
         "parameters": [
           {

@@ -314,8 +314,21 @@ class Ops:
         self.audit.append("user", actor, "incident.close", incident_id, {}, incident_id=incident_id)
         return inc
 
-    def whatif(self, incident_id: str, actions: list) -> dict:
-        raise ApiError("NOT_FOUND", "What-if predictions are P1 and not built yet")
+    async def whatif(self, incident_id: str, actions: list) -> dict:
+        """P1: predict 600 sim-seconds ahead on a fork of the simulator (no events, nothing executed)."""
+        from .sim.whatif import fork, predict
+        if incident_id != "none" and not self.incidents.get(incident_id):
+            raise ApiError("NOT_FOUND", f"Incident {incident_id} not found")
+        self._require_sim()
+        checked = []
+        for a in actions or []:
+            p = self.commands.prepare(a.get("catalog_id", ""), a.get("params") or {}, "baton", incident_id)
+            if not p.validation.valid:
+                raise ApiError("VALIDATION_FAILED", "; ".join(p.validation.errors), {"catalog_id": a.get("catalog_id")})
+            if p.validation.tier == "T3":
+                raise ApiError("POLICY_DENIED", "T3 actions are not modeled: human-only, outside Baton")
+            checked.append({"catalog_id": p.catalog_id, "params": p.validation.params})
+        return await predict_async(self, checked)
 
     # ------------------------------------------------------------ knowledge
 
@@ -366,3 +379,10 @@ class Ops:
         run_id = new_id("evr")
         self.spawn(run_eval_background(self, run_id, suites))
         return {"run_id": run_id}
+
+
+async def predict_async(rt, actions: list[dict], service: str = "atm") -> dict:
+    """Fork on the event-loop thread (consistent snapshot), simulate in a worker thread."""
+    from .sim.whatif import fork, predict
+    snapshot = fork(rt.sim.model)
+    return await asyncio.to_thread(predict, snapshot, actions, 600, service)

@@ -204,8 +204,9 @@ async def close_incident(incident_id: str, body: R.ActorOnly):
 
 
 @router.post("/incidents/{incident_id}/whatif", tags=["incidents"])
-def whatif(incident_id: str, body: R.WhatIfRequest):
-    return rt().whatif(incident_id, body.actions)
+async def whatif(incident_id: str, body: R.WhatIfRequest):
+    """P1: 600 sim-second prediction for candidate actions; use incident_id "none" outside an incident."""
+    return await rt().whatif(incident_id, body.actions)
 
 
 # ---------------------------------------------------------------- knowledge

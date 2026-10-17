@@ -16,3 +16,15 @@ Minor bump = additive; major bump = breaking (also listed under "Requests to B" 
   - `N1Status` is `{safe, worst_lost_cpu, worst_survivor_cpu, worst_survivor_busy, threshold, text, per_cpu}`.
   - WebSocket client ops also accept `unsubscribe` and `ping` (server answers `{"op":"pong"}`).
 - Breaking for B: n/a (first version).
+
+## 1.1.0 · 2026-10-17 · additive, not breaking
+
+- `POST /api/incidents/{id}/whatif` is implemented (P1). Body `{"actions": [{"catalog_id", "params"}]}`; use
+  `incident_id = "none"` outside an incident. Returns `{"series": {"svc.atm.p95_ms": [["HH:MM:SS", v], ...],
+  "svc.atm.timeout_pct": [...], "cpu.N.busy": [...] (three hottest survivors)}, "summary": {key: {"from", "to", "max"}},
+  "horizon_s": 600}`. T3 actions are refused (403); invalid parameters return 422.
+- Decision-card options now carry `prediction` (same shape as above) for every non-blocked option, including
+  `opt_none`; blocked options keep `prediction: null`. The field existed in 1.0.0 and was always null before.
+- Only `openapi.json` changed (route description). No type changes: `npm run gen:types` output is identical
+  apart from the version string.
+- Breaking for B: no.

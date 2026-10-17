@@ -5,7 +5,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-CONTRACT_VERSION = "1.0.0"
+CONTRACT_VERSION = "1.1.0"
 
 Tier = Literal["T0", "T1", "T2", "T3"]
 Level = Literal["L0", "L1", "L2", "L3", "system"]
