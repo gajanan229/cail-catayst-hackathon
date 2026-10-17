@@ -152,7 +152,10 @@ def observations_from_facts(rt, catalog_id: str, facts: dict, v: dict) -> tuple[
         run, mx, q = facts["running"], facts["maxservers"], facts["queued"]
         upd.update(current_running=run, current_max=mx, current_numstatic=facts["numstatic"])
         before = v.get("running_before")
-        if before and run <= before * 0.85:
+        m = rt.sim.model
+        sc = m.classes.get(facts["server_class"]) if m else None
+        died = bool(sc and any(not m.cpu_up[c] for c in sc.cpus))   # "lost" = servers died with a CPU, not a config cap
+        if before and run <= before * 0.85 and died:
             obs["sc_lost_servers"] = f"{facts['server_class']} lost {before - run} servers"
         if run < mx:
             obs["sc_not_at_max"] = f"{run} of {mx} running: not at max"

@@ -183,7 +183,8 @@ class CommandService:
         if re.search(r"\b(add|start)\b.*\bservers?\b", low) and "server_class" in ents:
             return ["pathcom.alter_numstatic"]
         if re.search(r"\bmax\s*servers\b|\bmaxservers\b", low):
-            if re.search(r"\b(set|raise|alter|increase|lower|change)\b", low):
+            asking = re.match(r"^(what|which|how|is|are|show|tell)\b", low) and not re.search(r"\b(raise|increase|lower)\b", low)
+            if not asking and re.search(r"\b(set|raise|alter|increase|lower|change)\b", low):
                 return ["pathcom.alter_maxservers"]
             return ["pathcom.info_server"]
         if re.search(r"\b(altpri|priority)\b", low) and "process" in ents:

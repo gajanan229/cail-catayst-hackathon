@@ -66,53 +66,58 @@ async def find(state: CommandState, config) -> dict:
     return {"candidates": [c for c, _ in cands]}
 
 
+async def make_plan(rt, text: str, entities: dict, candidates: list[str], run_id: str | None = None) -> dict:
+    """Model planner constrained to catalog candidates, with the deterministic plan as hint and fallback.
+    Shared by the Command graph and the command eval suite."""
+    fb = rt.commands.plan_fallback(text)
+    steps, rationale, source = [], fb.rationale, "fallback"
+    refused = fb.refused
+    reason = fb.rationale if fb.refused else ""
+    phash = None
+    is_unsupported = bool(rt.commands.refuse_reason(text.lower()))
+    cand_ids = list(dict.fromkeys(candidates + [st.catalog_id for st in fb.steps]))
+    if not is_unsupported and cand_ids:
+        cand_desc = []
+        for cid in cand_ids[:8]:
+            e = rt.catalog.get(cid)
+            cand_desc.append({"id": cid, "title": e.title, "params": {k: v.model_dump(exclude_none=True) for k, v in e.params.items()},
+                              "examples": [x.model_dump() for x in e.examples[:2]]})
+        site = {"server_classes": [s_["name"] for s_ in rt.sim.site["server_classes"]],
+                "batch_processes": [p["name"] for p in rt.sim.site["processes"] if "batch" in (p.get("tags") or [])]}
+        out, source_m, phash = await rt.gateway.complete("planner", P.SYSTEM, P.render(
+            "planner", candidates=cand_desc, entities=entities, site=site, request=text,
+            hint=[{"catalog_id": st.catalog_id, "params": st.params} for st in fb.steps] or "none"),
+            P.PlannerOut, run_id=run_id, node="plan", stable_key=text.strip().lower())
+        if out is not None:
+            good = [st for st in out["steps"] if st["catalog_id"] in cand_ids][:MAX_STEPS]
+            if good:
+                steps = [{"catalog_id": st["catalog_id"], "params": st.get("params") or {}, "purpose": st.get("purpose", ""),
+                          "parallel_group": st.get("parallel_group", 0)} for st in good]
+                rationale, source, refused = out.get("rationale", ""), source_m, False
+            elif not out["steps"]:
+                source = source_m
+    if not steps and not refused:
+        steps = [{"catalog_id": st.catalog_id, "params": st.params, "purpose": st.purpose, "parallel_group": 0}
+                 for st in fb.steps][:MAX_STEPS]
+        if source != "fallback" and not steps:
+            refused, reason = True, "No catalog entry matches this request"
+    if is_unsupported:
+        steps, refused, reason = [], True, fb.rationale
+    return {"plan": steps, "rationale": rationale, "plan_source": source, "refused": refused, "refuse_reason": reason,
+            "alternatives": fb.alternatives, "prompt_hash": phash}
+
+
 async def plan(state: CommandState, config) -> dict:
     rt = get_rt()
     c = ctx(config)
     async with node(config, "plan", "Plan") as s:
-        fb = rt.commands.plan_fallback(state["text"])
-        steps, rationale, source = [], fb.rationale, "fallback"
-        refused = fb.refused
-        reason = fb.rationale if fb.refused else ""
-        is_unsupported = bool(rt.commands.refuse_reason(state["text"].lower()))
-        cand_ids = list(dict.fromkeys(state.get("candidates", []) + [st.catalog_id for st in fb.steps]))
-        if not is_unsupported and cand_ids:
-            cand_desc = []
-            for cid in cand_ids[:8]:
-                e = rt.catalog.get(cid)
-                cand_desc.append({"id": cid, "title": e.title, "params": {k: v.model_dump(exclude_none=True) for k, v in e.params.items()},
-                                  "examples": [x.model_dump() for x in e.examples[:2]]})
-            site = {"server_classes": list(rt.sim.site and [s_["name"] for s_ in rt.sim.site["server_classes"]]),
-                    "batch_processes": [p["name"] for p in rt.sim.site["processes"] if "batch" in (p.get("tags") or [])]}
-            out, source_m, phash = await rt.gateway.complete("planner", P.SYSTEM, P.render(
-                "planner", candidates=cand_desc, entities=state.get("entities", {}), site=site, request=state["text"],
-                hint=[{"catalog_id": st.catalog_id, "params": st.params} for st in fb.steps] or "none"),
-                P.PlannerOut, run_id=c["run_id"], node="plan",
-                stable_key=state["text"].strip().lower())
-            s.prompt_hash = phash
-            if out is not None:
-                good = [st for st in out["steps"] if st["catalog_id"] in cand_ids][:MAX_STEPS]
-                if good:
-                    steps = [{"catalog_id": st["catalog_id"], "params": st.get("params") or {}, "purpose": st.get("purpose", ""),
-                              "parallel_group": st.get("parallel_group", 0)} for st in good]
-                    rationale, source, refused = out.get("rationale", ""), source_m, False
-                elif not out["steps"]:
-                    source = source_m
-            if source == "fallback":
-                s.model = "fallback"
-            else:
-                s.model = source
-        if not steps and not refused:
-            steps = [{"catalog_id": st.catalog_id, "params": st.params, "purpose": st.purpose, "parallel_group": 0}
-                     for st in fb.steps][:MAX_STEPS]
-            if source != "fallback" and not steps:
-                refused, reason = True, "No catalog entry matches this request"
-        if is_unsupported:
-            steps, refused, reason = [], True, fb.rationale
-        s.summary = ("Refused: " + reason) if refused else f"{len(steps)} step(s): " + ", ".join(x["catalog_id"] for x in steps)
+        out = await make_plan(rt, state["text"], state.get("entities", {}), state.get("candidates", []), c["run_id"])
+        s.prompt_hash = out.pop("prompt_hash")
+        s.model = out["plan_source"]
+        steps = out["plan"]
+        s.summary = ("Refused: " + out["refuse_reason"]) if out["refused"] else             f"{len(steps)} step(s): " + ", ".join(x["catalog_id"] for x in steps)
         s.output = json.dumps(steps)[:400]
-    return {"plan": steps, "rationale": rationale, "plan_source": source, "refused": refused, "refuse_reason": reason,
-            "alternatives": fb.alternatives}
+    return out
 
 
 def after_plan(state: CommandState) -> str:

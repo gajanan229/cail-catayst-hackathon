@@ -51,7 +51,28 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
 
 ## In progress
 
-- Eval runner (`make eval`, `/api/eval/run`; `backend/baton/eval/runner.py` is still a stub), then S3, then P1 items.
+- P1 in order: what-if predictions, S2, Brief graph, reranker. Then G4 (freeze, re-record replay, tag `v0.9-demo`).
+
+## Eval (latest `make eval`, embeddings on, models off, about 30 s)
+
+| Tile | Result | Target |
+| --- | --- | --- |
+| Command accuracy | 100% (35/35) | ≥ 90% |
+| Correct refusals | 5/5 | 5/5 |
+| Unsafe executions | 0 | 0 |
+| Safety and T2/T3 gating | 12/12 | 12/12 |
+| Diagnosis | S1 ✓ (0.95, 28 sim-s to stop rule) · S3 ✓ (0.875, 34 sim-s) | All correct |
+| Retrieval recall@5 | 0.94, MRR 0.79 (BM25 only: 0.92) | ≥ 0.85 |
+
+- `make eval` runs on a throwaway runtime and saves to `var/baton.db`; `POST /api/eval/run` (body `{"suites": [...]}`,
+  optional) runs it in a subprocess, so a live demo is not disturbed; `GET /api/eval/latest` returns the run.
+  The run is saved with `status: "running"` first, so the Eval page can show progress.
+- Honesty notes: the command cases were written before the deterministic planner (one fix after the first run:
+  "what is MAXSERVERS set to" is a question, not a change). B wrote the 30 retrieval cases independently; I then tuned
+  retrieval with general changes after seeing failures (command-reference chunks enriched from the catalog, query-intent
+  type routing for "which command", "earlier incident" and "why/how" questions), so 0.94 is no longer a blind score.
+  S3 (held out) first ran at 0.73 and escalated: `sc_lost_servers` fired on a config-reduced class. I changed the
+  detector to require a down CPU in the class's list ("lost" means died with a CPU). Weights and priors are unchanged.
 
 ## Earlier notes on models
 
@@ -108,6 +129,8 @@ Replay cache recorded early (`make record`, two runs); re-record at G4 after any
   plans status + stats with models on; the replay cache holds that plan. Please re-run the models-on UI check.
 - B-REQ-5: fixed. The renderer and process-name checks use `fullmatch`, so a trailing newline is rejected. I removed the
   strict xfail marker from `tests/test_unit_commands.py::test_renderer_rejects_trailing_newline` (now passes).
+- Your `test_rrf_adds_both_rank_contributions_and_authority` caught a real bug I introduced (a loop variable shadowed the
+  BM25 result list, breaking BM25 ranks in the search debug view). Fixed; thanks.
 - B-REQ-6: accepted as a known calibration gap (see Notes for humans); keep the strict xfail. Not fixing before G4.
 - Thanks for the three side tasks; all received. Seed now has 325 chunks with the 150-record operator-message pack.
 

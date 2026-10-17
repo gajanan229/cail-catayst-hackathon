@@ -26,6 +26,15 @@ PROVENANCE = {"operator_message": "hpe_manual", "claim": "expert_verified", "pla
               "playbook_step": "expert_verified", "site_fact": "site", "incident": "incident",
               "command_ref": "synthetic", "concept": "synthetic", "glossary": "synthetic", "catalog": "synthetic"}
 RRF_K = 60
+# Query-intent preferences: which document types a question is usually after (multipliers on the final score).
+INTENT_BOOSTS = [
+    (re.compile(r"(?<![a-z])(which|what) (read-only )?(command|check)|what should i (run|type|use)|how (do|can) i (check|see|inspect|pause|"
+                r"suspend|resume|stop|add|raise|lower|find|list|report)(?![a-z])|(?<![a-z])command (to|for|that)(?![a-z])|without changing", re.I),
+     {"command_ref": 1.8}, 0.95),
+    (re.compile(r"(?<![a-z])(last time|earlier|previous|past|before|history|happened when|did the team|outage where|incident where|"
+                r"when did)(?![a-z])", re.I), {"incident": 2.0}, 0.95),
+    (re.compile(r"(?<![a-z])(why|how (does|do|can)|what (is|are|does)|explain|difference)(?![a-z])", re.I), {"concept": 1.4}, 0.7),
+]
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 CLASSES = ["ATM-AUTH", "POS-AUTH", "BAL-INQ", "CARD-MGMT"]
 SUBSYSTEMS = ["OMF", "PATHWAY", "TMF", "EMS", "PATHCOM", "TACL", "SCF", "MEASCOM", "TMFCOM"]
@@ -126,8 +135,16 @@ class KnowledgeBase:
                                       metadata={"subsystem": m["subsystem"], "number": m["number"]}))
         for c in self._jsonl("command_reference.jsonl"):
             title = c.get("title") or c["id"]
-            chunks.append(self._chunk(c["id"], "command_ref", f"Command reference: {c.get('catalog_id', title)}",
-                                      c.get("interpreter") or c.get("metadata", {}).get("subsystem", ""), c["text"], c,
+            cid = c.get("catalog_id") or c.get("metadata", {}).get("catalog_id")
+            e = catalog.get(cid) if cid else None
+            text = c["text"]
+            if e is not None:   # contextual enrichment from the catalog entry (what it is for, how operators say it)
+                title = f"{e.title} ({cid})"
+                text = (f"{e.title}: {e.description} Command: {e.interpreter + '; ' if e.interpreter else ''}{e.template or 'Baton check'}. "
+                        f"{'Read-only.' if e.tier == 'T0' else 'Changes the system (' + e.tier + ').'} "
+                        f"Also asked as: {', '.join(e.aliases)}; " + "; ".join(x.utterance for x in e.examples) + f". {c['text']}")
+            chunks.append(self._chunk(c["id"], "command_ref", f"Command reference: {title}",
+                                      c.get("interpreter") or c.get("metadata", {}).get("subsystem", ""), text, c,
                                       synthetic=True, source=c.get("source"), metadata=c.get("metadata", {})))
         for c in self._jsonl("concepts.jsonl"):
             chunks.append(self._chunk(c["id"], "concept", c["title"], ", ".join(c.get("metadata", {}).get("components", [])),
@@ -379,7 +396,23 @@ class KnowledgeBase:
             scores[cid] = scores.get(cid, 0.0) + 1.0 / (RRF_K + rank + 1)
         for rank, cid in enumerate(v):
             scores[cid] = scores.get(cid, 0.0) + 1.0 / (RRF_K + rank + 1)
+        boosts: dict[str, float] = {}
+        strength: dict[str, float] = {}
+        for rx, prefs, pull in INTENT_BOOSTS:
+            if rx.search(q):
+                for dt, x in prefs.items():
+                    boosts[dt] = max(boosts.get(dt, 1.0), x)
+                    strength[dt] = max(strength.get(dt, 0.0), pull)
         fused = sorted(scores, key=lambda c: -scores[c])[:12]
+        top = max(scores.values(), default=1.0 / (RRF_K + 1))
+        for dt in boosts:   # type routing: the document type the question asks for competes with the top hits
+            if types and dt not in types:
+                continue
+            typed = list(dict.fromkeys(self.bm25(terms, [dt], 2) + self.vector(q, [dt], 2)))[:2]
+            for rank, cid in enumerate(typed):
+                scores[cid] = max(scores.get(cid, 0.0), top * strength[dt] * (1.0 - 0.1 * rank))
+                if cid not in fused:
+                    fused.append(cid)
         own = [t.strip("*") for t in tokens(q)]
         content_terms = list(dict.fromkeys(t for t in own if len(t) > 3 and t not in STOP))
         for cid, c in self.records.items():
@@ -391,7 +424,7 @@ class KnowledgeBase:
         for cid in list(pins):
             c = self.records.get(cid)
             if c and c["doc_type"] == "concept":
-                for num in re.findall(r"(\d{4})", c["text"]):
+                for num in re.findall(r"(?<![0-9])([0-9]{4})(?![0-9])", c["text"]):
                     for oid in (f"opmsg:PATHWAY:{num}", f"opmsg:OMF:{num}"):
                         if oid in self.records and oid not in pins:
                             pins.append(oid)
@@ -404,6 +437,8 @@ class KnowledgeBase:
             base = scores.get(cid, 1.0 / (RRF_K + 1))
             final = base * c["authority"] * (1.5 if cid in pins else 1.0) * (1.3 if boost_ids and cid in boost_ids else 1.0)
             ranked.append((cid, base, final))
+        if boosts:
+            ranked = [(cid, base, final * boosts.get(self.records[cid]["doc_type"], 1.0)) for cid, base, final in ranked]
         ranked.sort(key=lambda x: -x[2])
         results = []
         for cid, base, final in ranked[:k]:

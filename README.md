@@ -29,7 +29,7 @@ CPU-only PyTorch keeps the install small: `.venv\Scripts\python.exe -m pip insta
 | `make reset` | Reset the simulator and runtime tables (under 5 s); uses the running server if there is one |
 | `make test` | All unit tests |
 | `make golden` | Headless S1 acceptance test (`tests/test_golden_s1.py`, models off) |
-| `make eval` | Command, safety and diagnosis suites; results on the Eval page |
+| `make eval` | Command (40), safety (12), diagnosis (S1, S3) and retrieval (30) suites; results on the Eval page |
 | `make record` | Two golden runs (Flows B, C, A) with Nemotron and `BATON_REPLAY=record` to fill `data/replay/` |
 | `make record-ws` | Record a real golden run into frontend mock fixture format (`scripts/record_ws.py`) |
 | `make contracts` | Regenerate `contracts/` from the Pydantic models |
