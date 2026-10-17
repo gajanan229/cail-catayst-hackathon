@@ -160,6 +160,7 @@ class SimModel:
         self.cpu_busy = [0.0] * self.cpu_count
         self.cpu_raw = [0.0] * self.cpu_count
         self.takeover_until: dict[int, float] = {}
+        self.lost_servers: dict[str, int] = {}     # servers that died with a halted CPU, per class
         self.calendar = self._calendar_for(self.start)
         self.scenario_load = (scenario.get("load_multiplier") or {})
         self.processes: dict[str, Process] = {}
@@ -459,6 +460,7 @@ class SimModel:
             sc.servers = [s for s in sc.servers if s.cpu != cpu]
             if len(sc.servers) != before:
                 lost[sc.name] = before - len(sc.servers)
+                self.lost_servers[sc.name] = self.lost_servers.get(sc.name, 0) + lost[sc.name]
                 sc.dynamic_frozen = True     # PATHMON does not restart them elsewhere by itself (§6.3.7)
         return {"cpu": cpu, "moved": moved, "lost_servers": lost, "stopped": stopped}
 

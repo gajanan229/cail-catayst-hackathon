@@ -395,8 +395,12 @@ class Pipeline:
             if impacts:
                 services = [f"svc:{impacts[0]['service']}"]
                 vars["service"] = SERVICE_SHORT.get(impacts[0]["service"], impacts[0]["service"])
+                # say "latency rising" only when the surviving servers cannot carry the load
+                over = impacts[0].get("rho_after", 0) >= 1.0
+                vars["impact"] = f"{vars['service']} latency rising" if over else f"{vars['service']} capacity reduced"
             else:
                 vars["service"] = "service"
+                vars["impact"] = "capacity reduced"
         elif tpl["id"] == "audit_trail_pressure":
             h = self.now.hour if self.now else 0
             vars["window"] = "the month-end batch window" if h >= 21 else "the business day"

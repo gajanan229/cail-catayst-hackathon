@@ -5,7 +5,7 @@ templates:
   - id: cpu_loss_cascade
     anchor: cpu_down
     any_of: [takeover, link_errors, latency_out_of_band]
-    title: "CPU {cpu} down; {service} latency rising"
+    title: "CPU {cpu} down; {impact}"
     origin: anchor
     severity: 5
     suggested_playbooks: [PB-CPU-LOSS-PEAK]

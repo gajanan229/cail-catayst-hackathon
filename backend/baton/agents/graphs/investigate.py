@@ -146,17 +146,18 @@ def observations_from_facts(rt, catalog_id: str, facts: dict, v: dict) -> tuple[
                 obs["cpu_busy_high_survivor"] = f"CPU {hot} at {up[hot]:.0f}%"
             m = rt.sim.model
             at_max = any(sc.running(m.tick) >= sc.maxservers for sc in m.classes.values()) if m else False
-            if all(b < 75 for b in up.values()) and not at_max:
+            any_down = any(x["state"] == "DOWN" for x in facts["cpus"].values())
+            # a node with a processor down is not "internally healthy", however quiet the survivors are
+            if all(b < 75 for b in up.values()) and not at_max and not any_down:
                 obs["internals_healthy"] = "All CPUs below 75%, no class at max"
     elif catalog_id == "pathcom.status_server" and "running" in facts:
         run, mx, q = facts["running"], facts["maxservers"], facts["queued"]
         upd.update(current_running=run, current_max=mx, current_numstatic=facts["numstatic"])
-        before = v.get("running_before")
         m = rt.sim.model
-        sc = m.classes.get(facts["server_class"]) if m else None
-        died = bool(sc and any(not m.cpu_up[c] for c in sc.cpus))   # "lost" = servers died with a CPU, not a config cap
-        if before and run <= before * 0.85 and died:
-            obs["sc_lost_servers"] = f"{facts['server_class']} lost {before - run} servers"
+        # "lost" = servers that died with a halted CPU (recorded by the simulator), not a configuration cap
+        lost = m.lost_servers.get(facts["server_class"], 0) if m else 0
+        if lost and lost / (run + lost) >= 0.15:
+            obs["sc_lost_servers"] = f"{facts['server_class']} lost {lost} servers"
         if run < mx:
             obs["sc_not_at_max"] = f"{run} of {mx} running: not at max"
         elif q > 0:
@@ -492,19 +493,31 @@ async def enough(state: InvState, config) -> dict:
         stop = rt.diagnosis.stop_rule(state["hyps"], state.get("round", 1))
         _publish_hyps(config, state, state["hyps"], state.get("round", 1), stop)
         s.summary = ("yes: " if stop["met"] else "no: ") + stop["reason"]
-        if not stop["met"] and stop["exhausted"]:
-            s.summary += " (3 rounds: escalate)"
+        out_of_evidence = (stop["exhausted"] or not state.get("batch")
+                           or len(state.get("checks_run", [])) >= rt.diagnosis.budgets.get("checks_per_incident", 6)
+                           or state.get("round", 1) >= rt.diagnosis.stop["max_rounds"])
+        if not stop["met"] and out_of_evidence:
+            stop["out_of_evidence"] = True
+            # A clear leader below the bar: continue to options, but say plainly that Baton is not certain.
+            if stop["top"] >= 0.6 and stop["margin"] >= 0.3:
+                stop["proceed"] = True
+                lead = state["hyps"][0]
+                card(config, type="text", status="info", title="Baton is not certain", incident_id=state["incident_id"],
+                     body={"markdown": f"No more useful checks. The leading explanation is **{lead['label']}** at "
+                                       f"{lead['p']:.2f}, below the 0.85 Baton normally requires. Options follow for that "
+                                       "explanation; ask the on-call expert (Dave) to confirm before acting."})
+                s.summary += f" (out of checks; continuing with the leader at {lead['p']:.2f}, flagged as uncertain)"
+            else:
+                s.summary += " (out of checks: escalate)"
     rounds = state.get("round", 1) + (0 if stop["met"] else 1)
     return {"stop": stop, "round": rounds}
 
 
 def after_enough(state: InvState) -> str:
     stop = state["stop"]
-    if stop["met"]:
+    if stop["met"] or stop.get("proceed"):
         return "expert"
-    rt = get_rt()
-    if stop["exhausted"] or len(state.get("checks_run", [])) >= rt.diagnosis.budgets.get("checks_per_incident", 6) or \
-            state.get("round", 1) > rt.diagnosis.stop["max_rounds"]:
+    if stop.get("out_of_evidence"):
         return "escalate"
     return "pick"
 
@@ -566,7 +579,7 @@ def _resolve_params(rt, params: dict, v: dict) -> dict:
     out = {}
     for k, val in params.items():
         if val == "$batch_on_hottest_cpu":
-            out[k] = _batch_on_cpu(rt, v.get("hottest_cpu", 5)) or "$STMT1"
+            out[k] = _batch_on_cpu(rt, v.get("hottest_cpu", 5))   # None when no batch runs there: option skipped
         elif val == "$affected_critical_class":
             out[k] = v.get("server_class", "ATM-AUTH")
         elif val == "$current_running + 8":
@@ -633,8 +646,10 @@ async def build_options(state: InvState, config) -> dict:
             steps, tier_rank, label_vars, risks, rec = [], 0, dict(v), [], None
             blocked, block_reason, escalation = False, None, None
             pb_expected = None
-            for stp in mit["steps"]:
-                params = _resolve_params(rt, stp["params"], v)
+            resolved = [_resolve_params(rt, stp["params"], v) for stp in mit["steps"]]
+            if any(x is None for prm in resolved for x in prm.values()):
+                continue          # e.g. no batch is running on the hottest CPU: this option does not apply
+            for stp, params in zip(mit["steps"], resolved):
                 p = rt.commands.prepare(stp["catalog_id"], params, "baton", state["incident_id"])
                 val = p.validation
                 steps.append({"catalog_id": stp["catalog_id"], "params": val.params, "rendered": val.rendered or p.entry.title,
@@ -676,7 +691,12 @@ async def build_options(state: InvState, config) -> dict:
             tier = f"T{tier_rank}"
             expected = pb_expected or (mit.get("expected_effect") or "").format(**{**label_vars, "cpu": v.get("hottest_cpu"),
                                                                                  "SERVICE": v.get("SERVICE")})
-            opt = {"id": oid, "label": _fmt(mit["label"], label_vars),
+            label = _fmt(mit["label"], label_vars)
+            proc = label_vars.get("process")
+            if mit["option"] == "suspend_batch_on_hottest_cpu" and proc in rt.sim.model.processes:
+                desc = rt.sim.model.processes[proc].description or "batch"
+                label = f"Suspend the {desc[0].lower() + desc[1:]} {proc}"
+            opt = {"id": oid, "label": label,
                    "steps": steps, "tier": tier, "required_approvers": 2 if tier == "T2" else 1 if tier == "T1" else None,
                    "recommender": rec, "expected_effect": expected if not blocked else None, "risks": "; ".join(risks) if not blocked else None,
                    "prediction": None, "recommended": False, "blocked": blocked, "block_reason": block_reason,
@@ -698,15 +718,25 @@ async def build_options(state: InvState, config) -> dict:
                                 " and ".join(o["id"].split("_")[1].upper() for o in parts), "prediction": None,
                                 "recommended": False, "blocked": False, "block_reason": None, "escalation": None,
                                 "includes": combo, "status": "available", "benefit": sum(o["benefit"] for o in parts)})
+        # customers affected? (latency above band or requests queuing) — if not, changing things is not worth the risk
+        vals = rt.health.values
+        impacted = ("latency_out_of_band" in state["obs"] or "sc_at_max_queued" in state["obs"]
+                    or vals.get(f"sc.{v.get('server_class', 'ATM-AUTH')}.queued", 0) > 0
+                    or (vals.get(f"svc.{v.get('service', 'atm')}.p95_ms", 0) > vals.get(f"svc.{v.get('service', 'atm')}.band_high", 1e9)))
         cands = [o for o in options if not o["blocked"] and o.get("tier") and int(o["tier"][1]) <= 2]
-        if cands:
+        if cands and impacted:
             best = max(cands, key=lambda o: (o["benefit"], -int(o["tier"][1])))
             best["recommended"] = True
         dn = mode.get("do_nothing") or {}
+        dn_effect, dn_risk = dn.get("expected_effect"), dn.get("risks")
+        if not impacted:
+            where = f"CPU {v['down_cpu']}" if v.get("down_cpu") is not None else "the failed part"
+            dn_effect = f"No customer impact now: {v.get('SERVICE', 'ATM')} is inside its normal band. Keep watching; call HPE hardware support about {where}."
+            dn_risk = "Capacity stays reduced until the repair; another failure would reach customers (see N-1)"
         options.append({"id": "opt_none", "label": "Do nothing", "steps": [], "tier": None, "required_approvers": None,
-                        "recommender": None, "expected_effect": dn.get("expected_effect"), "risks": dn.get("risks"),
-                        "prediction": None, "recommended": False, "blocked": False, "block_reason": None, "escalation": None,
-                        "includes": [], "status": "available", "benefit": 0})
+                        "recommender": None, "expected_effect": dn_effect, "risks": dn_risk,
+                        "prediction": None, "recommended": not impacted, "blocked": False, "block_reason": None,
+                        "escalation": None, "includes": [], "status": "available", "benefit": 0})
         await _attach_predictions(rt, options, v.get("service", "atm"))
         for o in options:
             o.pop("benefit", None)
@@ -984,7 +1014,11 @@ async def close(state: InvState, config) -> dict:
                             incident_id=state["incident_id"])
             s.summary = "Incident resolved"
         else:
-            s.summary = "No options selected; incident stays open"
+            s.summary = "Decision: no action; incident stays open until the underlying fault is repaired"
+            card(config, type="text", status="info", title="No action taken", incident_id=state["incident_id"],
+                 body={"markdown": "The decision was to change nothing. The incident stays open until the underlying fault is "
+                                   "repaired; Baton keeps watching the health board and will open a new situation if "
+                                   "customers are affected."})
     return {}
 
 
@@ -1052,6 +1086,7 @@ def build(saver):
     g.add_conditional_edges("act", after_act, {"act_wait": "act_wait", "act": "act", "verify": "verify"})
     g.add_edge("act_wait", "act")
     g.add_conditional_edges("verify", after_verify, {"close": "close", "end": END})
-    g.add_edge("close", "learn")
+    g.add_conditional_edges("close", lambda st: "learn" if st.get("outcome") == "recovered" else "end",
+                            {"learn": "learn", "end": END})
     g.add_edge("learn", END)
     return g.compile(checkpointer=saver)

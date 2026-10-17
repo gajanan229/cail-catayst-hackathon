@@ -159,7 +159,24 @@ class Ops:
                 if x not in expanded and options[x].get("steps"):
                     expanded.append(x)
         if not expanded:
-            raise ApiError("VALIDATION_FAILED", "The selected options have no actions to run")
+            if chosen != ["opt_none"]:
+                raise ApiError("VALIDATION_FAILED", "The selected options have no actions to run")
+            # "Do nothing" is a decision too: record it, resume the graph with nothing to execute
+            a["option_ids"] = ["opt_none"]
+            a["extra"] = {**(a.get("extra") or {}), "selected": [], "option_approvals": {}}
+            self.approvals.save(a)
+            a, _ = self.approvals.decide(a["id"], actor, "approve")
+            a["extra"] = {**(a.get("extra") or {}), "selected": [], "option_approvals": {}}
+            self.approvals.save(a)
+            self.audit.append("user", actor, "approval.decide", a["id"], {"decision": "do_nothing"},
+                              incident_id=a.get("incident_id"))
+            if a.get("incident_id"):
+                self.incidents.timeline(a["incident_id"], "approval_decided", self.users.actor_ref(actor),
+                                        f"{self.users.name(actor)} chose: Do nothing", "No change; incident stays open",
+                                        {"type": "approval", "id": a["id"]})
+            self._sync_decision_card(a)
+            await self.agents.on_approval_complete(a)
+            return {"approval": self.approvals.public(a), "resumed": True}
         # validate the actor may make the first approval on each option before creating anything
         user = self.users.get(actor)
         if self.read_only:
