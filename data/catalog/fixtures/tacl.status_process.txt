@@ -1,0 +1,10 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {"process": "$STMT1"}
+# phase: healthy
+PROCESS   STATE       PRI  PRIMARY  BACKUP
+$STMT1    RUNNING     140        5       -
+# phase: cpu3_halted
+PROCESS   STATE       PRI  PRIMARY  BACKUP
+$STMT1    RUNNING     140        5       -

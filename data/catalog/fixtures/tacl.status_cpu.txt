@@ -1,0 +1,16 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {"cpu": 5}
+# phase: healthy
+PROCESS          PRI  STATE       BUSY-%
+$STMT1           140  RUNNING      16.0
+ATM-AUTH(4)      150  RUNNING      14.8
+$ZLM5            150  RUNNING       0.6
+# phase: cpu3_halted
+PROCESS          PRI  STATE       BUSY-%
+ATM-AUTH(4)      150  RUNNING      17.3
+$DATA02          150  RUNNING      16.4
+$STMT1           140  RUNNING      16.0
+$PM1             150  RUNNING       3.0
+$ZLM5            150  RUNNING       2.1

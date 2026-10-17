@@ -1,0 +1,8 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {"process": "$STMT1"}
+# phase: healthy
+PROCESS $STMT1 ACTIVATED
+# phase: cpu3_halted
+PROCESS $STMT1 ACTIVATED

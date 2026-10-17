@@ -1,0 +1,8 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {"priority": 100, "process": "$RPT2"}
+# phase: healthy
+PROCESS $RPT2 PRIORITY 100 (WAS 150)
+# phase: cpu3_halted
+PROCESS $RPT2 PRIORITY 100 (WAS 150)

@@ -1,0 +1,24 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {}
+# phase: healthy
+CPU  STATE    BUSY-%
+  0  UP         51.6
+  1  UP         54.6
+  2  UP         55.6
+  3  UP         61.3
+  4  UP         53.1
+  5  UP         61.6
+  6  UP         56.0
+  7  UP         47.2
+# phase: cpu3_halted
+CPU  STATE    BUSY-%
+  0  UP         57.6
+  1  UP         62.1
+  2  UP         76.6
+  3  DOWN          -
+  4  UP         74.7
+  5  UP         96.8
+  6  UP         64.1
+  7  UP         51.2

@@ -1,0 +1,10 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {}
+# phase: healthy
+TMF       STATE     TPS       ABORTS/S
+\TORBANK  STARTED    2415.8       0.97
+# phase: cpu3_halted
+TMF       STATE     TPS       ABORTS/S
+\TORBANK  STARTED    2458.2       3.73

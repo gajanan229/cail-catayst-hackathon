@@ -1,0 +1,10 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {"n": 28, "server_class": "ATM-AUTH"}
+# phase: healthy
+SERVER ATM-AUTH ALTERED: NUMSTATIC 28 (WAS 20)
+4 SERVERS STARTING ON CPUS 1,2,4,6
+# phase: cpu3_halted
+SERVER ATM-AUTH ALTERED: NUMSTATIC 28 (WAS 20)
+8 SERVERS STARTING ON CPUS 1,6

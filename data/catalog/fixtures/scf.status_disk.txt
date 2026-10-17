@@ -1,0 +1,14 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {"volume": "$DATA02"}
+# phase: healthy
+VOLUME    HALF  PATH-STATE  NOTE
+$DATA02   -P    STARTED
+$DATA02   -M    STARTED
+PROCESS PAIR: STARTED
+# phase: cpu3_halted
+VOLUME    HALF  PATH-STATE  NOTE
+$DATA02   -P    STARTED     PRIMARY CPU INACCESSIBLE
+$DATA02   -M    STARTED     SERVED BY BACKUP CPU 5
+PROCESS PAIR: BACKUP

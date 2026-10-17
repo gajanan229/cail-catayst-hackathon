@@ -1,0 +1,10 @@
+# synthetic: true
+# generator: tests/test_unit_parsers.py --generate
+# scenario: S1 demo; seed: 42; healthy +20s; halted +60s after healthy
+# params: {"server_class": "ATM-AUTH"}
+# phase: healthy
+SERVER     CPUS            NUMSTATIC  MAXSERVERS  MAXLINKS
+ATM-AUTH   (1,2,3,4,5,6)          20          32        32
+# phase: cpu3_halted
+SERVER     CPUS            NUMSTATIC  MAXSERVERS  MAXLINKS
+ATM-AUTH   (1,2,3,4,5,6)          20          32        32
