@@ -1,0 +1,29 @@
+{
+  "topic": "events",
+  "seq": 2398,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:57:12Z",
+  "type": "episode.upsert",
+  "payload": {
+    "id": "epi_01JDXK4A1B2C3D4E5F6G7H8J9K",
+    "fingerprint": "PATHWAY:1007:link_manager",
+    "subsystem": "PATHWAY",
+    "event_number": 1007,
+    "example_text": "*1007* $ZLM5, CAN'T GRANT LINK: *1034* $ZLM5, NO SERVER AVAILABLE FOR REQUESTING TCP",
+    "component_id": "sc:ATM-AUTH",
+    "count": 212,
+    "rate_per_min": 46.0,
+    "first_at": "2026-11-27T11:52:41Z",
+    "last_at": "2026-11-27T11:57:12Z",
+    "severity": 3,
+    "critical": false,
+    "quarantined": false,
+    "status": "open",
+    "manual": {
+      "cause": "PATHMON cannot grant a link: no server process is available (all linked or at MAXLINKS).",
+      "effect": "The requesting link manager is not linked to the server class.",
+      "recovery": "Increase MAXSERVERS, MAXLINKS or LINKDEPTH for the server class.",
+      "url": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html"
+    }
+  }
+}

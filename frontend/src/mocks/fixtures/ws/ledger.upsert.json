@@ -1,0 +1,40 @@
+{
+  "topic": "ledger",
+  "seq": 3100,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T12:01:10Z",
+  "type": "ledger.upsert",
+  "payload": {
+    "key": "tmfcom.status_audittrail|any|operator",
+    "catalog_id": "tmfcom.status_audittrail",
+    "param_class": "any",
+    "role": "operator",
+    "level": "L2",
+    "counters": {
+      "approved_unchanged": 19,
+      "edited": 0,
+      "rejected": 0,
+      "executed": 19,
+      "verified_ok": 19,
+      "verified_fail": 0,
+      "undone": 0
+    },
+    "distinct_approvers": 2,
+    "granted_by": "u_dave",
+    "granted_at": "2026-10-17T07:31:02.511Z",
+    "grant_reason": "20 clean runs on peak days; read-only",
+    "eligible_for": null,
+    "recent_rejections": 0,
+    "tier": "T0",
+    "history": [
+      {
+        "kind": "seed",
+        "actor": "system",
+        "reason": "Ledger seed",
+        "at": "2026-09-01T00:00:00Z",
+        "from_level": null,
+        "to_level": "L1"
+      }
+    ]
+  }
+}

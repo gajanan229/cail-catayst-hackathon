@@ -1,0 +1,26 @@
+{
+  "id": "card_01JDXKB2D3E4F5G6H7J8K9M0N1",
+  "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "status": "info",
+  "title": "Escalate: reload CPU 3",
+  "citations": [],
+  "actions": [
+    "copy_summary"
+  ],
+  "source": null,
+  "created_at": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "seq": 10,
+  "type": "escalation",
+  "body": {
+    "reason": "Reloading a processor is T3: human-only, outside Baton",
+    "contact": "HPE hardware support (simulated)",
+    "summary": "INC-0001 \\TORBANK: CPU 3 halted 11:52:04 (OMF 103); $PM1 took over to CPU 5 (1077/1093); ATM-AUTH 20/32 running, ATM p95 peaked 912 ms. Mitigated by suspending $STMT1 and NUMSTATIC 28.",
+    "evidence_pack": [
+      "ev_01",
+      "ev_02",
+      "ev_05"
+    ]
+  }
+}

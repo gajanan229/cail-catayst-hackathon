@@ -1,0 +1,64 @@
+{
+  "nodes": [
+    {
+      "id": "system:TORBANK",
+      "type": "system",
+      "name": "\\TORBANK",
+      "attributes": {},
+      "tags": []
+    },
+    {
+      "id": "cpu:3",
+      "type": "cpu",
+      "name": "CPU 3",
+      "attributes": {},
+      "tags": []
+    },
+    {
+      "id": "proc:$PM1",
+      "type": "process",
+      "name": "$PM1",
+      "attributes": {
+        "role": "PATHMON",
+        "primary_cpu": 3,
+        "backup_cpu": 5
+      },
+      "tags": [
+        "protected"
+      ]
+    },
+    {
+      "id": "sc:ATM-AUTH",
+      "type": "server_class",
+      "name": "ATM-AUTH",
+      "attributes": {},
+      "tags": [
+        "critical"
+      ]
+    },
+    {
+      "id": "svc:atm",
+      "type": "service",
+      "name": "ATM authorization",
+      "attributes": {},
+      "tags": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "proc:$PM1",
+      "target": "cpu:3",
+      "kind": "runs_on"
+    },
+    {
+      "source": "sc:ATM-AUTH",
+      "target": "cpu:3",
+      "kind": "runs_on"
+    },
+    {
+      "source": "sc:ATM-AUTH",
+      "target": "svc:atm",
+      "kind": "serves"
+    }
+  ]
+}

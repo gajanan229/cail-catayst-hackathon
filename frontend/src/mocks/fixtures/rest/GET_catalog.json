@@ -1,0 +1,57 @@
+{
+  "entries": [
+    {
+      "id": "pathcom.alter_numstatic",
+      "title": "Change a server class's static server count",
+      "description": "Sets NUMSTATIC for a Pathway server class; PATHMON starts or stops static servers to match.",
+      "interpreter": "PATHCOM $PM1",
+      "template": "ALTER SERVER {server_class}, NUMSTATIC {n}",
+      "syntax_status": "simulated",
+      "tier": "T1",
+      "tier_rules": "T1 for normal classes, T2 for critical",
+      "params": [
+        {
+          "name": "server_class",
+          "type": "server_class",
+          "required": true,
+          "min": null,
+          "max": null,
+          "max_from": null,
+          "source": "inventory.server_classes",
+          "choices": [
+            "ATM-AUTH",
+            "POS-AUTH",
+            "BAL-INQ",
+            "CARD-MGMT"
+          ],
+          "description": null
+        },
+        {
+          "name": "n",
+          "type": "int",
+          "required": true,
+          "min": 1,
+          "max": null,
+          "max_from": "server_class.maxservers",
+          "source": null,
+          "choices": null,
+          "description": null
+        }
+      ],
+      "reversible": true,
+      "undo_template": "ALTER SERVER {server_class}, NUMSTATIC {previous.n}",
+      "side_effects": "Starts additional server processes on the least-busy CPUs in the class's CPU list",
+      "risks": "Adds CPU load where the new servers land; never exceed MAXSERVERS",
+      "internal": false,
+      "blocked": false,
+      "escalation": null,
+      "aliases": [
+        "add servers",
+        "more servers",
+        "numstatic",
+        "static servers"
+      ],
+      "utility": "PATHCOM"
+    }
+  ]
+}

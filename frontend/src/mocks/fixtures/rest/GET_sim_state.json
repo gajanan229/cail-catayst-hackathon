@@ -1,0 +1,12 @@
+{
+  "scenario": "S1",
+  "scenario_name": "CPU loss at Black Friday peak",
+  "profile": "demo",
+  "seed": 42,
+  "sim_ts": "2026-11-27T11:45:00Z",
+  "speed": 4,
+  "paused": false,
+  "running": true,
+  "active_faults": [],
+  "calendar": "black_friday"
+}

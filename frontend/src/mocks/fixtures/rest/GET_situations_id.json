@@ -1,0 +1,67 @@
+{
+  "id": "sit_01JDXK3M4H5J6K7M8N9P0Q1R2S",
+  "title": "CPU 3 down; ATM latency rising",
+  "severity": 5,
+  "status": "updating",
+  "origin": {
+    "component_id": "cpu:3"
+  },
+  "components": [
+    "cpu:3",
+    "cpu:5",
+    "proc:$PM1",
+    "vol:$DATA02",
+    "sc:ATM-AUTH",
+    "svc:atm"
+  ],
+  "services": [
+    "svc:atm"
+  ],
+  "counts": {
+    "raw_events": 612,
+    "episodes": 7,
+    "signals": 4
+  },
+  "template": "cpu_loss_cascade",
+  "first_at": "2026-11-27T11:52:04Z",
+  "last_at": "2026-11-27T11:53:12Z",
+  "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "suggested_playbooks": [
+    "PB-CPU-LOSS-PEAK"
+  ],
+  "episodes": [
+    {
+      "id": "epi_01JDXK4A1B2C3D4E5F6G7H8J9K",
+      "fingerprint": "PATHWAY:1007:link_manager",
+      "subsystem": "PATHWAY",
+      "event_number": 1007,
+      "example_text": "*1007* $ZLM5, CAN'T GRANT LINK: *1034* $ZLM5, NO SERVER AVAILABLE FOR REQUESTING TCP",
+      "component_id": "sc:ATM-AUTH",
+      "count": 212,
+      "rate_per_min": 46.0,
+      "first_at": "2026-11-27T11:52:41Z",
+      "last_at": "2026-11-27T11:57:12Z",
+      "severity": 3,
+      "critical": false,
+      "quarantined": false,
+      "status": "open",
+      "manual": {
+        "cause": "PATHMON cannot grant a link: no server process is available (all linked or at MAXLINKS).",
+        "effect": "The requesting link manager is not linked to the server class.",
+        "recovery": "Increase MAXSERVERS, MAXLINKS or LINKDEPTH for the server class.",
+        "url": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html"
+      }
+    }
+  ],
+  "signals": [
+    {
+      "id": "sig_01JDXK3",
+      "kind": "cpu_down",
+      "component_id": "cpu:3",
+      "started_at": "2026-11-27T11:52:04Z",
+      "ended_at": null,
+      "value": null,
+      "detail": "CPU 3 down"
+    }
+  ]
+}

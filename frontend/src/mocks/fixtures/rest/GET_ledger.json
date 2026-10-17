@@ -1,0 +1,37 @@
+{
+  "entries": [
+    {
+      "key": "tmfcom.status_audittrail|any|operator",
+      "catalog_id": "tmfcom.status_audittrail",
+      "param_class": "any",
+      "role": "operator",
+      "level": "L1",
+      "counters": {
+        "approved_unchanged": 19,
+        "edited": 0,
+        "rejected": 0,
+        "executed": 19,
+        "verified_ok": 19,
+        "verified_fail": 0,
+        "undone": 0
+      },
+      "distinct_approvers": 2,
+      "granted_by": null,
+      "granted_at": null,
+      "grant_reason": null,
+      "eligible_for": null,
+      "recent_rejections": 0,
+      "tier": "T0",
+      "history": [
+        {
+          "kind": "seed",
+          "actor": "system",
+          "reason": "Ledger seed",
+          "at": "2026-09-01T00:00:00Z",
+          "from_level": null,
+          "to_level": "L1"
+        }
+      ]
+    }
+  ]
+}

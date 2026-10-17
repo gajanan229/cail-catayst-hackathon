@@ -1,0 +1,11 @@
+{
+  "topic": "thread:thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "seq": 2331,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "type": "card.remove",
+  "payload": {
+    "card_id": "card_01JDXK5P0Q1R2S3T4V5W6X7Y8Z",
+    "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA"
+  }
+}

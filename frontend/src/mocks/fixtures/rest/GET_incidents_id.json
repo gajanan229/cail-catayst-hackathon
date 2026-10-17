@@ -1,0 +1,142 @@
+{
+  "id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "display_id": "INC-0001",
+  "title": "CPU 3 down; ATM latency rising",
+  "severity": 5,
+  "status": "mitigating",
+  "situation_id": "sit_01JDXK3M4H5J6K7M8N9P0Q1R2S",
+  "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "opened_at": "2026-11-27T11:52:05Z",
+  "resolved_at": null,
+  "impact": {
+    "service": "svc:atm",
+    "p95_ms_peak": 912.0,
+    "timeout_pct_peak": 3.1
+  },
+  "hypotheses_top": [
+    {
+      "id": "cpu_capacity_loss",
+      "label": "Capacity loss after CPU 3 failure",
+      "p": 0.94
+    }
+  ],
+  "undo_stack": [
+    {
+      "id": "und_01JDXKA2A3B4C5D6E7F8G9H0J1",
+      "execution_id": "exe_01JDXKA01B2C3D4E5F6G7H8J9K",
+      "catalog_id": "tacl.activate_process",
+      "params": {
+        "process": "$STMT1"
+      },
+      "rendered": "ACTIVATE $STMT1",
+      "label": "ACTIVATE $STMT1",
+      "status": "pending",
+      "created_sim_ts": "2026-11-27T11:56:41Z"
+    },
+    {
+      "id": "und_01JDXKA3B4C5D6E7F8G9H0J1K2",
+      "execution_id": "exe_01JDXKA12C3D4E5F6G7H8J9K0M",
+      "catalog_id": "pathcom.alter_numstatic",
+      "params": {
+        "server_class": "ATM-AUTH",
+        "n": 20
+      },
+      "rendered": "PATHCOM $PM1; ALTER SERVER ATM-AUTH, NUMSTATIC 20",
+      "label": "ALTER ... NUMSTATIC 20",
+      "status": "pending",
+      "created_sim_ts": "2026-11-27T11:57:30Z"
+    }
+  ],
+  "hypotheses": [],
+  "options": [],
+  "approvals": [
+    {
+      "id": "apr_01JDXK9B2C3D4E5F6G7H8J9K0N",
+      "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+      "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+      "card_id": "card_01JDXK9A0B1C2D3E4F5G6H7J8K",
+      "step_ids": [
+        "stp_01JDXK9C1D2E3F4G5H6J7K8M9N"
+      ],
+      "option_ids": [
+        "opt_b"
+      ],
+      "rendered": [
+        "PATHCOM $PM1; ALTER SERVER ATM-AUTH, NUMSTATIC 28"
+      ],
+      "tier": "T2",
+      "required": {
+        "count": 2,
+        "roles": [
+          "operator",
+          "senior",
+          "expert"
+        ],
+        "at_least_one_of": [
+          "senior",
+          "expert"
+        ]
+      },
+      "decisions": [
+        {
+          "actor": "u_priya",
+          "actor_name": "Priya",
+          "decision": "approve",
+          "at": "2026-11-27T11:56:38Z",
+          "reason_code": null,
+          "comment": null,
+          "params": null
+        }
+      ],
+      "status": "partially_approved",
+      "expires_sim_ts": "2026-11-27T12:06:38Z",
+      "policy": {
+        "effect": "require_approval",
+        "required_approvers": 2,
+        "required_roles": [],
+        "at_least_one_of": [
+          "senior",
+          "expert"
+        ],
+        "rule_ids": [
+          "t2-two-person"
+        ],
+        "explanation": "Changes a critical server class: two distinct approvers, at least one Senior or Expert",
+        "escalation": null
+      },
+      "progress_text": "1 of 2: needs Senior or Expert"
+    }
+  ],
+  "executions": [
+    {
+      "id": "exe_01JDXK7R2S3T4V5W6X7Y8Z9A0B",
+      "step_id": "stp_01JDXK5N9P0Q1R2S3T4V5W6X7Y",
+      "catalog_id": "tmfcom.status_audittrail",
+      "params": {},
+      "rendered": "TMFCOM; STATUS AUDITTRAIL",
+      "approved_by": [
+        "u_priya"
+      ],
+      "auto": false,
+      "actor": "u_priya",
+      "status": "done",
+      "started_at": "2026-10-17T07:31:02.511Z",
+      "ended_at": "2026-10-17T07:31:02.511Z",
+      "sim_ts": "2026-11-27T11:54:10Z",
+      "raw_text": "$SYSTEM STARTUP 16> TMFCOM; STATUS AUDITTRAIL\nTRAIL  FILE-ID   FILL-%  OVERFLOW-%  BEGIN-TRANS-DISABLE-%  DUMPS\nMAT    AA000041    31.2        80.0                   90.0  ENABLED",
+      "facts": {
+        "trail": "MAT",
+        "fill_pct": 31.2,
+        "overflow_pct": 80.0,
+        "btd_pct": 90.0,
+        "dumps": "ENABLED"
+      },
+      "parse_confidence": 1.0,
+      "undo_entry_id": null,
+      "summary": "Audit trail is 31% full, well below the 80% overflow threshold: TMF is not under pressure."
+    }
+  ],
+  "verification": null,
+  "postmortem_ready": false,
+  "cards": []
+}

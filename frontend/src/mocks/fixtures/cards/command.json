@@ -1,0 +1,70 @@
+{
+  "id": "card_01JDXK5P0Q1R2S3T4V5W6X7Y8Z",
+  "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "status": "awaiting_approval",
+  "title": "TMF audit trail status",
+  "citations": [
+    {
+      "id": "cmdref:tmfcom.status_audittrail",
+      "label": "Command reference",
+      "kind": "command_ref",
+      "url": null
+    },
+    {
+      "id": "claim:C-007",
+      "label": "C-007 · Maria",
+      "kind": "claim",
+      "url": null
+    }
+  ],
+  "actions": [
+    "approve",
+    "edit",
+    "reject"
+  ],
+  "source": null,
+  "created_at": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "seq": 6,
+  "type": "command",
+  "body": {
+    "step_id": "stp_01JDXK5N9P0Q1R2S3T4V5W6X7Y",
+    "catalog_id": "tmfcom.status_audittrail",
+    "interpreter": "TMFCOM",
+    "rendered": "TMFCOM; STATUS AUDITTRAIL",
+    "params": {},
+    "purpose": "Rule out TMF audit-trail pressure, rare but costly on a peak day",
+    "why_now": {
+      "hypothesis_id": "tmf_audit_pressure",
+      "claim_id": "C-007"
+    },
+    "expected": "Fill well below the 80% overflow threshold",
+    "risks": "Read-only; negligible load",
+    "tier": "T0",
+    "internal": false,
+    "autonomy": {
+      "level": "L1",
+      "key": "tmfcom.status_audittrail|any|operator",
+      "progress": "19/20 clean runs",
+      "granted_by": null
+    },
+    "policy": {
+      "effect": "require_approval",
+      "required_approvers": 1,
+      "required_roles": [],
+      "at_least_one_of": [],
+      "rule_ids": [
+        "t0-default"
+      ],
+      "explanation": "Read-only, but Operator has not yet earned auto-run (19 of 20 clean runs)",
+      "escalation": null
+    },
+    "undo": null,
+    "approval_id": "apr_01JDXK5Q1R2S3T4V5W6X7Y8Z9A",
+    "approval_progress": "Needs 1 approval",
+    "approvers": [],
+    "execution": null,
+    "validation_errors": []
+  }
+}

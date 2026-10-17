@@ -1,0 +1,16 @@
+{
+  "topic": "terminal",
+  "seq": 2320,
+  "ts": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:09Z",
+  "type": "terminal.ghost",
+  "payload": {
+    "exec_id": "exe_01JDXK4E5F6G7H8J9K0M1N2P3Q",
+    "actor": "baton",
+    "approved_by": [],
+    "auto": true,
+    "label": "Baton · auto · L2 (granted by Dave)",
+    "text": "PATHCOM $PM1; STATUS SERVER ATM-AUTH",
+    "ms_per_char": 25
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "id": "card_01JDXJ9B1C2D3E4F5G6H7J8K9M",
+  "thread_id": "thr_01JDXJ9A2B3C4D5E6F7G8H9J0K",
+  "incident_id": null,
+  "status": "proposed",
+  "title": "Is ATM auth keeping up?",
+  "citations": [],
+  "actions": [
+    "approve_all_readonly"
+  ],
+  "source": null,
+  "created_at": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:47:10Z",
+  "seq": 1,
+  "type": "plan",
+  "body": {
+    "request": "Is ATM auth keeping up?",
+    "rationale": "Check the ATM-AUTH server class status and throughput statistics.",
+    "steps": [
+      {
+        "step_id": "stp_01JDXJ9C",
+        "catalog_id": "pathcom.status_server",
+        "rendered": "PATHCOM $PM1; STATUS SERVER ATM-AUTH",
+        "tier": "T0",
+        "parallel_group": 0,
+        "status": "auto_running",
+        "card_id": "card_01JDXJ9D"
+      },
+      {
+        "step_id": "stp_01JDXJ9E",
+        "catalog_id": "pathcom.stats_server",
+        "rendered": "PATHCOM $PM1; STATS SERVER ATM-AUTH",
+        "tier": "T0",
+        "parallel_group": 0,
+        "status": "awaiting_approval",
+        "card_id": "card_01JDXJ9F"
+      }
+    ]
+  }
+}

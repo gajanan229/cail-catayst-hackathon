@@ -1,0 +1,18 @@
+import type { components } from './generated/rest';
+import type { ServerEvent } from './generated/WsEvent';
+export type Schema<K extends keyof components['schemas']> = components['schemas'][K];
+export type Card = Schema<'TextCard'> | Schema<'SituationCard'> | Schema<'CommandCard'> | Schema<'PlanCard'> | Schema<'HypothesesCard'> | Schema<'EvidenceCard'> | Schema<'ExpertCard'> | Schema<'DecisionCard'> | Schema<'VerificationCard'> | Schema<'EscalationCard'> | Schema<'PostmortemCard'> | Schema<'ClaimReviewCard'>;
+export type Health = Schema<'HealthResponse'>;
+export type Sim = Schema<'SimState'>;
+export type Incident = Schema<'Incident'>;
+export type Approval = Schema<'Approval'>;
+export type Claim = Schema<'Claim'>;
+export type Ledger = Schema<'LedgerEntry'>;
+export type Trace = Schema<'TraceStep'>;
+export type Timeline = Schema<'TimelineItem'>;
+export type Episode = Schema<'Episode'>;
+export type AuditRow = Schema<'AuditRow'>;
+export type User = Schema<'User'>;
+export type MetricPoint = [string, number];
+export type Event = Pick<ServerEvent,'topic'|'type'|'seq'|'ts'|'sim_ts'> & {payload:unknown};
+export type TerminalEvent = {type: string; seq: number; payload: {exec_id?: string; label?: string; text?: string; ms_per_char?: number; lines?: string[]}};

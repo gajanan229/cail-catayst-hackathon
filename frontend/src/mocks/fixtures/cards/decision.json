@@ -1,0 +1,173 @@
+{
+  "id": "card_01JDXK9A0B1C2D3E4F5G6H7J8K",
+  "thread_id": "thr_01JDXK3M7Q8R2V5T9W0YB4C6EA",
+  "incident_id": "inc_01JDXK3M5N6P7Q8R9S0T1V2W3X",
+  "status": "proposed",
+  "title": "Options",
+  "citations": [
+    {
+      "id": "playbook:PB-CPU-LOSS-PEAK",
+      "label": "PB-CPU-LOSS-PEAK v3",
+      "kind": "playbook",
+      "url": null
+    },
+    {
+      "id": "claim:C-004",
+      "label": "C-004 · Maria",
+      "kind": "claim",
+      "url": null
+    }
+  ],
+  "actions": [
+    "approve_selected"
+  ],
+  "source": null,
+  "created_at": "2026-10-17T07:31:02.511Z",
+  "sim_ts": "2026-11-27T11:52:41Z",
+  "seq": 9,
+  "type": "decision",
+  "body": {
+    "approval_id": null,
+    "options": [
+      {
+        "id": "opt_a",
+        "label": "Suspend the noon statement batch $STMT1",
+        "steps": [
+          {
+            "catalog_id": "tacl.suspend_process",
+            "params": {
+              "process": "$STMT1"
+            },
+            "rendered": "SUSPEND $STMT1",
+            "tier": "T1",
+            "undo": "ACTIVATE $STMT1"
+          }
+        ],
+        "tier": "T1",
+        "required_approvers": 1,
+        "recommender": {
+          "kind": "playbook",
+          "id": "PB-CPU-LOSS-PEAK",
+          "author": "Dave",
+          "verified_by": [
+            "Maria"
+          ]
+        },
+        "expected_effect": "CPU 5 down 12–18 points within 30 s",
+        "risks": "Statements wait until ACTIVATE; resume after 13:00 to meet the 18:00 deadline (C-001)",
+        "prediction": null,
+        "recommended": false,
+        "blocked": false,
+        "block_reason": null,
+        "escalation": null,
+        "includes": [],
+        "approval_id": null,
+        "status": "available"
+      },
+      {
+        "id": "opt_b",
+        "label": "Raise ATM-AUTH static servers from 20 to 28",
+        "steps": [
+          {
+            "catalog_id": "pathcom.alter_numstatic",
+            "params": {
+              "server_class": "ATM-AUTH",
+              "n": 28
+            },
+            "rendered": "PATHCOM $PM1; ALTER SERVER ATM-AUTH, NUMSTATIC 28",
+            "tier": "T2",
+            "undo": "PATHCOM $PM1; ALTER SERVER ATM-AUTH, NUMSTATIC 20"
+          }
+        ],
+        "tier": "T2",
+        "required_approvers": 2,
+        "recommender": {
+          "kind": "claim",
+          "id": "C-005",
+          "author": "Dave",
+          "verified_by": [
+            "Maria"
+          ]
+        },
+        "expected_effect": "Queue clears and ATM p95 returns to band within about 2 minutes",
+        "risks": "Adds load on CPUs 1 and 6; must stay at or below MAXSERVERS 32 (PATHWAY 2049)",
+        "prediction": null,
+        "recommended": false,
+        "blocked": false,
+        "block_reason": null,
+        "escalation": null,
+        "includes": [],
+        "approval_id": null,
+        "status": "available"
+      },
+      {
+        "id": "opt_ab",
+        "label": "A then B",
+        "steps": [],
+        "tier": "T2",
+        "required_approvers": 2,
+        "recommender": null,
+        "expected_effect": "CPU 5 near 80% and ATM p95 back in band within about 2 minutes",
+        "risks": "Combined risks of A and B",
+        "prediction": null,
+        "recommended": true,
+        "blocked": false,
+        "block_reason": null,
+        "escalation": null,
+        "includes": [
+          "opt_a",
+          "opt_b"
+        ],
+        "approval_id": null,
+        "status": "available"
+      },
+      {
+        "id": "opt_c",
+        "label": "Reload CPU 3",
+        "steps": [
+          {
+            "catalog_id": "sys.reload_cpu",
+            "params": {
+              "cpu": 3
+            },
+            "rendered": "Reload processor 3",
+            "tier": "T3",
+            "undo": null
+          }
+        ],
+        "tier": "T3",
+        "required_approvers": null,
+        "recommender": null,
+        "expected_effect": null,
+        "risks": null,
+        "prediction": null,
+        "recommended": false,
+        "blocked": true,
+        "block_reason": "Destructive or outage-capable: human-only, outside Baton",
+        "escalation": "Call HPE hardware support with the evidence pack",
+        "includes": [],
+        "approval_id": null,
+        "status": "blocked"
+      },
+      {
+        "id": "opt_none",
+        "label": "Do nothing",
+        "steps": [],
+        "tier": null,
+        "required_approvers": null,
+        "recommender": null,
+        "expected_effect": "ATM p95 above 1,200 ms within 10 minutes",
+        "risks": "Timeouts reach 5–8%: customers see failed withdrawals",
+        "prediction": null,
+        "recommended": false,
+        "blocked": false,
+        "block_reason": null,
+        "escalation": null,
+        "includes": [],
+        "approval_id": null,
+        "status": "available"
+      }
+    ],
+    "selected": []
+  }
+}
