@@ -1,0 +1,30 @@
+{"id":"ret-001","query":"what does 1034 mean?","expected_ids":["opmsg:PATHWAY:1034"],"synthetic":true}
+{"id":"ret-002","query":"1034 link errors ATM — are the link managers broken or are we short of servers?","expected_ids":["opmsg:PATHWAY:1034","claim:C-003"],"synthetic":true}
+{"id":"ret-003","query":"PATHMON just logged 1077 after the processor halted. What took over?","expected_ids":["opmsg:PATHWAY:1077","claim:C-002"],"synthetic":true}
+{"id":"ret-004","query":"I'm seeing 1093 now. Does PATHMON still have a backup?","expected_ids":["opmsg:PATHWAY:1093"],"synthetic":true}
+{"id":"ret-005","query":"OMF 217 says the disk primary CPU is inaccessible. Have we lost the volume?","expected_ids":["opmsg:OMF:217","claim:C-013"],"synthetic":true}
+{"id":"ret-006","query":"CPU busy crossed the configured limit and OMF printed 101. What should I check?","expected_ids":["opmsg:OMF:101"],"synthetic":true}
+{"id":"ret-007","query":"What's the difference between NUMSTATIC and MAXSERVERS, and why can't I set static servers above the max?","expected_ids":["concept:numstatic-maxservers","cmdref:pathcom.alter_numstatic","opmsg:PATHWAY:2049"],"synthetic":true}
+{"id":"ret-008","query":"How can an application keep going when the CPU hosting its primary process goes down?","expected_ids":["concept:process-pairs","concept:takeover"],"synthetic":true}
+{"id":"ret-009","query":"The CPUs look green, so why is Baton warning that one more CPU failure would overload a survivor?","expected_ids":["concept:n1-headroom"],"synthetic":true}
+{"id":"ret-010","query":"What happens to transactions as the audit trail reaches overflow and then the begin-transaction-disable threshold?","expected_ids":["concept:audit-overflow","concept:tmf-audit"],"synthetic":true}
+{"id":"ret-011","query":"Which read-only command tells me how many ATM auth servers are running and how many requests are waiting?","expected_ids":["cmdref:pathcom.status_server"],"synthetic":true}
+{"id":"ret-012","query":"I need a busy-percentage report for every processor. What should I run and how do I read it?","expected_ids":["cmdref:meas.cpu_busy","concept:measure-cpu-busy"],"synthetic":true}
+{"id":"ret-013","query":"How do I pause the statement batch and bring it back later?","expected_ids":["cmdref:tacl.suspend_process","cmdref:tacl.activate_process"],"synthetic":true}
+{"id":"ret-014","query":"How can I inspect audit fill and its overflow threshold without changing TMF?","expected_ids":["cmdref:tmfcom.status_audittrail"],"synthetic":true}
+{"id":"ret-015","query":"Can we just keep raising the ATM auth server limit, or is there a local ceiling because of disk load?","expected_ids":["claim:C-004"],"synthetic":true}
+{"id":"ret-016","query":"Is it safe to hold the noon statement job during the peak, and when must we resume it?","expected_ids":["claim:C-001"],"synthetic":true}
+{"id":"ret-017","query":"Would stopping TMF help with a filling audit trail, or who should I call?","expected_ids":["claim:C-009"],"synthetic":true}
+{"id":"ret-018","query":"Can I reload the failed processor myself while the Black Friday peak is still going?","expected_ids":["claim:C-006"],"synthetic":true}
+{"id":"ret-019","query":"We lost a CPU at the busiest time and withdrawals are getting slow. What's the approved recovery procedure?","expected_ids":["playbook:PB-CPU-LOSS-PEAK"],"synthetic":true}
+{"id":"ret-020","query":"ATM auth is queued at its server ceiling and throwing link errors. Walk me through the capacity checks and safe limit change.","expected_ids":["playbook:PB-SC-STARVATION"],"synthetic":true}
+{"id":"ret-021","query":"Month-end audit usage is climbing fast. What steps should the shift take before it overflows?","expected_ids":["playbook:PB-AUDIT-PRESSURE","claim:C-008"],"synthetic":true}
+{"id":"ret-022","query":"One batch job is hogging a CPU. Should we lower its priority or suspend it, and whose permission do we need?","expected_ids":["playbook:PB-RUNAWAY-BATCH"],"synthetic":true}
+{"id":"ret-023","query":"Did we have a processor halt on Black Friday last year, and what got ATM latency back down?","expected_ids":["incident:INC-2025-1128"],"synthetic":true}
+{"id":"ret-024","query":"Find the earlier outage where a configuration change capped ATM auth at twelve servers and caused a 1034 storm.","expected_ids":["incident:INC-2026-0615"],"synthetic":true}
+{"id":"ret-025","query":"Wasn't there an ATM timeout incident where NonStop was healthy and the network team fixed the switch?","expected_ids":["incident:INC-2026-0802"],"synthetic":true}
+{"id":"ret-026","query":"What did the team do when the audit trail went over threshold at quarter-end?","expected_ids":["incident:INC-2026-0331"],"synthetic":true}
+{"id":"ret-027","query":"Where does $STMT1 run and what hours is it scheduled for on this node?","expected_ids":["site:proc:$STMT1"],"synthetic":true}
+{"id":"ret-028","query":"Which CPUs can host ATM-AUTH, and what are its configured static and maximum server counts?","expected_ids":["site:sc:ATM-AUTH"],"synthetic":true}
+{"id":"ret-029","query":"Which processor hosts $PM1 normally, and where is its backup?","expected_ids":["site:proc:$PM1"],"synthetic":true}
+{"id":"ret-030","query":"Is $DATA02 protected, and which CPUs form its process pair?","expected_ids":["site:proc:$DATA02"],"synthetic":true}
