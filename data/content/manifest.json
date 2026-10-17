@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "source_spec": "BATON_MVP_SPEC.md §10.1 / §16 / Appendix C",
+  "operator_message_mode": "Appendix A fallback; full manual crawl is an Engine/human follow-up",
+  "counts": {
+    "operator_messages": 19,
+    "command_reference": 21,
+    "concepts": 20,
+    "playbooks": 4,
+    "claims": 20,
+    "verified_claims": 16,
+    "pending_claims": 4,
+    "incidents": 8,
+    "glossary": 60
+  }
+}

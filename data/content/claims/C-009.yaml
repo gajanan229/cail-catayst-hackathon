@@ -1,0 +1,32 @@
+{
+  "id": "C-009",
+  "statement": "Never stop TMF to relieve audit pressure; call the TMF expert.",
+  "structured": {
+    "subject": [
+      "TMF"
+    ],
+    "condition": "Month-end audit pressure; fill above 70% and rising faster than 0.8% per minute",
+    "assertion": "Never stop TMF to relieve audit pressure; call the TMF expert.",
+    "rationale": "Synthetic expert seed from Baton MVP Appendix C; site-specific guidance requires current evidence."
+  },
+  "scope": {
+    "site": "TORBANK"
+  },
+  "confidence": "certain",
+  "status": "verified",
+  "author": "u_dave",
+  "reviews": [
+    {
+      "user": "u_maria",
+      "decision": "confirm",
+      "at": "2026-09-14"
+    }
+  ],
+  "version": 1,
+  "provenance": {
+    "source_type": "interview",
+    "source_id": "synthetic-seed-appendix-c"
+  },
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html"
+}

@@ -1,0 +1,70 @@
+{
+  "id": "PB-CPU-LOSS-PEAK",
+  "title": "CPU loss at peak",
+  "version": 3,
+  "author": "u_dave",
+  "verified_by": [
+    {
+      "user": "u_maria",
+      "at": "2026-09-14"
+    }
+  ],
+  "trigger": {
+    "causal_template": "cpu_loss_cascade"
+  },
+  "steps": [
+    {
+      "kind": "check",
+      "catalog_id": "meas.cpu_busy",
+      "read": "Which survivor is hottest?"
+    },
+    {
+      "kind": "check",
+      "catalog_id": "pathcom.status_server",
+      "params": {
+        "server_class": "$affected_critical_class"
+      },
+      "read": "How many servers were lost?"
+    },
+    {
+      "kind": "check",
+      "catalog_id": "tmfcom.status_audittrail",
+      "read": "Rule out audit pressure early on peak days (C-007)."
+    },
+    {
+      "kind": "note",
+      "text": "TMF is rarely the cause here, but rule it out on peak days (Maria)."
+    },
+    {
+      "kind": "action",
+      "catalog_id": "tacl.suspend_process",
+      "params": {
+        "process": "$STMT1"
+      },
+      "when": "CPU 5 is the hottest survivor between 11:00 and 13:00",
+      "expected_effect": "CPU 5 down 12–18 points within 30 s",
+      "undo": "ACTIVATE $STMT1"
+    },
+    {
+      "kind": "action",
+      "catalog_id": "pathcom.alter_numstatic",
+      "params": {
+        "server_class": "ATM-AUTH",
+        "n": "+8"
+      },
+      "expected_effect": "Queue clears and p95 returns to band within about 2 minutes",
+      "undo": "Restore previous NUMSTATIC"
+    },
+    {
+      "kind": "escalate",
+      "text": "Never reload the CPU yourself. Call HPE hardware support with the evidence pack."
+    },
+    {
+      "kind": "note",
+      "text": "After repair, restore NUMSTATIC and ACTIVATE $STMT1 after 13:00."
+    }
+  ],
+  "status": "verified",
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html"
+}

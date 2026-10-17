@@ -1,0 +1,47 @@
+{
+  "id": "PB-AUDIT-PRESSURE",
+  "title": "Audit trail climbing at month-end",
+  "version": 4,
+  "author": "u_dave",
+  "verified_by": [
+    {
+      "user": "u_maria",
+      "at": "2026-09-14"
+    }
+  ],
+  "trigger": {
+    "causal_template": "audit_trail_pressure"
+  },
+  "steps": [
+    {
+      "kind": "check",
+      "catalog_id": "tmfcom.status_audittrail",
+      "read": "Read fill, trend and thresholds."
+    },
+    {
+      "kind": "check",
+      "catalog_id": "tacl.status_process",
+      "params": {
+        "process": "$MEB01"
+      },
+      "read": "Confirm the month-end batch is running."
+    },
+    {
+      "kind": "action",
+      "catalog_id": "tacl.suspend_process",
+      "params": {
+        "process": "$MEB01"
+      },
+      "when": "Fill exceeds 70% and rises faster than 0.8% per minute",
+      "expected_effect": "Reduce audit generation while expert reviews dump handling",
+      "undo": "ACTIVATE $MEB01"
+    },
+    {
+      "kind": "escalate",
+      "text": "Call Maria, the TMF expert, for dump handling. Never stop TMF to relieve audit pressure."
+    }
+  ],
+  "status": "verified",
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html"
+}

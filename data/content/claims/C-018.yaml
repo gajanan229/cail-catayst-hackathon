@@ -1,0 +1,26 @@
+{
+  "id": "C-018",
+  "statement": "CPU 5 above 90% for five minutes always means the statement batch is running.",
+  "structured": {
+    "subject": [
+      "CPU 5"
+    ],
+    "condition": "TORBANK site context; verify current state before applying",
+    "assertion": "CPU 5 above 90% for five minutes always means the statement batch is running.",
+    "rationale": "Synthetic expert seed from Baton MVP Appendix C; site-specific guidance requires current evidence."
+  },
+  "scope": {
+    "site": "TORBANK"
+  },
+  "confidence": "sometimes",
+  "status": "pending_review",
+  "author": "u_priya",
+  "reviews": [],
+  "version": 1,
+  "provenance": {
+    "source_type": "interview",
+    "source_id": "synthetic-seed-appendix-c"
+  },
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html"
+}

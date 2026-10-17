@@ -1,0 +1,26 @@
+{
+  "id": "C-020",
+  "statement": "$DATA02 revive after a CPU repair takes about 20 minutes.",
+  "structured": {
+    "subject": [
+      "$DATA02"
+    ],
+    "condition": "TORBANK site context; verify current state before applying",
+    "assertion": "$DATA02 revive after a CPU repair takes about 20 minutes.",
+    "rationale": "Synthetic expert seed from Baton MVP Appendix C; site-specific guidance requires current evidence."
+  },
+  "scope": {
+    "site": "TORBANK"
+  },
+  "confidence": "sometimes",
+  "status": "pending_review",
+  "author": "u_lee",
+  "reviews": [],
+  "version": 1,
+  "provenance": {
+    "source_type": "interview",
+    "source_id": "synthetic-seed-appendix-c"
+  },
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html"
+}

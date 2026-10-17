@@ -1,0 +1,59 @@
+{
+  "id": "PB-SC-STARVATION",
+  "title": "Link errors 1007/1034 on a critical class",
+  "version": 2,
+  "author": "u_maria",
+  "verified_by": [
+    {
+      "user": "u_dave",
+      "at": "2026-09-14"
+    }
+  ],
+  "trigger": {
+    "failure_mode": "server_class_starvation"
+  },
+  "steps": [
+    {
+      "kind": "check",
+      "catalog_id": "pathcom.status_server",
+      "params": {
+        "server_class": "$affected_critical_class"
+      },
+      "read": "Compare running servers, maximum and queue."
+    },
+    {
+      "kind": "check",
+      "catalog_id": "pathcom.info_server",
+      "params": {
+        "server_class": "$affected_critical_class"
+      },
+      "read": "Read configured limits and CPU placement."
+    },
+    {
+      "kind": "check",
+      "catalog_id": "baton.recent_events",
+      "params": {
+        "subsystem": "PATHWAY",
+        "minutes": 5
+      },
+      "read": "Look for 1166 configuration changes before the 1034 burst."
+    },
+    {
+      "kind": "action",
+      "catalog_id": "pathcom.alter_maxservers",
+      "params": {
+        "server_class": "$affected_critical_class",
+        "n": "$verified_limit"
+      },
+      "when": "Running equals MAXSERVERS and requests queue; two approvals including Senior or Expert",
+      "expected_effect": "Allow capacity to grow within the verified limit"
+    },
+    {
+      "kind": "note",
+      "text": "Never raise ATM-AUTH MAXSERVERS above 40. NUMSTATIC must not exceed MAXSERVERS (PATHWAY 2049)."
+    }
+  ],
+  "status": "verified",
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "C-003",
+  "statement": "Bursts of 1007 with nested 1034 on ATM-AUTH at peak mean the class is out of servers, not that the link managers are broken.",
+  "structured": {
+    "subject": [
+      "ATM-AUTH"
+    ],
+    "condition": "TORBANK site context; verify current state before applying",
+    "assertion": "Bursts of 1007 with nested 1034 on ATM-AUTH at peak mean the class is out of servers, not that the link managers are broken.",
+    "rationale": "Synthetic expert seed from Baton MVP Appendix C; site-specific guidance requires current evidence."
+  },
+  "scope": {
+    "site": "TORBANK"
+  },
+  "confidence": "certain",
+  "status": "verified",
+  "author": "u_dave",
+  "reviews": [
+    {
+      "user": "u_maria",
+      "decision": "confirm",
+      "at": "2026-09-14"
+    }
+  ],
+  "version": 1,
+  "provenance": {
+    "source_type": "interview",
+    "source_id": "synthetic-seed-appendix-c"
+  },
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "C-002",
+  "statement": "After a CPU failure, PATHWAY 1077 and 1093 are expected consequences, not separate problems.",
+  "structured": {
+    "subject": [
+      "PATHWAY 1077"
+    ],
+    "condition": "CPU failure or recovery on TORBANK",
+    "assertion": "After a CPU failure, PATHWAY 1077 and 1093 are expected consequences, not separate problems.",
+    "rationale": "Synthetic expert seed from Baton MVP Appendix C; site-specific guidance requires current evidence."
+  },
+  "scope": {
+    "site": "TORBANK"
+  },
+  "confidence": "certain",
+  "status": "verified",
+  "author": "u_maria",
+  "reviews": [
+    {
+      "user": "u_dave",
+      "decision": "confirm",
+      "at": "2026-09-14"
+    }
+  ],
+  "version": 1,
+  "provenance": {
+    "source_type": "interview",
+    "source_id": "synthetic-seed-appendix-c"
+  },
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html"
+}

@@ -1,0 +1,42 @@
+{
+  "id": "C-001",
+  "statement": "$STMT1 is safe to suspend 11:00–13:00 on peak days; resume after 13:00.",
+  "structured": {
+    "subject": [
+      "$STMT1"
+    ],
+    "condition": "Peak day, 11:00–13:00, CPU 5 constrained; resume after 13:00",
+    "assertion": "$STMT1 is safe to suspend 11:00–13:00 on peak days; resume after 13:00.",
+    "recommendation": {
+      "catalog_id": "tacl.suspend_process",
+      "params": {
+        "process": "$STMT1"
+      }
+    },
+    "rationale": "Statements are due by 18:00; the synthetic site batch catches up in about 40 minutes."
+  },
+  "scope": {
+    "site": "TORBANK",
+    "calendar": [
+      "black_friday",
+      "christmas_eve"
+    ]
+  },
+  "confidence": "certain",
+  "status": "verified",
+  "author": "u_dave",
+  "reviews": [
+    {
+      "user": "u_maria",
+      "decision": "confirm",
+      "at": "2026-09-14"
+    }
+  ],
+  "version": 1,
+  "provenance": {
+    "source_type": "interview",
+    "source_id": "synthetic-seed-appendix-c"
+  },
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html"
+}

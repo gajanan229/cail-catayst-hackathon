@@ -1,0 +1,32 @@
+{
+  "id": "C-006",
+  "statement": "Never reload a CPU during a peak without hardware support on the line.",
+  "structured": {
+    "subject": [
+      "NonStop operations"
+    ],
+    "condition": "CPU failure or recovery on TORBANK",
+    "assertion": "Never reload a CPU during a peak without hardware support on the line.",
+    "rationale": "Synthetic expert seed from Baton MVP Appendix C; site-specific guidance requires current evidence."
+  },
+  "scope": {
+    "site": "TORBANK"
+  },
+  "confidence": "certain",
+  "status": "verified",
+  "author": "u_maria",
+  "reviews": [
+    {
+      "user": "u_dave",
+      "decision": "confirm",
+      "at": "2026-09-14"
+    }
+  ],
+  "version": 1,
+  "provenance": {
+    "source_type": "interview",
+    "source_id": "synthetic-seed-appendix-c"
+  },
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html"
+}

@@ -1,0 +1,48 @@
+{
+  "id": "PB-RUNAWAY-BATCH",
+  "title": "One batch process eating a CPU",
+  "version": 1,
+  "author": "u_maria",
+  "verified_by": [
+    {
+      "user": "u_dave",
+      "at": "2026-09-14"
+    }
+  ],
+  "trigger": {
+    "failure_mode": "runaway_process"
+  },
+  "steps": [
+    {
+      "kind": "check",
+      "catalog_id": "meas.cpu_busy",
+      "read": "Identify the hottest CPU."
+    },
+    {
+      "kind": "check",
+      "catalog_id": "tacl.status_cpu",
+      "params": {
+        "cpu": "$hottest_cpu"
+      },
+      "read": "Identify the batch process and confirm ownership."
+    },
+    {
+      "kind": "action",
+      "catalog_id": "tacl.altpri_process",
+      "params": {
+        "process": "$batch_process",
+        "priority": 100
+      },
+      "when": "Owner confirms the process can yield capacity",
+      "expected_effect": "Lower batch scheduling priority",
+      "undo": "Restore previous priority"
+    },
+    {
+      "kind": "note",
+      "text": "Lower priority first. Suspend only with the owner’s OK. Never stop without the owner."
+    }
+  ],
+  "status": "verified",
+  "synthetic": true,
+  "source": "https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html"
+}
