@@ -9,7 +9,7 @@ test("mock golden path: guarded diagnosis, recovery, learning and audit", async 
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await expect(page.getByText("Experience on your side.")).toBeVisible();
+  await expect(page.getByText("Ready for your next check.")).toBeVisible();
   await expect(page.getByText("All streams connected")).toBeVisible();
   await page.screenshot({
     path: "test-results/console-healthy.png",
@@ -37,6 +37,11 @@ test("mock golden path: guarded diagnosis, recovery, learning and audit", async 
   await page.getByRole("button", { name: "Confirm as Priya" }).click();
   const decision = page.getByRole("article", { name: "Options", exact: true });
   await expect(decision).toBeVisible();
+  await page.getByRole("link",{name:"Overview",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Recover service capacity",exact:true})).toBeVisible();
+  await page.screenshot({path:"test-results/console-incident.png",fullPage:true});
+  await page.getByRole("button",{name:"Review plan & approvals",exact:true}).click();
+  await expect(decision).toBeVisible();
   await decision
     .getByRole("button", { name: "Approve selected", exact: true })
     .click();
@@ -50,6 +55,18 @@ test("mock golden path: guarded diagnosis, recovery, learning and audit", async 
     path: "test-results/incident-two-person.png",
     fullPage: true,
   });
+  await page.getByRole("tab", { name: "Steps", exact: true }).click();
+  await expect(page.locator(".trace-step").first()).toBeVisible();
+  await page.locator(".trace-step").first().click();
+  await expect(page.getByRole("dialog")).toContainText("Prompt hash");
+  await page.getByRole("button", { name: "Close", exact: true }).click();
+  await page.getByRole("tab", { name: "Playbook", exact: true }).click();
+  await expect(page.locator(".card-expert")).toContainText("Verified by");
+  await page.getByRole("tab", { name: "Evidence", exact: true }).click();
+  await expect(
+    page.locator('[role="tabpanel"][aria-label="Evidence"]'),
+  ).toContainText("TMFCOM");
+  await page.getByRole("tab", { name: "Diagnosis", exact: true }).click();
   await page.getByLabel("Acting persona").selectOption("u_sam");
   await decision
     .getByRole("button", { name: "Approve selected", exact: true })
@@ -63,6 +80,19 @@ test("mock golden path: guarded diagnosis, recovery, learning and audit", async 
       exact: true,
     }),
   ).toBeVisible({ timeout: 25000 });
+  await page.getByRole("button",{name:"Postmortem",exact:true}).click();
+  await expect(page.locator(".postmortem-document")).toBeVisible();
+  await page.locator(".incident-screen > .tabs").getByRole("button",{name:"Overview",exact:true}).click();
+  await page
+    .locator(".undo-entry")
+    .first()
+    .getByRole("button", { name: "Undo", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText(
+    "Undo follows the same backend policy",
+  );
+  await expect(page.getByRole("dialog")).toContainText("ACTIVATE $STMT1");
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
   await page.getByRole("link", { name: /Knowledge/ }).click();
   await page.getByLabel("Acting persona").selectOption("u_dave");
   const dynamic = page
@@ -91,11 +121,95 @@ test("mock golden path: guarded diagnosis, recovery, learning and audit", async 
   await page.getByRole("link", { name: "Audit", exact: true }).click();
   await page.getByRole("button", { name: "Verify chain", exact: true }).click();
   await expect(page.getByText(/Chain verified ·/)).toBeVisible();
+  await page
+    .getByRole("button", { name: /^Inspect audit entry / })
+    .first()
+    .click();
+  await expect(page.getByRole("dialog")).toContainText("Recorded payload");
+  await expect(page.getByRole("dialog")).toContainText("Previous hash");
+  await page.getByRole("button", { name: "Close", exact: true }).click();
   await page.screenshot({
     path: "test-results/audit-verified.png",
     fullPage: true,
   });
   expect(errors).toEqual([]);
+});
+
+test("professional workspace: diagnostics, keyboard tabs and governed manual commands", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByText("All streams connected")).toBeVisible();
+  const diagnosticTabs = page.getByRole("tablist", {
+    name: "System diagnostics",
+  });
+  await diagnosticTabs
+    .getByRole("tab", { name: "Service health", exact: true })
+    .focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(
+    diagnosticTabs.getByRole("tab", { name: "Servers", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
+  await expect(
+    page.getByRole("columnheader", { name: "Running / max" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Inspect ATM-AUTH", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toContainText("Source evidence");
+  await page.getByRole("button", { name: "Close", exact: true }).click();
+  await diagnosticTabs
+    .getByRole("tab", { name: "Processors", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "TMF audit headroom" }),
+  ).toBeVisible();
+  await diagnosticTabs
+    .getByRole("tab", { name: "Events", exact: true })
+    .click();
+  await expect(page.getByLabel("Filter event stream")).toBeVisible();
+  await diagnosticTabs
+    .getByRole("tab", { name: "Service health", exact: true })
+    .click();
+  await page.getByRole("button", { name: "1h", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "1h", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Expand command workspace" }).click();
+  await expect(page.getByLabel("Catalog command")).toBeVisible();
+  await page
+    .getByLabel("Catalog command")
+    .fill("PATHCOM $PM1; STATS SERVER ATM-AUTH");
+  await page.getByLabel("Catalog command").press("Enter");
+  const check = page.getByRole("article", {
+    name: "ATM authorization performance",
+    exact: true,
+  });
+  await expect(check).toContainText("STATS SERVER ATM-AUTH");
+  await check.getByRole("button", { name: "Approve", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("STATS SERVER ATM-AUTH");
+  await page.getByRole("button", { name: "Confirm as Priya" }).click();
+  await expect(check).toContainText("done");
+  await page.getByRole("tab", { name: "Event stream", exact: true }).click();
+  await expect(page.locator(".dock-scroll")).toContainText("Event stream");
+  await page
+    .getByRole("tab", { name: "Command workspace", exact: true })
+    .click();
+  await expect(page.locator(".terminal-host")).toContainText(
+    "STATS SERVER ATM-AUTH",
+    { timeout: 15000 },
+  );
+  await page.getByRole("button", { name: "Restore command workspace" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Your services, at a glance." }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: /View all \d+ cards/ }).click();
+  await expect(page.getByRole("dialog")).toContainText(
+    "Conversation & investigation",
+  );
+  await expect(page.getByRole("dialog")).toContainText(
+    "ATM authorization performance",
+  );
 });
 
 test("safety: destructive requests stay out of the terminal", async ({
@@ -124,7 +238,7 @@ test("layout: compact viewport, local fonts and no page overflow", async ({
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
-  await expect(page.getByText("Experience on your side.")).toBeVisible();
+  await expect(page.getByText("Ready for your next check.")).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   expect(
     await page.evaluate(
@@ -185,8 +299,8 @@ test("all P0 routes render without browser exceptions", async ({ page }) => {
     ["Incidents", "Incident Room"],
     ["Knowledge", "Knowledge Studio"],
     ["Trust Ledger", "Trust Ledger"],
-    ["Audit", "Every action, accounted for."],
-    ["Evaluation", "Trust, measured."],
+    ["Audit", "Audit"],
+    ["Evaluation", "Evaluation"],
   ];
   for (const [link, heading] of screens) {
     await page.getByRole("link", { name: new RegExp(`^${link}`) }).click();

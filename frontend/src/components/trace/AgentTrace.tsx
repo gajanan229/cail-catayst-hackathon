@@ -12,9 +12,16 @@ import type { Trace } from "@/api/types";
 import { Dialog } from "../ui/dialog";
 import { Badge, Empty } from "../common";
 
-export function AgentTrace({ full = false }: { full?: boolean }) {
+export function AgentTrace({
+  full = false,
+  threadId: requestedThread,
+}: {
+  full?: boolean;
+  threadId?: string | null;
+}) {
   const allTrace = useConsole((s) => s.trace);
-  const threadId = useConsole((s) => s.threadId);
+  const activeThread = useConsole((s) => s.threadId);
+  const threadId = requestedThread || activeThread;
   const threads = useConsole((s) => s.traceThreads);
   const trace = allTrace.filter(
     (t) => !threads[t.run_id] || threads[t.run_id] === threadId,

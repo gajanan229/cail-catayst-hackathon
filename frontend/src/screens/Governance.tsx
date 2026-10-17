@@ -24,10 +24,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { PageHeading } from "./Incident";
 import { human, time } from "@/lib/utils";
-import type { Ledger, Schema } from "@/api/types";
+import type { AuditRow, Ledger, Schema } from "@/api/types";
 
 export function LedgerScreen() {
   const entries = useConsole((s) => s.ledger);
+  const connected = useConsole((s) => s.connected);
   const [selected, setSelected] = useState<Ledger | null>(null);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
@@ -69,7 +70,7 @@ export function LedgerScreen() {
       <PageHeading
         eyebrow="GOVERNANCE / AUTONOMY"
         title="Trust Ledger"
-        description="Autonomy is earned, scoped, and always accountable."
+        description="Review command permissions, approval history and scoped autonomy."
         action={
           <Badge>
             <ShieldCheck size={12} /> Human-granted trust
@@ -231,14 +232,16 @@ export function LedgerScreen() {
             )}
             <div className="dialog-actions">
               <Button
-                disabled={!reason.trim() || busy}
+                disabled={!connected || !reason.trim() || busy}
                 onClick={() => void change(true)}
               >
                 Revoke to L1
               </Button>
               <Button
                 variant="default"
-                disabled={!reason.trim() || busy || !selected.eligible_for}
+                disabled={
+                  !connected || !reason.trim() || busy || !selected.eligible_for
+                }
                 onClick={() => void change()}
               >
                 Grant L2
@@ -254,6 +257,7 @@ export function AuditScreen() {
   const rows = useConsole((s) => s.audit);
   const [filter, setFilter] = useState("");
   const [incidentOnly, setIncidentOnly] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<AuditRow | null>(null);
   const incident = useConsole((s) => s.incidents.at(-1));
   const verify = useQuery({
     queryKey: ["audit-verify", rows.length],
@@ -268,8 +272,8 @@ export function AuditScreen() {
     <div className="page-content">
       <PageHeading
         eyebrow="GOVERNANCE / AUDIT"
-        title="Every action, accounted for."
-        description="A verifiable chain from the first signal to the final decision."
+        title="Audit"
+        description="Inspect decisions, actors and executions in the verified event chain."
         action={
           <Button onClick={() => void verify.refetch()}>
             <RefreshCw size={13} /> Verify chain
@@ -323,6 +327,7 @@ export function AuditScreen() {
                 <th>Actor</th>
                 <th>Action</th>
                 <th>Target</th>
+                <th>Decision</th>
                 <th>Hash</th>
               </tr>
             </thead>
@@ -330,7 +335,13 @@ export function AuditScreen() {
               {[...filtered].reverse().map((r) => (
                 <tr key={r.seq}>
                   <td className="mono muted">
-                    {String(r.seq).padStart(4, "0")}
+                    <button
+                      className="audit-inspect"
+                      aria-label={`Inspect audit entry ${r.seq}`}
+                      onClick={() => setSelectedEntry(r)}
+                    >
+                      {String(r.seq).padStart(4, "0")}
+                    </button>
                   </td>
                   <td className="mono">{time(r.sim_ts)}</td>
                   <td>{r.actor_id.replace("u_", "")}</td>
@@ -341,7 +352,17 @@ export function AuditScreen() {
                     <code>{r.target || "—"}</code>
                   </td>
                   <td>
-                    <code title={r.hash}>{r.hash.slice(0, 10)}</code>
+                    {typeof r.payload.decision === "string"
+                      ? human(r.payload.decision)
+                      : "—"}
+                  </td>
+                  <td>
+                    <button
+                      className="audit-inspect"
+                      onClick={() => setSelectedEntry(r)}
+                    >
+                      <code title={r.hash}>{r.hash.slice(0, 10)}</code>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -355,6 +376,50 @@ export function AuditScreen() {
           )}
         </div>
       </Panel>
+      <Dialog
+        open={!!selectedEntry}
+        onOpenChange={(open) => !open && setSelectedEntry(null)}
+        title={`Audit entry ${selectedEntry?.seq ?? ""}`}
+        description="The recorded payload, policy, model provenance and chain hashes for this action."
+        drawer
+      >
+        {selectedEntry && (
+          <>
+            <Badge>{selectedEntry.action}</Badge>
+            <dl className="detail-list">
+              <dt>Actor</dt>
+              <dd>
+                {selectedEntry.actor_id} · {selectedEntry.actor_type}
+              </dd>
+              <dt>SIM time</dt>
+              <dd>{selectedEntry.sim_ts}</dd>
+              <dt>Target</dt>
+              <dd>{selectedEntry.target || "—"}</dd>
+              <dt>Policy rules</dt>
+              <dd>
+                {selectedEntry.policy_rule_ids.join(", ") || "None recorded"}
+              </dd>
+              <dt>Model / prompt hash</dt>
+              <dd>
+                {selectedEntry.model_id || "Deterministic"} ·{" "}
+                {selectedEntry.prompt_hash || "—"}
+              </dd>
+              <dt>Recorded payload</dt>
+              <dd>
+                <pre>{JSON.stringify(selectedEntry.payload, null, 2)}</pre>
+              </dd>
+              <dt>Previous hash</dt>
+              <dd>
+                <code>{selectedEntry.prev_hash}</code>
+              </dd>
+              <dt>Entry hash</dt>
+              <dd>
+                <code>{selectedEntry.hash}</code>
+              </dd>
+            </dl>
+          </>
+        )}
+      </Dialog>
     </div>
   );
 }
@@ -367,8 +432,8 @@ export function EvalScreen() {
     <div className="page-content">
       <PageHeading
         eyebrow="ASSURANCE / EVALUATION"
-        title="Trust, measured."
-        description="Evidence that Baton chooses correctly and respects every boundary."
+        title="Evaluation"
+        description="Measured command accuracy, safety gates and diagnosis results."
         action={
           <Badge>
             {MOCK ? "Contract example results" : "Latest backend run"}

@@ -40,7 +40,7 @@ if (initialHealth) overrides["rest/GET_health"] = initialHealth;
 if (initialTick) overrides["ws/telemetry.tick"] = initialTick;
 if (faultHealth) overrides["ws/health.snapshot.fault"] = faultHealth;
 if (faultTick) overrides["ws/telemetry.tick.fault"] = faultTick;
-const incident = first("incident.upsert")?.payload;
+const incident = first("incident.upsert", (p) => !!p.thread_id)?.payload;
 if (incident)
   overrides["rest/GET_incidents_id"] = { ...incident, undo_stack: [] };
 const tmf = firstCard(
@@ -113,9 +113,12 @@ const healthPhases = { healthy: [], fault: [], suspended: [], recovering: [] };
 let phase = "healthy";
 for (const env of events) {
   if (
-    env.type === "health.snapshot" &&
     phase === "healthy" &&
-    env.payload.components.some((c) => c.id === "cpu:3" && c.state === "down")
+    ((env.type === "health.snapshot" &&
+      env.payload.components.some(
+        (c) => c.id === "cpu:3" && c.state === "down",
+      )) ||
+      (env.type === "telemetry.tick" && env.payload.values["cpu.3.up"] === 0))
   )
     phase = "fault";
   if (

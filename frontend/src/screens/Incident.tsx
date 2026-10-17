@@ -17,6 +17,8 @@ import {
   Loading,
   ErrorState,
   ActorStamp,
+  Why,
+  Tier,
 } from "@/components/common";
 import {
   ApprovalProgress,
@@ -28,8 +30,9 @@ import { MetricChart } from "@/components/charts/MetricChart";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { human, time } from "@/lib/utils";
-import type { Schema } from "@/api/types";
+import type { Approval, Schema } from "@/api/types";
 import { SafeMarkdown } from "@/components/Markdown";
+import { TabStrip } from "@/components/TabStrip";
 
 export function IncidentScreen({
   inspect,
@@ -43,8 +46,13 @@ export function IncidentScreen({
   const allCards = useConsole((s) => s.cards);
   const timeline = useConsole((s) => s.timeline);
   const series = useConsole((s) => s.series);
+  const values = useConsole((s) => s.values);
+  const simTs = useConsole((s) => s.sim?.sim_ts);
   const readOnly = useConsole((s) => s.readOnly);
+  const connected = useConsole((s) => s.connected);
+  const [undoBusy, setUndoBusy] = useState(false);
   const [filter, setFilter] = useState("all");
+  const [investigationTab, setInvestigationTab] = useState("Diagnosis");
   const [tab, setTab] = useState(
     new URLSearchParams(location.search).get("tab") || "overview",
   );
@@ -100,6 +108,21 @@ export function IncidentScreen({
               ? "awaiting measurement"
               : `${Math.round(incident.impact.p95_ms_peak)} ms`}{" "}
             <span>·</span> Opened {time(incident.opened_at)} SIM
+            {simTs && (
+              <>
+                {" "}
+                <span>·</span>{" "}
+                {Math.max(
+                  0,
+                  Math.floor(
+                    (Date.parse(incident.resolved_at || simTs) -
+                      Date.parse(incident.opened_at)) /
+                      60000,
+                  ),
+                )}{" "}
+                min elapsed
+              </>
+            )}
           </p>
         </div>
         <div className="inline-gap">
@@ -204,33 +227,105 @@ export function IncidentScreen({
               </div>
             </Panel>
             <div className="incident-centre">
-              {find("hypotheses").map((c) => (
-                <CardRenderer
-                  key={c.id}
-                  card={c}
-                  inspect={inspect}
-                  navigate={navigate}
-                />
-              ))}
-              <AgentTrace full />
-              {find("expert").map((c) => (
-                <CardRenderer
-                  key={c.id}
-                  card={c}
-                  inspect={inspect}
-                  navigate={navigate}
-                />
-              ))}
-              {find("evidence").map((c) => (
-                <CardRenderer
-                  key={c.id}
-                  card={c}
-                  inspect={inspect}
-                  navigate={navigate}
-                />
-              ))}
+              <TabStrip
+                label="Investigation detail"
+                className="investigation-tabs"
+                items={["Diagnosis", "Steps", "Evidence", "Playbook"]}
+                value={investigationTab}
+                onChange={setInvestigationTab}
+              />
+              {investigationTab === "Diagnosis" && (
+                <div role="tabpanel" aria-label="Diagnosis">
+                  {find("hypotheses").map((c) => (
+                    <CardRenderer
+                      key={c.id}
+                      card={c}
+                      inspect={inspect}
+                      navigate={navigate}
+                    />
+                  ))}
+                  {!find("hypotheses").length && (
+                    <Empty title="Building the diagnosis">
+                      Hypotheses appear as evidence arrives. Follow the live
+                      checks in Steps.
+                    </Empty>
+                  )}
+                  <button
+                    className="text-action investigation-next"
+                    onClick={() => setInvestigationTab("Playbook")}
+                    disabled={!find("expert").length}
+                  >
+                    <FileText size={13} />{" "}
+                    {find("expert").length
+                      ? "Expert playbook available"
+                      : "Looking for expert guidance"}
+                  </button>
+                </div>
+              )}
+              {investigationTab === "Steps" && (
+                <div role="tabpanel" aria-label="Steps">
+                  <AgentTrace full threadId={incident.thread_id} />
+                </div>
+              )}
+              {investigationTab === "Playbook" && (
+                <div role="tabpanel" aria-label="Playbook">
+                  {find("expert").map((c) => (
+                    <CardRenderer
+                      key={c.id}
+                      card={c}
+                      inspect={inspect}
+                      navigate={navigate}
+                    />
+                  ))}
+                  {!find("expert").length && (
+                    <Empty title="No playbook selected yet">
+                      Verified guidance appears here when the investigation
+                      finds a relevant source.
+                    </Empty>
+                  )}
+                </div>
+              )}
+              {investigationTab === "Evidence" && (
+                <div role="tabpanel" aria-label="Evidence">
+                  {find("evidence").map((c) => (
+                    <CardRenderer
+                      key={c.id}
+                      card={c}
+                      inspect={inspect}
+                      navigate={navigate}
+                    />
+                  ))}
+                  {find("command").map((c) => (
+                    <CardRenderer
+                      key={c.id}
+                      card={c}
+                      inspect={inspect}
+                      navigate={navigate}
+                    />
+                  ))}
+                  {!find("evidence").length && !find("command").length && (
+                    <Empty title="Waiting for evidence">
+                      Telemetry, command output and cited sources appear here.
+                    </Empty>
+                  )}
+                </div>
+              )}
             </div>
             <div className="incident-decisions">
+              {approvals
+                .filter(
+                  (a) =>
+                    a.incident_id === incident.id &&
+                    !a.card_id &&
+                    !a.option_ids.length &&
+                    ["pending", "partially_approved"].includes(a.status) &&
+                    incident.undo_stack.some((u) =>
+                      a.rendered.includes(u.rendered),
+                    ),
+                )
+                .map((a) => (
+                  <PendingUndoApproval key={a.id} approval={a} />
+                ))}
               {approvals
                 .filter(
                   (a) =>
@@ -274,7 +369,9 @@ export function IncidentScreen({
                       </Badge>
                       <Button
                         size="sm"
-                        disabled={readOnly || u.status !== "pending"}
+                        disabled={
+                          readOnly || !connected || u.status !== "pending"
+                        }
                         onClick={() => setUndo(u)}
                       >
                         Undo
@@ -296,8 +393,13 @@ export function IncidentScreen({
             >
               <MetricChart
                 points={series["svc.atm.p95_ms"] || []}
-                band={[137, 240]}
-                color="#58A6FF"
+                band={
+                  values["svc.atm.band_low"] != null &&
+                  values["svc.atm.band_high"] != null
+                    ? [values["svc.atm.band_low"], values["svc.atm.band_high"]]
+                    : undefined
+                }
+                color="#7662a1"
                 height={165}
                 axes
                 markers={markers}
@@ -309,7 +411,7 @@ export function IncidentScreen({
             >
               <MetricChart
                 points={series["cpu.5.busy"] || []}
-                color="#D29922"
+                color="#b8832d"
                 height={165}
                 axes
                 markers={markers}
@@ -334,18 +436,145 @@ export function IncidentScreen({
           <Button onClick={() => setUndo(null)}>Cancel</Button>
           <Button
             variant="default"
-            disabled={readOnly}
+            disabled={readOnly || !connected || undoBusy}
             onClick={() => {
+              setUndoBusy(true);
               void mutate(`/executions/${undo!.execution_id}/undo`)
                 .then(() => setUndo(null))
-                .catch(() => {});
+                .catch(() => {})
+                .finally(() => setUndoBusy(false));
             }}
           >
-            Submit undo for policy check
+            {undoBusy ? "Checking policy…" : "Submit undo for policy check"}
           </Button>
         </div>
       </Dialog>
     </div>
+  );
+}
+function PendingUndoApproval({ approval }: { approval: Approval }) {
+  const connected = useConsole((s) => s.connected);
+  const readOnly = useConsole((s) => s.readOnly);
+  const [decision, setDecision] = useState<"approve" | "reject" | null>(null);
+  const [reason, setReason] = useState("unsafe_now");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  return (
+    <section
+      className="baton-card undo-approval"
+      aria-label="Pending undo approval"
+    >
+      <div className="row-between">
+        <h3>Undo awaiting approval</h3>
+        <Tier tier={approval.tier} />
+      </div>
+      {approval.rendered.map((command) => (
+        <code className="command-code" key={command}>
+          {command}
+        </code>
+      ))}
+      <p className="meta">
+        Reverses a previous mitigation. Review the current service impact before
+        continuing.
+      </p>
+      <ApprovalProgress approval={approval} />
+      <Why
+        explanation={approval.policy.explanation}
+        rules={approval.policy.rule_ids}
+      />
+      <div className="card-actions">
+        <Button
+          variant="default"
+          disabled={!connected || readOnly}
+          onClick={() => {
+            setDecision("approve");
+            setError("");
+          }}
+        >
+          Review undo approval
+        </Button>
+        <Button
+          disabled={!connected}
+          onClick={() => {
+            setDecision("reject");
+            setError("");
+          }}
+        >
+          Reject
+        </Button>
+      </div>
+      {readOnly && (
+        <p className="warn-text">Read-only mode prevents changes.</p>
+      )}
+      <Dialog
+        open={!!decision}
+        onOpenChange={(open) => !open && setDecision(null)}
+        title={decision === "reject" ? "Reject undo" : "Confirm undo approval"}
+        description="The backend checks the acting persona and all required approvals before executing."
+      >
+        <ActorStamp />
+        {approval.rendered.map((command) => (
+          <code className="command-code" key={command}>
+            {command}
+          </code>
+        ))}
+        <p>
+          <strong>Risk:</strong> Reversing the mitigation may restore the
+          earlier load or capacity limit.
+        </p>
+        <p>
+          <strong>Undo:</strong> Reapplying the original mitigation requires a
+          new governed action.
+        </p>
+        <ApprovalProgress approval={approval} />
+        {decision === "reject" && (
+          <label>
+            Reason code
+            <select value={reason} onChange={(e) => setReason(e.target.value)}>
+              <option value="unsafe_now">Unsafe now</option>
+              <option value="wrong_command">Wrong command</option>
+              <option value="wrong_target">Wrong target</option>
+              <option value="not_needed">Not needed</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        )}
+        {error && (
+          <p role="alert" className="crit-text">
+            {error}
+          </p>
+        )}
+        <div className="dialog-actions">
+          <Button onClick={() => setDecision(null)}>Cancel</Button>
+          <Button
+            variant="default"
+            disabled={
+              busy || !connected || (decision === "approve" && readOnly)
+            }
+            onClick={async () => {
+              setBusy(true);
+              try {
+                await mutate(`/approvals/${approval.id}/decide`, {
+                  decision,
+                  ...(decision === "reject" ? { reason_code: reason } : {}),
+                });
+                setDecision(null);
+              } catch (e) {
+                setError((e as Error).message);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            {busy
+              ? "Recording…"
+              : decision === "reject"
+                ? "Record rejection"
+                : "Confirm undo approval"}
+          </Button>
+        </div>
+      </Dialog>
+    </section>
   );
 }
 export function PageHeading({

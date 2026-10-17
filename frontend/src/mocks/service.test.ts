@@ -4,6 +4,14 @@ import { useConsole } from "@/realtime/store";
 import type { Schema } from "@/api/types";
 
 describe("rehearsal approval boundaries", () => {
+  it("starts with healthy recorded telemetry before any fault injection", async () => {
+    await mockRequest("/sim/reset", { actor: "u_priya" });
+    const s = useConsole.getState();
+    expect(s.values["cpu.3.up"]).toBe(1);
+    expect(s.values["svc.atm.p95_ms"]).toBeLessThanOrEqual(
+      s.values["svc.atm.band_high"],
+    );
+  });
   beforeEach(async () => {
     await mockRequest("/users");
     useConsole.setState({

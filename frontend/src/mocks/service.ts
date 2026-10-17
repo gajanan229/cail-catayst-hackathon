@@ -104,18 +104,20 @@ function seedContent() {
     "ws/telemetry.tick",
   ).payload;
   const series: Record<string, import("@/api/types").MetricPoint[]> = {};
-  for (const [key, value] of Object.entries(tick.values))
-    series[key] = Array.from({ length: 60 }, (_, n) => [
-      new Date(
-        Date.parse("2026-11-27T11:45:00Z") - (59 - n) * 15000,
-      ).toISOString(),
-      value +
-        (key.endsWith(".p95_ms") || key.endsWith(".busy")
-          ? Math.sin(n * 0.7) * value * 0.035
-          : 0),
-    ]);
+  const healthy = recorded.phases.healthy;
+  const endOffset = healthy.at(-1)?.offset_s || 0;
+  for (const key of Object.keys(tick.values))
+    series[key] = healthy
+      .filter((row) => key in row.values)
+      .map((row) => [
+        new Date(
+          Date.parse("2026-11-27T11:45:00Z") -
+            (endOffset - row.offset_s) * 1000,
+        ).toISOString(),
+        (row.values as Record<string, number>)[key],
+      ]);
   useConsole.setState({
-    values: tick.values,
+    values: healthy.at(-1)?.values || tick.values,
     series,
     rawTotal: 2135,
     eventRate: 302,
@@ -1075,6 +1077,8 @@ export async function mockRequest(
     return { approval: next };
   }
   if (url.endsWith("/messages") || url === "/terminal/input") {
+    if (url === "/terminal/input" && !state().threadId)
+      useConsole.setState({threadId:`thr_mock_terminal_${actor}`});
     const text = String(b.text || b.line || "");
     const lower = text.toLowerCase();
     await audit("message.sent", text, actor);
@@ -1179,7 +1183,7 @@ export async function mockRequest(
           "I can check ATM authorization, explain NUMSTATIC and MAXSERVERS, or investigate an active situation. Try one of those requests.";
       put(c);
     }
-    return { run_id: `run_mock_${id}` };
+    return { run_id: `run_mock_${id}`, ...(url === "/terminal/input" ? {thread_id:state().threadId} : {}) };
   }
   if (url.startsWith("/claims/") && url.endsWith("/review")) {
     const c = state().claims.find((c) => c.id === url.split("/")[2]);

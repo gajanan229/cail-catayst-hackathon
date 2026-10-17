@@ -10,6 +10,7 @@ import {
   Clock3,
   FileCheck2,
   LockKeyhole,
+  House,
   PanelLeftClose,
   Pause,
   Play,
@@ -34,7 +35,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { time } from "@/lib/utils";
 
 const routes = [
-  { path: "/console", label: "Console", icon: TerminalSquare },
+  { path: "/console", label: "Overview", icon: House },
   { path: "/incidents", label: "Incidents", icon: Activity },
   { path: "/knowledge", label: "Knowledge", icon: BookOpen },
   { path: "/ledger", label: "Trust Ledger", icon: ShieldCheck },
@@ -115,7 +116,7 @@ export function App() {
         </a>
         <div className="topbar-system">
           <span className="mono">\TORBANK</span>
-          <Badge>SIMULATED</Badge>
+          <Badge>Simulation</Badge>
         </div>
         <button
           className="topbar-health"
@@ -213,7 +214,6 @@ export function App() {
       </header>
       <div className="app-body">
         <aside className="rail">
-          <div className="rail-section-label">WORKSPACE</div>
           <nav aria-label="Main navigation">
             {routes.map((r) => (
               <a
@@ -296,7 +296,9 @@ export function App() {
               </Button>
             </div>
           )}
-          <div className="workspace-bar">
+          <div
+            className={`workspace-bar ${route === "/console" ? "workspace-overview" : ""}`}
+          >
             <div>
               <span className="muted">Workspace</span>
               <ChevronDown size={11} />
@@ -307,9 +309,7 @@ export function App() {
             </div>
             <div>
               <i className={`dot ${connected ? "ok" : "warn"}`} />
-              <span>
-                {connected ? "All streams connected" : "Connecting streams"}
-              </span>
+              <span>{connected ? "Live connection" : "Connecting"}</span>
               <span className="workspace-separator" />
               <ShieldCheck size={12} />
               <span>Catalog-governed execution</span>
@@ -337,8 +337,11 @@ export function App() {
           <footer className="statusbar">
             <span>
               <i className={`dot ${connected ? "ok" : "warn"}`} />
-              {MOCK ? "MOCK" : "SIM"} <span className="muted">/</span> \TORBANK{" "}
-              <span className="muted">/</span>{" "}
+              <span>
+                {connected ? "All streams connected" : "Connecting streams"}
+              </span>
+              <span className="muted">·</span> {MOCK ? "MOCK" : "SIM"}{" "}
+              <span className="muted">·</span>{" "}
               {readOnly ? "Read-only safeguards active" : "All actions audited"}
             </span>
             <span>
@@ -360,11 +363,12 @@ export function App() {
         description="A quick guide for your first shift."
       >
         <div className="quick-guide">
-          <h3>Read left to right.</h3>
+          <h3>Start with service health.</h3>
           <p>
-            The terminal shows exactly what ran. System health shows the effect
-            on services. Baton connects the evidence and proposes the next
-            check.
+            Overview shows the effect on services. Use Servers, Processors and
+            Events for diagnostics. The command workspace shows exactly what ran
+            and accepts catalog commands; expand it for more room. Baton
+            connects the evidence and proposes the next check.
           </p>
           <h3>You are always in control.</h3>
           <p>

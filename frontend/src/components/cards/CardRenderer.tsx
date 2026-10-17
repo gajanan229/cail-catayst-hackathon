@@ -408,7 +408,9 @@ function CommandCard({
           )}
           {approval?.decisions.some((d) => d.actor === actor) && (
             <p className="meta">
-              Your approval is recorded. Switch persona for the second approval.
+              {approval.status === "partially_approved"
+                ? "Your approval is recorded. Switch persona for the second approval."
+                : "Your approval is recorded. Waiting for the execution result."}
             </p>
           )}
         </>

@@ -29,6 +29,7 @@ export function Knowledge({ inspect }: { inspect: Inspect }) {
   const claims = useConsole((s) => s.claims);
   const users = useConsole((s) => s.users);
   const actor = useConsole((s) => s.actor);
+  const connected = useConsole((s) => s.connected);
   const [q, setQ] = useState("1034 link errors ATM");
   const [query, setQuery] = useState("1034 link errors ATM");
   const [debug, setDebug] = useState(false);
@@ -105,7 +106,7 @@ export function Knowledge({ inspect }: { inspect: Inspect }) {
       <PageHeading
         eyebrow="EXPERTISE / KNOWLEDGE"
         title="Knowledge Studio"
-        description="Keep the judgment. Share the know-how."
+        description="Review incident lessons and search verified guidance."
         action={
           <Badge tone="baton">
             <BookOpen size={13} /> Expert knowledge, with provenance
@@ -331,18 +332,26 @@ export function Knowledge({ inspect }: { inspect: Inspect }) {
             )}
           </div>
           <aside className="knowledge-aside">
-            <div className="editorial-number">
-              01 <span>→</span> 02 <span>→</span> 03
+            <div className="review-summary">
+              <div>
+                <strong>{pending.length}</strong>
+                <small>Awaiting review</small>
+              </div>
+              <div>
+                <strong>{verified.length}</strong>
+                <small>Verified claims</small>
+              </div>
             </div>
-            <h2>Experience becomes shared judgment.</h2>
+            <h2>Review the scope and the source.</h2>
             <p>
-              Capture a lesson. Have another expert verify its scope. Make it
-              available to the next operator.
+              Check when a claim applies, follow its source, and correct the
+              scope before confirming. Your review becomes part of the audit
+              trail.
             </p>
             <div className="knowledge-principle">
               <ShieldCheck size={16} />
               <div>
-                <strong>A person makes it knowledge.</strong>
+                <strong>Verified before retrieval</strong>
                 <p>
                   Drafts stay out of retrieval until reviewed. Every claim
                   carries its source and reviewer.
@@ -428,6 +437,7 @@ export function Knowledge({ inspect }: { inspect: Inspect }) {
             variant={action === "reject" ? "destructive" : "default"}
             disabled={
               busy ||
+              !connected ||
               (action === "reject" && !reason.trim()) ||
               (action === "edit_confirm" &&
                 (!statement.trim() || !condition.trim()))

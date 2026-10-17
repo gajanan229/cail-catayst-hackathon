@@ -37,7 +37,9 @@ test("real backend golden path through the governed UI", async ({ page }) => {
   await stats.getByRole("button", { name: "Edit", exact: true }).click();
   await expect(page.getByText("Parameters validated by backend")).toBeVisible();
   await page.getByRole("button", { name: "Confirm as Priya" }).click();
+  await page.getByRole("button", { name: /View all \d+ cards/ }).click();
   await expect(stats).toContainText("done", { timeout: 15000 });
+  await page.getByRole("button", { name: "Close", exact: true }).click();
   await page.getByRole("button", { name: "Director", exact: true }).click();
   await page.getByRole("button", { name: "CPU 3 halt", exact: true }).click();
   await page.getByRole("button", { name: "Close", exact: true }).click();
@@ -118,5 +120,27 @@ test("real backend golden path through the governed UI", async ({ page }) => {
     await page.request.get("/api/audit/verify")
   ).json();
   expect(verification.valid).toBe(true);
+  await page.getByRole("link", { name: "Incidents", exact: true }).click();
+  await page.getByLabel("Acting persona").selectOption("u_priya");
+  const capacityUndo = page
+    .locator(".undo-entry")
+    .filter({ hasText: "NUMSTATIC 20" });
+  await capacityUndo.getByRole("button", { name: "Undo", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("NUMSTATIC 20");
+  await page
+    .getByRole("button", { name: "Submit undo for policy check", exact: true })
+    .click();
+  const pendingUndo = page.getByRole("region", {
+    name: "Pending undo approval",
+  });
+  await expect(pendingUndo).toContainText("1 of 2");
+  await page.getByLabel("Acting persona").selectOption("u_sam");
+  await pendingUndo
+    .getByRole("button", { name: "Review undo approval", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Confirm undo approval", exact: true })
+    .click();
+  await expect(capacityUndo).toContainText("applied", { timeout: 15000 });
   expect(errors).toEqual([]);
 });

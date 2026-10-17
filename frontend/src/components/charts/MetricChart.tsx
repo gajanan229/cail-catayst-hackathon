@@ -45,13 +45,13 @@ export const MetricChart = memo(function MetricChart(props: ChartProps) {
 const ChartView = memo(function ChartView({
   points,
   band,
-  color = "#3FB950",
+  color = "#39835c",
   height = 85,
   axes = false,
   markers = [],
 }: ChartProps) {
   const option: EChartsOption = {
-    animationDuration: 200,
+    animationDuration: 0,
     animationDurationUpdate: 200,
     textStyle: { fontFamily: "Inter" },
     grid: {
@@ -62,30 +62,30 @@ const ChartView = memo(function ChartView({
     },
     tooltip: {
       trigger: "axis",
-      backgroundColor: "#151C25",
-      borderColor: "#222D3A",
-      textStyle: { color: "#E6EDF3", fontSize: 12 },
+      backgroundColor: "#ffffff",
+      borderColor: "#dce2ec",
+      textStyle: { color: "#172033", fontSize: 12 },
     },
     xAxis: {
       type: "time",
       show: axes,
       axisLabel: {
-        color: "#8A97A8",
-        fontSize: 10,
+        color: "#637087",
+        fontSize: 11,
         formatter: (value: number) =>
           time(new Date(value).toISOString()).slice(0, 5),
       },
-      axisLine: { lineStyle: { color: "#222D3A" } },
+      axisLine: { lineStyle: { color: "#dce2ec" } },
       splitLine: { show: false },
     },
     yAxis: {
       type: "value",
       show: axes,
       min: band ? 0 : undefined,
-      axisLabel: { color: "#8A97A8", fontSize: 10 },
+      axisLabel: { color: "#637087", fontSize: 11 },
       splitLine: {
         show: axes,
-        lineStyle: { color: "#222D3A", type: "dashed" },
+        lineStyle: { color: "#e7ebf0", type: "dashed" },
       },
     },
     series: [
@@ -100,15 +100,21 @@ const ChartView = memo(function ChartView({
         markArea: band
           ? {
               silent: true,
-              itemStyle: { color: "rgba(63,185,80,0.075)" },
+              itemStyle: { color: "rgba(115,167,125,0.16)" },
               data: [[{ yAxis: band[0] }, { yAxis: band[1] }]],
             }
           : undefined,
         markLine: markers.length
           ? {
               symbol: "none",
-              lineStyle: { color: "#A78BFA", type: "dashed" },
-              label: { fontSize: 9, color: "#A78BFA", formatter: "{b}" },
+              lineStyle: { color: "#8e78b2", type: "dashed" },
+              label: {
+                fontSize: 10,
+                color: "#705390",
+                formatter: "{b}",
+                overflow: "truncate",
+                width: 115,
+              },
               data: markers.map((m) => ({ name: m.label, xAxis: m.time })),
             }
           : undefined,

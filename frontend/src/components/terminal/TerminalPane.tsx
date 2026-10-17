@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
-import { ArrowUpRight, TerminalSquare, Copy, Check } from "lucide-react";
+import {
+  ArrowUpRight,
+  TerminalSquare,
+  Copy,
+  Check,
+  ChevronRight,
+} from "lucide-react";
 import { useConsole } from "@/realtime/store";
 import { mutate, MOCK } from "@/api/client";
 import type { TerminalEvent } from "@/api/types";
@@ -14,6 +20,8 @@ export function TerminalPane() {
   const host = useRef<HTMLDivElement>(null);
   const term = useRef<Terminal>();
   const [copied, setCopied] = useState(false);
+  const [line, setLine] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const connected = useConsole((s) => s.connected);
   const epoch = useConsole((s) => s.terminalEpoch);
   useEffect(() => {
@@ -22,7 +30,7 @@ export function TerminalPane() {
       fontFamily: '"JetBrains Mono", monospace',
       fontSize: 12,
       fontWeight: "400",
-      lineHeight: 1.6,
+      lineHeight: 1.45,
       letterSpacing: 0,
       cursorBlink: false,
       cursorStyle: "bar",
@@ -30,10 +38,10 @@ export function TerminalPane() {
       convertEol: true,
       allowProposedApi: false,
       theme: {
-        background: "#05080A",
-        foreground: "#39FF88",
-        cursor: "#C4B5FD",
-        selectionBackground: "#A78BFA44",
+        background: "#f7f8fb",
+        foreground: "#344155",
+        cursor: "#6750c4",
+        selectionBackground: "#ded6ef",
       },
       screenReaderMode: true,
     });
@@ -57,24 +65,17 @@ export function TerminalPane() {
     const safe = (text: string) =>
       text.replace(/\x1b/g, "").replace(/[\x00-\x08\x0b-\x1f\x7f]/g, "");
     const banner = () => {
-      terminal.writeln("\x1b[38;2;138;151;168mBATON / NONSTOP OPERATIONS");
-      terminal.writeln("SESSION 01   \\TORBANK   TACL");
-      terminal.writeln("────────────────────────────────────\x1b[0m");
-      terminal.writeln("HPE NonStop · L-series");
+      terminal.writeln("\\TORBANK · NonStop command workspace");
       terminal.writeln(
-        `${MOCK ? "Mock transport" : "Simulator adapter"} · catalog commands only`,
+        `${MOCK ? "Recorded rehearsal" : "Simulator session"} · Catalog commands · All executions audited`,
       );
-      terminal.writeln("");
-      terminal.writeln("Welcome, Priya.");
-      terminal.writeln("All commands are recorded in the audit log.");
-      terminal.writeln("");
-      terminal.writeln("System ready. Waiting for commands.");
-      terminal.writeln("");
-      terminal.write("$SYSTEM STARTUP 14> ");
+      terminal.writeln(
+        "Ready. Enter a command below or ask Baton for a check.",
+      );
     };
     void document.fonts.ready.then(() => {
       if (alive) {
-        fit.fit();
+        if (host.current?.clientWidth && host.current?.clientHeight) fit.fit();
         banner();
         ready = true;
         consume();
@@ -85,9 +86,9 @@ export function TerminalPane() {
         if (!alive) return;
         terminal.write("\r\n");
         terminal.writeln(
-          `\x1b[38;2;196;181;253m▸ ${safe(p.label || "Baton · approved command")}\x1b[0m`,
+          `\x1b[38;2;103;80;196m${safe(p.label || "Baton · approved command")}\x1b[0m`,
         );
-        terminal.write("$SYSTEM STARTUP 15> \x1b[38;2;196;181;253m");
+        terminal.write("> \x1b[38;2;103;80;196m");
         const reduced = window.matchMedia(
           "(prefers-reduced-motion: reduce)",
         ).matches;
@@ -131,7 +132,7 @@ export function TerminalPane() {
       }
       if (data === "\x03") {
         buffer = "";
-        terminal.write("^C\r\n$SYSTEM STARTUP 16> ");
+        terminal.write("^C\r\n> ");
         return;
       }
       if (/^[\x20-\x7e]+$/.test(data)) {
@@ -140,7 +141,8 @@ export function TerminalPane() {
       }
     });
     const resize = new ResizeObserver(() => {
-      if (alive) fit.fit();
+      if (alive && host.current?.clientWidth && host.current?.clientHeight)
+        fit.fit();
     });
     resize.observe(host.current);
     return () => {
@@ -192,6 +194,39 @@ export function TerminalPane() {
         </Button>
       </div>
       <div className="terminal-host" ref={host} aria-label="NonStop terminal" />
+      <form
+        className="manual-command"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!line.trim() || submitting || !connected) return;
+          setSubmitting(true);
+          try {
+            await mutate("/terminal/input", { line: line.trim() });
+            setLine("");
+          } catch {
+            /* The shared request handler displays the backend error. */
+          } finally {
+            setSubmitting(false);
+          }
+        }}
+      >
+        <ChevronRight size={15} />
+        <input
+          aria-label="Catalog command"
+          placeholder="Enter a catalog command…"
+          value={line}
+          onChange={(e) => setLine(e.target.value)}
+          autoComplete="off"
+          spellCheck={false}
+        />
+        <Button
+          type="submit"
+          size="sm"
+          disabled={!connected || !line.trim() || submitting}
+        >
+          {submitting ? "Sending…" : "Enter ↵"}
+        </Button>
+      </form>
       <div className="terminal-bottom">
         <LockIcon /> Governed session <span>6530 · conversational</span>
       </div>

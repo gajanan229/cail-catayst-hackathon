@@ -10,6 +10,7 @@ import "@fontsource/jetbrains-mono/latin-500.css";
 import { queryClient } from "./api/client";
 import { App } from "./app/App";
 import "./app/styles.css";
+import "./app/redesign.css";
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
