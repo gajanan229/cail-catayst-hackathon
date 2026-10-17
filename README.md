@@ -90,14 +90,16 @@ npm run dev:mock
 
 | Route | Purpose |
 | --- | --- |
-| `/console` | Terminal, live health, event episodes, Baton cards and composer |
-| `/incidents` | Timeline, hypotheses, evidence, decisions, approvals, undo and recovery charts |
+| `/console` | Overview with Service health / Servers / Processors / Events tabs; expandable command workbench and contextual Baton panel |
+| `/incidents` | Timeline; Diagnosis / Steps / Evidence / Playbook tabs; decisions, approvals, undo, recovery charts and Postmortem |
 | `/knowledge` | Expert review queue, verified claims and cited search with ranking detail |
 | `/ledger` | Command/role autonomy matrix, promotion review, grant and revoke |
 | `/audit` | Actor/action log, incident filter and SHA-256 chain verification |
 | `/eval` | Latest backend results; mock mode clearly labels contract example scores |
 
 Open **Director** from the rail or with **Ctrl+Shift+D**. S1 demo → Start → CPU 3 halt begins the mock golden path. In Incident Room approve the TMF check, then select A+B. Priya's approval runs A and leaves B awaiting a second person. Switch the top-bar persona to Sam, confirm B, and watch verification. Switch to Dave to review claims and grant the L2 promotion. The acting persona is sent as `actor` on every mutation.
+
+The approved redesign uses a light service overview and a professional command workspace. Click **Expand** for more command/output space; switch the workbench to Event stream or Activity without losing terminal history. Diagnostic tabs support arrow keys, Home and End. The Baton pane shows the current human task or latest response; **View all cards** retains the full ordered card history and its actions. **Review plan & approvals** opens the complete Incident Room. Trace steps, metric sources and audit payloads open for inspection. [MVP coverage](frontend/docs/MVP_COVERAGE.md) maps every P0 area to its location and checks.
 
 The mock clock drives telemetry at the selected speed. The mock golden path includes explicit approval gates and a 60-simulated-second verification window. Only the S1 CPU 3 fault is implemented in the interactive mock; other faults require the real backend. The mock audit chain is computed and checked locally rather than displaying a fabricated verification result. Model replay controls are separate from the mock transport.
 
@@ -116,7 +118,9 @@ npm run test:e2e        # installed Chrome; mock server reused or launched autom
 
 For a real backend already running on :8000, run `$env:BATON_LIVE='1'; npm run test:e2e` in PowerShell. The live test uses :5174 and performs scenario reset, approvals, claim reviews and a promotion on the simulator. Close that shell or remove `Env:BATON_LIVE` to return to mock tests.
 
-Playwright tests in `e2e/` cover the guarded golden path, unsafe-request refusal, parameter editing, cited teaching, local fonts and the 1280×800 layout. Primary visual review is at 1440×900. Screenshots/traces are written to ignored `frontend/test-results/`.
+Playwright tests in `e2e/` cover the guarded golden path, unsafe-request refusal, parameter editing, cited teaching, keyboard diagnostics, manual commands, retained terminal output, trace/playbook inspection, undo proposals, audit payloads, local fonts and the 1280×800 layout. The live test also exercises two-person undo after recovery. Primary visual review is at 1440×900. Screenshots/traces are written to ignored `frontend/test-results/`.
+
+For isolated integration QA, `BATON_PROXY_TARGET` can point Vite to another local Engine port (default `http://127.0.0.1:8000`). The ordinary setup is unchanged; this setting applies to both REST and WebSocket proxying.
 
 Generated types and copied fixtures live in `frontend/src/api/generated/` and `frontend/src/mocks/fixtures/`; edit contracts only through Agent A. `npm run gen:types` is deterministic for the current contract version. Synthetic knowledge seeds are in `data/content/`, with provenance and counts in its README and manifest. The operator-message collection uses the permitted Appendix A fallback plus PATHWAY 2049; it does not claim a full manual crawl.
 

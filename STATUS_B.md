@@ -2,12 +2,12 @@
 
 ## Gate
 
-**G0, G1 and G2 passed. G3: real UI golden path passed with models OFF; models ON blocked by B-REQ-4. Recorded transport integration complete.** Contracts 1.0.0. TypeScript, production build, 15 unit tests and all five mock browser tests pass.
+**G0, G1 and G2 passed. Approved v3 redesign implemented with P0 UI coverage retained. G3: redesigned real UI golden path passed with models OFF; models ON remains blocked by B-REQ-4.** Contracts 1.0.0. TypeScript, production build, 17 unit tests, six mock browser tests and the real UI golden path including two-person undo pass.
 
 ## Done
 
 - Ownership boundaries checked; Agent A's work remains untouched.
-- React 18 / TypeScript / Vite, Tailwind 4 and shadcn-style Radix primitives. All §13.1 tokens, locally bundled fonts, rail, top bar, persona switcher, SIM clock, read-only switch.
+- React 18 / TypeScript / Vite, Tailwind 4 and shadcn-style Radix primitives. Approved v3 light design supersedes the original §13.1 colors per the user's explicit direction; local fonts, rail, top bar, persona switcher, SIM clock, read-only and source access remain.
 - `frontend/`: `npm run dev:mock` serves http://127.0.0.1:5173 with contract-derived fixtures; `npm run dev` uses backend :8000 through REST/WebSocket proxy.
 - P0 routes: `/console`, `/incidents`, `/knowledge`, `/ledger`, `/audit`, `/eval`; Director button or Ctrl+Shift+D.
 - Shared card library; xterm with ghost/output queue, health, trace detail drawer, citation/metric drawer, explicit T2 confirmation, rejection reasons, live preview validation, undo proposal.
@@ -16,17 +16,17 @@
 - Dependency audit after compatible patch updates: zero vulnerabilities.
 - Imported A's successful recording: 687 real events, 27 card/REST fixtures, four clock-driven telemetry/health phases. `npm run import:recording` refreshes it; `npm run validate:recording` validates all 687 envelopes against frozen contracts. Approval gates remain interactive.
 - Real transport: terminal responses subscribe to their confirmation thread; incident subscription snapshots merge without overwriting newer events; approval and promotion payloads match frozen shapes. Terminal output is serialized by execution, including interleaved parallel checks. All real mutations capture the acting persona.
+- Approved v3 redesign: service overview, Servers / Processors / Events, chart windows and sources, expandable light xterm workbench, direct manual command input, contextual Baton response plus complete ordered card-history drawer. Incident tabs separate Diagnosis / Steps / Evidence / Playbook while approvals, undo and charts remain visible. Shared theme applied across Knowledge, Ledger, Audit, Eval, Director, cards and dialogs. `frontend/docs/MVP_COVERAGE.md` maps the retained P0 features.
+- Real redesigned UI passed on an isolated :8001 Engine (models off, embeddings off): Flow B edit/preview → incident → TMF → Priya A+B → Sam B → recovery → Dave reviews two claims → L2 grant → chain verified → Priya proposes T2 undo → Sam approves → Engine marks undo applied. 42.3 s, no browser exceptions. QA runtime files are confined to ignored `frontend/.qa/`.
+- Full raw audit-entry inspection added. N-1 risk opens the backend's actual worst-survivor / per-CPU calculations. Combined plan preview resolves the backend's included options into two clickable review steps. Repeated incident status events preserve an active manual confirmation thread; new incident threads still open automatically. Mock initial telemetry excludes the recorded fault, and mock impact peaks track its replayed telemetry.
 
 ## In progress
 
-- User approved v2's calmer direction but requested professional depth. ImageGen v3 saved as `frontend/docs/console-redesign-v3.png` with prompt: diagnostic service facts, chart axes/time controls, processor inspection, expandable command workspace, Servers/Processors/Events tabs, compact trace, provenance and approval review. Concept only; no runtime changes. Any implementation must retain every backend-governed workflow and use canonical IDs/real data rather than raster mockup labels/values.
-- User requested a substantial redesign to reduce overload. Built-in ImageGen concept saved as `frontend/docs/console-redesign-v2.png`, with full prompt alongside it. Direction: light neutral canvas, visual service status, one primary chart, quiet processor strip, recent activity and collapsed command log; spacious Baton panel with one recommendation and collapsed trace. This is a concept only; implementation remains unchanged. User's new design direction supersedes the original dark three-pane treatment for the next frontend revision.
-- Real UI (`e2e/live.spec.ts`, `BATON_LIVE=1`) passed with `BATON_LLM_PROVIDER=none` and embeddings off: Flow B edit/preview → fault → TMF approval → decision gate → Priya A+B → Sam B → verified recovery → Dave confirms/edits two claims → L2 grant → audit chain verification. 52.4 s, no browser exceptions.
 - Models-on real UI failure reported with reproduction in B-REQ-4. Recorded mock browser regression is passing; awaiting Engine correction before retrying the same live test.
 
 ## Next
 
-- Retry models-on real UI golden path after B-REQ-4 is fixed; complete G3 before adding P1 features. Continue the §13.8 visual review at 1440×900.
+- Retry models-on real UI golden path after B-REQ-4 is fixed; complete G3 before adding P1 features. Final S1 burst profiling / G4 sign-off still follows that gate. The requested redesign is implemented and reviewed at 1440×900 and 1280×800.
 
 ## Blocked
 
@@ -45,12 +45,13 @@
 
 - **A-REQ-1 acknowledged:** use `contracts/examples/`; preserve hypothesis `for`; upsert whole cards by ID and sort by seq; queue ghost/output by exec_id and show label; all mutations carry actor; URL-encode ledger keys. Contracts 1.0.0 additive notes acknowledged.
 - **A-REQ-2 resolved:** real models-off UI run passed using incident-thread subscription plus REST snapshot merge. Parent decision is submitted once with all chosen IDs; B then uses the option approval ID for Sam. Manual terminal response `thread_id` now opens/subscribes its confirmation thread. Catalog request logging needs no new endpoint. Your successful 687-event recording is integrated with the mock clock and interactive approvals, validated against schemas and covered by Chrome acceptance tests.
+  - Redesign retains contracts 1.0.0 and the same endpoint/actor protocol. Isolated real UI check passed with two-person undo as well; no A-owned code, process or runtime directory was altered for this QA.
 
 ## Notes for humans
 
 - Work is local-only in the requested shared repository. No external hosting.
 - Synthetic demo content and mock transport will be labeled explicitly. Mock safety decisions live only in the mock service; production decisions come from the backend.
 - G3 models-off is verified on the real backend. Current known Engine calibration: recovered ATM p95 can be below band_low, while backend verification treats <= band_high as recovered. UI displays the backend criterion/result honestly; B did not alter scoring or dynamics.
-- Local commits: `9530238` frontend, `0a56fd1` content / browser acceptance, `a0b0a11` real integration / recorded transport / UI hardening. Current typecheck, production build, 15 unit tests, 5 mock Chrome tests and 687-envelope validation pass. No remote is configured, so these cannot be pushed yet.
-- Visual review at 1440×900 covers healthy console, partial two-person approval, Knowledge Studio, Ledger, Audit and Eval; 1280×800 overflow/local-font checks pass. Charts are capped at two visual updates per second. Null incident peak is labeled as awaiting measurement. Saved review images: `frontend/docs/console.png`, `frontend/docs/incident.png`. Final burst profiling and G4 sign-off follow G3.
-- B-owned QA processes on :8000, :5173 and :5174 have been stopped to free ports. Start `npm run dev:mock` inside `frontend/` for offline review, or start Engine and `npm run dev` for real mode.
+- Redesign commits: `cc5664f` implementation and `cd4a663` workflow/provenance safeguards. Final checks: production build, typecheck, 17 unit tests, six Chrome tests (38.9 s), 687-envelope validation, plus the isolated real models-off golden/undo run (42.3 s). No Git remote is configured, so commits remain local.
+- Visual review includes healthy and active overview, partial two-person approval and all P0 routes. Charts are capped at two visual updates per second. Saved screenshots: `frontend/docs/implemented-overview.png`, `frontend/docs/implemented-active.png`, `frontend/docs/implemented-incident.png`.
+- B-owned QA processes are stopped after verification. Start `npm run dev:mock` inside `frontend/` for offline review, or start Engine and `npm run dev` for real mode.
