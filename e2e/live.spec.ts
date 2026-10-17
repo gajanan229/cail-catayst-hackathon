@@ -78,15 +78,25 @@ test("real backend golden path through the governed UI", async ({ page }) => {
   expect(incident.status).toBe("resolved");
   await page.getByRole("link", { name: /^Knowledge/ }).click();
   await page.getByLabel("Acting persona").selectOption("u_dave");
-  const result = await (
-    await page.request.get("/api/claims?status=pending_review")
-  ).json();
-  const drafts = result.claims.filter(
-    (c: { provenance: { source_type: string; source_id: string } }) =>
-      c.provenance.source_type === "incident" &&
-      c.provenance.source_id === incident.id,
-  );
-  expect(drafts.length).toBeGreaterThanOrEqual(2);
+  // Learn (postmortem + claims) finishes after recovery; with models on it can take ~15-30 s.
+  type Draft = { statement: string; provenance: { source_type: string; source_id: string } };
+  let drafts: Draft[] = [];
+  await expect
+    .poll(
+      async () => {
+        const result = await (
+          await page.request.get("/api/claims?status=pending_review")
+        ).json();
+        drafts = result.claims.filter(
+          (c: Draft) =>
+            c.provenance.source_type === "incident" &&
+            c.provenance.source_id === incident.id,
+        );
+        return drafts.length;
+      },
+      { timeout: 60000 },
+    )
+    .toBeGreaterThanOrEqual(2);
   const first = page
     .locator(".claim-card")
     .filter({ hasText: drafts[0].statement });

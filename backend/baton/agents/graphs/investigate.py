@@ -466,16 +466,24 @@ async def read_results(state: InvState, config) -> dict:
         fors = ", ".join(f["label"] for f in lead["for"][:2]) or "the situation"
         againsts = ", ".join(a["label"] for a in rest["against"][:1]) or "weaker evidence"
         fallback = f"Leading: {lead['label']} ({lead['p']:.2f}) because {fors}; ruled down: {rest['label']} because {againsts}."
-        out, src, phash = await rt.gateway.complete("diagnostician", P.SYSTEM, P.render(
-            "diagnostician", situation=state["vars"], hypotheses=[{k: h[k] for k in ("label", "p", "for", "against")} for h in hyps[:4]],
-            evidence=[{"id": e["id"], "label": e["label"]} for e in state["evidence"]]), P.DiagnosticianOut,
-            run_id=c["run_id"], node="narrate")
-        narrative, nsrc = (out["narrative"], src) if out else (fallback, "fallback")
-        s.model = nsrc if nsrc in ("fallback", "replay") else nsrc
-        s.prompt_hash = phash
-        _publish_hyps(config, state, hyps, state.get("round", 1), narrative=narrative, nsrc=nsrc)
-        s.summary = narrative[:160]
+        # Publish the template narrative now; the model narrative replaces it when it arrives, so a slow model
+        # never delays the expert card and the decision.
+        _publish_hyps(config, state, hyps, state.get("round", 1), narrative=fallback, nsrc="fallback")
+        prompt = P.render("diagnostician", situation=state["vars"],
+                          hypotheses=[{k: h[k] for k in ("label", "p", "for", "against")} for h in hyps[:4]],
+                          evidence=[{"id": e["id"], "label": e["label"]} for e in state["evidence"]])
+        rt.spawn(_narrate_later(rt, state["cards"].get("hypotheses"), prompt, c["run_id"]))
+        s.model = "fallback"
+        s.summary = fallback[:160] + (" (model narrative to follow)" if rt.gateway.live or rt.gateway.mode == "replay" else "")
     return {"hyps": hyps}
+
+
+async def _narrate_later(rt, card_id: str | None, prompt: str, run_id: str) -> None:
+    if not card_id:
+        return
+    out, src, _ = await rt.gateway.complete("diagnostician", P.SYSTEM, prompt, P.DiagnosticianOut, run_id=run_id, node="narrate")
+    if out:
+        patch(card_id, body={"narrative": out["narrative"], "narrative_source": src})
 
 
 async def enough(state: InvState, config) -> dict:
@@ -984,12 +992,13 @@ async def learn(state: InvState, config) -> dict:
     rt = get_rt()
     c = ctx(config)
     async with node(config, "learn", "Write postmortem and claims") as s:
-        pm, pm_src, phash = await write_postmortem(rt, state, c["run_id"])
+        # the Scribe and Curator calls are independent: run them together (with models on this halves the wait)
+        (pm, pm_src, phash), (claims, cl_src) = await asyncio.gather(write_postmortem(rt, state, c["run_id"]),
+                                                                      draft_claims(rt, state, c["run_id"]))
         card(config, type="postmortem", status="info", title=f"Postmortem {rt.incidents.get(state['incident_id'])['display_id']}",
              incident_id=state["incident_id"], body={k: pm[k] for k in ("incident_id", "summary", "impact", "timeline_md", "cause",
                                                                          "actions", "follow_ups")},
              actions=["open_incident_room"], source=pm_src)
-        claims, cl_src = await draft_claims(rt, state, c["run_id"])
         for cl in claims:
             card(config, type="claim_review", status="proposed", title=f"Claim to review: {cl['id']}", incident_id=state["incident_id"],
                  body={"claim_id": cl["id"], "statement": cl["statement"], "structured": cl["structured"], "scope": cl["scope"],
