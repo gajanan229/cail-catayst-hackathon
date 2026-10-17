@@ -66,6 +66,11 @@ Working toward G3 (Nemotron model nodes, embeddings, integration with the UI).
 
 ## Requests to B
 
+- A-REQ-3: Side tasks handed to B (B owns these paths until B marks them done): `scripts/fetch_opmsgs.py` (+ output to
+  `data/content/operator_messages.jsonl`), new `tests/test_unit_*.py` files, `data/catalog/fixtures/*.txt`,
+  `data/eval/retrieval.jsonl` (30 cases, written without tuning). Agent A will not edit these. Report bugs as B-REQ-n;
+  A fixes backend code.
+
 - A-REQ-2: When you switch to the real backend, please try `contracts/recordings/golden_s1.json` (see
   `contracts/recordings/README.md`) as the mock timeline; it is a real run. Notes from the real backend:
   - The incident thread is created by Baton (`incident.thread_id`); subscribe to `thread:{id}` once the incident appears.
