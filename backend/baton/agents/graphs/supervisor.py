@@ -9,6 +9,8 @@ CATALOG_VERBS = ("status", "show", "list", "suspend", "activate", "resume", "alt
                  "pause", "set", "raise", "lower", "add", "check", "info", "stats", "kill", "restart", "run", "start")
 QUESTION = re.compile(r"^(what|why|how|when|where|who|which|is|are|does|do|can|should|explain|tell me|difference)\b|\?$",
                       re.IGNORECASE)
+BRIEF = re.compile(r"\b(brief|briefing|status report|shift report|handover|how are we doing|how is the system doing|"
+                   r"how('s| is) everything|sitrep)\b", re.IGNORECASE)
 SYMPTOM = re.compile(r"\b(slow|down|failing|failed|errors?|timeouts?|what'?s going on|what is going on|problem|broken|issue)\b",
                      re.IGNORECASE)
 
@@ -37,6 +39,8 @@ async def route(rt, thread: dict, text: str, actor: str) -> tuple[str, str | Non
     low = text.lower().strip()
     first = re.split(r"\W+", low, maxsplit=1)[0]
     incident_id = thread.get("incident_id")
+    if BRIEF.search(low):
+        return "brief", incident_id or (active_incident(rt) or {}).get("id")
     inc = rt.incidents.get(incident_id) if incident_id else None
     if first in CATALOG_VERBS and not QUESTION.search(low[:4]):
         return "command", incident_id or (active_incident(rt) or {}).get("id")

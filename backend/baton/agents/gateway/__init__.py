@@ -27,7 +27,7 @@ from ...core.timeutil import wall_now
 
 log = logging.getLogger("baton.gateway")
 
-FAST = {"router", "interpreter", "diagnostician", "scribe"}
+FAST = {"router", "interpreter", "diagnostician", "scribe", "briefer"}
 STRONG = {"planner", "answerer", "curator"}
 
 

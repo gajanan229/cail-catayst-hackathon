@@ -81,6 +81,18 @@ class ScribeOut(BaseModel):
     follow_ups: list[str]
 
 
+class BriefPart(BaseModel):
+    text: str
+    fact_ids: list[str] = []
+
+
+class BriefOut(BaseModel):
+    headline: str
+    changed: BriefPart
+    at_risk: BriefPart
+    to_do: BriefPart
+
+
 class CuratorClaim(BaseModel):
     statement: str
     subject: list[str]

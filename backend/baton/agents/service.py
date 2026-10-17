@@ -41,9 +41,9 @@ class AgentService:
         self.conn = await aiosqlite.connect(str(path))
         self.saver = AsyncSqliteSaver(self.conn)
         await self.saver.setup()
-        from .graphs import ask, command, investigate
+        from .graphs import ask, brief, command, investigate
         self.graphs = {"command": command.build(self.saver), "ask": ask.build(self.saver),
-                       "investigate": investigate.build(self.saver)}
+                       "investigate": investigate.build(self.saver), "brief": brief.build(self.saver)}
 
     async def close(self) -> None:
         for t in list(self.tasks):
