@@ -3,7 +3,7 @@
   "source_spec": "BATON_MVP_SPEC.md §10.1 / §16 / Appendix C",
   "operator_message_mode": "Appendix A fallback; full manual crawl is an Engine/human follow-up",
   "counts": {
-    "operator_messages": 19,
+    "operator_messages": 20,
     "command_reference": 21,
     "concepts": 20,
     "playbooks": 4,

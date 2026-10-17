@@ -101,6 +101,8 @@ Open **Director** from the rail or with **Ctrl+Shift+D**. S1 demo → Start → 
 
 The mock clock drives telemetry at the selected speed. The mock golden path includes explicit approval gates and a 60-simulated-second verification window. Only the S1 CPU 3 fault is implemented in the interactive mock; other faults require the real backend. The mock audit chain is computed and checked locally rather than displaying a fabricated verification result. Model replay controls are separate from the mock transport.
 
+Telemetry, health reasons, command output and incident cards come from Agent A's successful 687-event recording. The interactive adapter retains human approval gates and replays recorded telemetry phases on the mock SIM clock. After Engine records a new golden run, use `npm run import:recording` to copy it from `contracts/recordings/golden_s1.json`, then `npm run validate:recording` to check every envelope against the frozen schema. Neither command modifies contracts.
+
 ## Frontend: checks and content
 
 ```powershell
@@ -108,8 +110,11 @@ cd frontend
 npm run typecheck
 npm test
 npm run build
+npm run validate:recording
 npm run test:e2e        # installed Chrome; mock server reused or launched automatically
 ```
+
+For a real backend already running on :8000, run `$env:BATON_LIVE='1'; npm run test:e2e` in PowerShell. The live test uses :5174 and performs scenario reset, approvals, claim reviews and a promotion on the simulator. Close that shell or remove `Env:BATON_LIVE` to return to mock tests.
 
 Playwright tests in `e2e/` cover the guarded golden path, unsafe-request refusal, parameter editing, cited teaching, local fonts and the 1280×800 layout. Primary visual review is at 1440×900. Screenshots/traces are written to ignored `frontend/test-results/`.
 

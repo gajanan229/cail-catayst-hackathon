@@ -9,6 +9,8 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc --noEmit",
     "gen:types": "node tools/generate-types.mjs",
+    "import:recording": "node tools/import-recording.mjs",
+    "validate:recording": "node tools/validate-recording.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test --config ../e2e/playwright.config.ts"
   },
@@ -27,6 +29,7 @@
     "radix-ui": "1.8.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-markdown": "10.1.0",
     "tailwind-merge": "3.7.0",
     "zustand": "5.0.15"
   },
@@ -37,8 +40,11 @@
     "@types/react": "18.3.31",
     "@types/react-dom": "18.3.7",
     "@vitejs/plugin-react": "5.1.4",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
     "json-schema-to-typescript": "16.0.0",
     "openapi-typescript": "7.13.0",
+    "prettier": "3.9.10",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
     "vite": "7.3.7",
