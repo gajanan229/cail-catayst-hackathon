@@ -1,0 +1,45 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: pathcom.alter_maxservers
+title: Change a server class's maximum servers
+utility: PATHCOM
+interpreter: PATHCOM $PM1
+template: ALTER SERVER {server_class}, MAXSERVERS {n}
+description: Sets MAXSERVERS for a Pathway server class.
+tier: T2
+params:
+  server_class:
+    type: server_class
+    source: inventory.server_classes
+  n:
+    type: int
+    min: 1
+    max: 64
+reversible: true
+undo:
+  catalog_id: pathcom.alter_maxservers
+  params:
+    server_class: '{server_class}'
+    n: '{previous.n}'
+undo_template: ALTER SERVER {server_class}, MAXSERVERS {previous.n}
+preconditions:
+- n >= server_class.numstatic
+parser: pathcom_ack
+param_class: class_tag
+side_effects: Allows PATHMON to start more (or fewer) dynamic servers
+risks: More servers add CPU and disk load; ATM-AUTH above 40 makes $DATA03 the bottleneck (C-004)
+facts: MAXSERVERS
+examples:
+- utterance: raise maxservers for ATM-AUTH to 32
+  params:
+    server_class: ATM-AUTH
+    n: 32
+aliases:
+- maxservers
+- max servers
+- raise the server limit
+- server limit
+doc_refs:
+- label: Operator Messages ch. 78 (PATHWAY)
+  url: https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html
+syntax_status: simulated
+internal: false

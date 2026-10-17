@@ -1,0 +1,44 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: pathcom.status_server
+title: Server class status
+utility: PATHCOM
+interpreter: PATHCOM $PM1
+template: STATUS SERVER {server_class}
+description: Running servers, NUMSTATIC, MAXSERVERS, links, queued requests and average response time for a server
+  class.
+tier: T0
+params:
+  server_class:
+    type: server_class
+    source: inventory.server_classes
+parser: pathcom_status_server
+facts: Running, NUMSTATIC, MAXSERVERS, links, queued, average ms
+examples:
+- utterance: status of ATM auth servers
+  params:
+    server_class: ATM-AUTH
+- utterance: how many POS-AUTH servers are running
+  params:
+    server_class: POS-AUTH
+- utterance: is the server class queuing
+  params:
+    server_class: ATM-AUTH
+aliases:
+- server status
+- status server
+- servers running
+- server class status
+- how many servers
+- queued requests
+- queue
+doc_refs:
+- label: Operator Messages ch. 78 (PATHWAY)
+  url: https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; negligible load
+param_class: any
+internal: false

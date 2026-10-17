@@ -1,0 +1,23 @@
+# Baton policy (MVP spec §9.2, §16.4). Rules are evaluated in order; deny overrides allow.
+version: 1
+protected_processes: ["$PM1", "$DATA01", "$DATA02", "$DATA03", "$DATA04", "$ZLM*", "$TMP"]
+rules:
+  - {id: read-only, when: {read_only: true, tier_in: [T1, T2, T3]}, effect: deny, explanation: "Read-only mode is on"}
+  - {id: t3-block, when: {tier: T3}, effect: deny, explanation: "Destructive or outage-capable: human-only, outside Baton"}
+  - {id: protected, when: {target_in: protected_processes, tier_in: [T1, T2]}, effect: deny, explanation: "Protected system process"}
+  - {id: rate-limit, when: {state_changes_exceeded: true, tier_in: [T1, T2]}, effect: deny,
+     explanation: "At most 3 state changes per incident per 10 sim-minutes"}
+  - {id: t2-two-person, when: {tier: T2}, effect: require_approval,
+     approvers: {count: 2, distinct: true, roles: [operator, senior, expert], at_least_one_of: [senior, expert]},
+     explanation: "Impactful change: two distinct approvers, at least one Senior or Expert"}
+  - {id: t1-ledger-l3, when: {tier: T1, ledger_level_gte: L3}, effect: allow_auto, explanation: "Earned autonomy (L3)"}
+  - {id: t1-single, when: {tier: T1}, effect: require_approval, approvers: {count: 1, roles: [operator, senior, expert]},
+     explanation: "Reversible change: one approver"}
+  - {id: system-lane, when: {tier: T0, internal: true}, effect: allow_auto, explanation: "Baton check: read-only, always automatic"}
+  - {id: t0-ledger, when: {tier: T0, ledger_level_gte: L2}, effect: allow_auto, explanation: "Read-only; earned auto-run"}
+  - {id: t0-default, when: {tier: T0}, effect: require_approval, approvers: {count: 1, roles: [operator, senior, expert]},
+     explanation: "Read-only, but this role has not yet earned auto-run"}
+limits:
+  state_changes_per_incident_per_10_sim_min: 3
+approval_expiry_sim_s: 600
+token_ttl_s: 120

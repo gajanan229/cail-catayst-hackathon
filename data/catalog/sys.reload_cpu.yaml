@@ -1,0 +1,39 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: sys.reload_cpu
+title: Reload a processor
+utility: System
+interpreter: null
+template: Reload processor {cpu}
+description: Reloads a halted processor. Human-only, outside Baton.
+tier: T3
+blocked: true
+params:
+  cpu:
+    type: cpu
+    min: 0
+    max: 7
+parser: none
+escalation: Call HPE hardware support with the evidence pack
+side_effects: Outage-capable
+risks: 'Destructive or outage-capable: human-only, outside Baton'
+facts: none
+examples:
+- utterance: reload cpu 3
+  params:
+    cpu: 3
+- utterance: restart processor 3
+  params:
+    cpu: 3
+aliases:
+- reload
+- reload cpu
+- restart cpu
+- reboot processor
+- bring the cpu back
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+doc_refs: []
+param_class: any
+internal: false

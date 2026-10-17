@@ -165,7 +165,7 @@ async def terminal_input(body: R.TerminalInputRequest):
 
 @router.get("/executions/{exec_id}", response_model=Execution, tags=["commands"])
 def execution(exec_id: str):
-    return rt().executor.get(exec_id)
+    return rt().execution_public(exec_id)
 
 
 @router.post("/executions/{exec_id}/undo", response_model=R.UndoResponse, tags=["commands"])
@@ -187,12 +187,15 @@ def incident(incident_id: str):
 
 @router.get("/incidents/{incident_id}/timeline", response_model=R.TimelineResponse, tags=["incidents"])
 def timeline(incident_id: str):
-    return {"items": rt().incidents.timeline(incident_id)}
+    return {"items": rt().incidents.timeline_items(incident_id)}
 
 
 @router.get("/incidents/{incident_id}/postmortem", response_model=R.PostmortemResponse, tags=["incidents"])
 def postmortem(incident_id: str):
-    return rt().incidents.postmortem(incident_id)
+    pm = rt().incidents.postmortem(incident_id)
+    if pm is None:
+        raise ApiError("NOT_FOUND", "No postmortem yet (written when the incident resolves)")
+    return pm
 
 
 @router.post("/incidents/{incident_id}/close", response_model=Incident, tags=["incidents"])

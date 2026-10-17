@@ -1,0 +1,47 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: baton.recent_events
+title: Recent EMS episodes
+utility: Baton
+interpreter: null
+template: null
+internal: true
+description: Recent EMS episodes, optionally for one subsystem (Baton check).
+tier: T0
+params:
+  subsystem:
+    type: enum
+    choices:
+    - OMF
+    - PATHWAY
+    - APP
+    required: false
+  minutes:
+    type: int
+    min: 1
+    max: 30
+    default: 10
+    required: false
+parser: internal
+facts: Episodes
+examples:
+- utterance: recent pathway events
+  params:
+    subsystem: PATHWAY
+    minutes: 10
+- utterance: what happened in the last 5 minutes
+  params:
+    minutes: 5
+aliases:
+- recent events
+- ems events
+- event log
+- what happened
+- messages
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; negligible load
+doc_refs: []
+param_class: any

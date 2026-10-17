@@ -1,0 +1,39 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: baton.service_kpis
+title: Service KPIs
+utility: Baton
+interpreter: null
+template: null
+internal: true
+description: Rate, p95 latency, timeouts and baseline band for a business service (Baton check).
+tier: T0
+params:
+  service:
+    type: enum
+    choices:
+    - atm
+    - pos
+    default: atm
+parser: internal
+facts: Rate, p95, timeouts, band
+examples:
+- utterance: how is the ATM service doing
+  params:
+    service: atm
+- utterance: pos latency
+  params:
+    service: pos
+aliases:
+- service kpis
+- latency
+- p95
+- timeouts
+- service health
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; negligible load
+doc_refs: []
+param_class: any

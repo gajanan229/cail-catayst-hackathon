@@ -1,0 +1,58 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: pathcom.alter_numstatic
+title: Change a server class's static server count
+utility: PATHCOM
+interpreter: PATHCOM $PM1
+template: ALTER SERVER {server_class}, NUMSTATIC {n}
+description: Sets NUMSTATIC for a Pathway server class; PATHMON starts or stops static servers to match.
+tier: T1
+tier_modifiers:
+- when:
+    server_class.tag: critical
+  tier: T2
+tier_rules: T1 for normal classes, T2 for critical
+params:
+  server_class:
+    type: server_class
+    source: inventory.server_classes
+  n:
+    type: int
+    min: 1
+    max_from: server_class.maxservers
+reversible: true
+undo:
+  catalog_id: pathcom.alter_numstatic
+  params:
+    server_class: '{server_class}'
+    n: '{previous.n}'
+undo_template: ALTER SERVER {server_class}, NUMSTATIC {previous.n}
+preconditions:
+- n <= server_class.maxservers
+parser: pathcom_ack
+param_class: class_tag
+side_effects: Starts additional server processes on the least-busy CPUs in the class's CPU list
+risks: Adds CPU load where the new servers land; never exceed MAXSERVERS
+facts: NUMSTATIC
+verification:
+  checks:
+  - pathcom.status_server
+  expect: running >= n within 60 s
+examples:
+- utterance: add more ATM auth servers
+  params:
+    server_class: ATM-AUTH
+    n: 28
+- utterance: set numstatic for BAL-INQ to 10
+  params:
+    server_class: BAL-INQ
+    n: 10
+aliases:
+- add servers
+- more servers
+- numstatic
+- static servers
+doc_refs:
+- label: Operator Messages ch. 78 · 2049
+  url: https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html
+syntax_status: simulated
+internal: false

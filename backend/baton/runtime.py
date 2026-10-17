@@ -19,6 +19,7 @@ from .governance.audit import AuditLog
 from .health.engine import HealthEngine
 from .health.metrics import MetricsStore
 from .incidents.manager import IncidentManager
+from .ops import Ops
 from .schemas.common import CONTRACT_VERSION
 from .sim.engine import SPEEDS, Simulator
 from .telemetry.enrich import MessageCatalog
@@ -86,7 +87,7 @@ class SimClock:
         self.waiters = []
 
 
-class Runtime:
+class Runtime(Ops):
     def __init__(self, config: Config):
         self.config = config
         self.data_dir = config.data_dir
@@ -406,6 +407,9 @@ class Runtime:
     def health_snapshot(self) -> dict:
         self._require_sim()
         return self.health.build_snapshot(self.sim.model)
+
+    async def investigate_situation(self, situation_id: str, actor: str) -> dict:
+        return await self.agents.investigate_situation(situation_id, actor)
 
     def metrics_query(self, keys: list[str], window_s: int) -> dict:
         return {"window_s": window_s, "series": self.metrics.query(keys, window_s)}

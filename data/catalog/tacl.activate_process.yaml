@@ -1,0 +1,41 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: tacl.activate_process
+title: Activate a process
+utility: TACL
+interpreter: null
+template: ACTIVATE {process}
+description: Resumes a suspended process.
+tier: T1
+params:
+  process:
+    type: process
+    source: inventory.processes
+    state: SUSPENDED
+reversible: true
+undo:
+  catalog_id: tacl.suspend_process
+  params:
+    process: '{process}'
+undo_template: SUSPEND {process}
+parser: tacl_ack
+param_class: process_tag
+side_effects: The process resumes consuming CPU
+risks: Adds the process's load back to its CPU
+facts: State
+examples:
+- utterance: resume $STMT1
+  params:
+    process: $STMT1
+- utterance: activate the statement batch
+  params:
+    process: $STMT1
+aliases:
+- activate
+- resume process
+- unsuspend
+doc_refs:
+- label: Operator Messages ch. 68 (OMF)
+  url: https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html
+syntax_status: simulated
+preconditions: []
+internal: false

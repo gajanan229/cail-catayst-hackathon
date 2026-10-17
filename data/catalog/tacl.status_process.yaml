@@ -1,0 +1,35 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: tacl.status_process
+title: Process status
+utility: TACL
+interpreter: null
+template: STATUS {process}
+description: State, primary and backup CPU and priority of one process or process pair.
+tier: T0
+params:
+  process:
+    type: process
+    source: inventory.processes
+parser: tacl_status_process
+facts: State, CPU, backup, priority
+examples:
+- utterance: status of $STMT1
+  params:
+    process: $STMT1
+- utterance: is $PM1 running
+  params:
+    process: $PM1
+aliases:
+- process status
+- status process
+- is it running
+- process state
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; negligible load
+doc_refs: []
+param_class: any
+internal: false

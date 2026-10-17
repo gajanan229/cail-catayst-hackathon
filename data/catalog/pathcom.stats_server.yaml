@@ -1,0 +1,39 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: pathcom.stats_server
+title: Server class statistics
+utility: PATHCOM
+interpreter: PATHCOM $PM1
+template: STATS SERVER {server_class}
+description: Requests per second and average and maximum response time of a server class.
+tier: T0
+params:
+  server_class:
+    type: server_class
+    source: inventory.server_classes
+parser: pathcom_stats_server
+facts: Requests per second, average and maximum ms
+examples:
+- utterance: stats for ATM-AUTH
+  params:
+    server_class: ATM-AUTH
+- utterance: throughput of balance inquiry servers
+  params:
+    server_class: BAL-INQ
+aliases:
+- stats server
+- statistics
+- throughput
+- requests per second
+- response time
+- server stats
+doc_refs:
+- label: Operator Messages ch. 78 (PATHWAY)
+  url: https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch78.html
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; negligible load
+param_class: any
+internal: false

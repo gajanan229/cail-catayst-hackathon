@@ -1,0 +1,38 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: tacl.stop_process
+title: Stop a process
+utility: TACL
+interpreter: null
+template: STOP {process}
+description: Stops a process. Not reversible from Baton.
+tier: T2
+tier_rules: T2, not reversible; denied if protected
+params:
+  process:
+    type: process
+    source: inventory.processes
+parser: tacl_ack
+side_effects: The process ends; its work is lost unless it restarts
+risks: Not reversible; the owner must restart it
+facts: State
+examples:
+- utterance: stop $RPT2
+  params:
+    process: $RPT2
+- utterance: kill the report batch
+  params:
+    process: $RPT2
+aliases:
+- stop
+- kill
+- terminate
+- end process
+doc_refs:
+- label: Operator Messages ch. 68 (OMF)
+  url: https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+param_class: any
+internal: false

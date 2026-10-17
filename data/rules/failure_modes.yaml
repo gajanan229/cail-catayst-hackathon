@@ -1,0 +1,110 @@
+# Failure-mode library (MVP spec §12.1, §16.3). Priors and checks are synthetic calibration choices.
+version: 1
+modes:
+  - id: cpu_capacity_loss
+    name: Capacity loss after a CPU failure
+    label: "Capacity loss after CPU {down_cpu} failure"
+    prior: 0.20
+    discriminating_checks: [meas.cpu_busy, pathcom.status_server, baton.n1_headroom]
+    would_change_mind: "ATM-AUTH running at MAXSERVERS with a queue, or every CPU below 75%"
+    mitigations:
+      - option: suspend_batch_on_hottest_cpu
+        label: "Suspend the noon statement batch {process}"
+        steps: [{catalog_id: tacl.suspend_process, params: {process: "$batch_on_hottest_cpu"}}]
+        benefit: 2
+        expected_effect: "CPU {cpu} down 12–18 points within 30 s"
+      - option: add_static_servers
+        label: "Raise {server_class} static servers from {current} to {n}"
+        steps: [{catalog_id: pathcom.alter_numstatic, params: {server_class: "$affected_critical_class", n: "$current_running + 8"}}]
+        benefit: 3
+        expected_effect: "Queue clears and {SERVICE} p95 returns to band within about 2 minutes"
+      - option: reload_cpu
+        label: "Reload CPU {down_cpu}"
+        steps: [{catalog_id: sys.reload_cpu, params: {cpu: "$down_cpu"}}]
+        benefit: 5
+    combine: [suspend_batch_on_hottest_cpu, add_static_servers]
+    do_nothing: {expected_effect: "ATM p95 above 1,200 ms within 10 minutes", risks: "Timeouts reach 5–8%: customers see failed withdrawals"}
+    verification:
+      - {metric: "svc.{service}.p95_ms", op: "<=", ref: "svc.{service}.band_high", for_s: 60, text: "{SERVICE} p95 within band for 60 sim-seconds"}
+      - {metric: "max_cpu_busy", op: "<", value: 90, for_s: 0, text: "Hottest CPU below 90%"}
+  - id: server_class_starvation
+    name: Server class starved at MAXSERVERS
+    label: "{server_class} starved at MAXSERVERS"
+    prior: 0.25
+    discriminating_checks: [pathcom.status_server, pathcom.info_server]
+    would_change_mind: "Running below MAXSERVERS while queued"
+    mitigations:
+      - option: raise_maxservers
+        label: "Raise {server_class} MAXSERVERS from {current_max} to {n}"
+        steps: [{catalog_id: pathcom.alter_maxservers, params: {server_class: "$affected_critical_class", n: "$restore_maxservers"}}]
+        benefit: 3
+        expected_effect: "PATHMON starts servers up to the new limit; queue clears within about a minute"
+      - option: raise_numstatic
+        label: "Raise {server_class} static servers to {n}"
+        steps: [{catalog_id: pathcom.alter_numstatic, params: {server_class: "$affected_critical_class", n: "$current_max"}}]
+        benefit: 1
+        expected_effect: "More servers stay up, but the class still stops at MAXSERVERS"
+    do_nothing: {expected_effect: "Queue and link errors continue until demand drops", risks: "Timeouts continue for ATM customers"}
+    verification:
+      - {metric: "sc.{server_class}.queued", op: "<=", value: 0, for_s: 60, text: "Queued = 0 for 60 sim-seconds"}
+  - id: tmf_audit_pressure
+    name: TMF audit trail pressure
+    label: "TMF audit trail pressure"
+    prior: 0.15
+    rule_out_on_peak_days: true   # claim C-007 (Maria)
+    rule_out_claim: C-007
+    discriminating_checks: [tmfcom.status_audittrail, tmfcom.status_tmf]
+    would_change_mind: "Audit fill below 50% and flat"
+    mitigations:
+      - option: suspend_month_end_batch
+        label: "Suspend the month-end batch {process}"
+        steps: [{catalog_id: tacl.suspend_process, params: {process: "$audit_heavy_batch"}}]
+        benefit: 3
+        expected_effect: "Audit fill stops rising within about 2 minutes"
+      - option: escalate_tmf
+        label: "Escalate dump handling to the TMF expert"
+        escalate: "Call the TMF expert (Maria) about audit dumps"
+        benefit: 1
+    do_nothing: {expected_effect: "Audit trail reaches the 80% overflow threshold", risks: "Begin-transaction disable at 90% stops new transactions"}
+    verification:
+      - {metric: "tmf_fill_trend", op: "<=", value: 0, for_s: 120, text: "Audit fill trend at or below 0 for 120 sim-seconds"}
+  - id: external_dependency
+    name: Slow external switch or network
+    label: "Slow external switch or network"
+    prior: 0.15
+    discriminating_checks: [baton.service_kpis, meas.cpu_busy]
+    would_change_mind: "A CPU or server class under strain"
+    mitigations:
+      - option: escalate_network
+        label: "Escalate to the network and switch owners"
+        escalate: "Call the network team with the latency evidence"
+        benefit: 1
+    do_nothing: {expected_effect: "Latency follows the external dependency", risks: "Timeouts continue"}
+    verification: []
+  - id: runaway_process
+    name: Runaway batch process
+    label: "Runaway batch process"
+    prior: 0.15
+    discriminating_checks: [meas.cpu_busy, tacl.status_cpu]
+    would_change_mind: "No single process above 40% of a CPU"
+    mitigations:
+      - option: lower_priority
+        label: "Lower the priority of {process}"
+        steps: [{catalog_id: tacl.altpri_process, params: {process: "$hot_process", priority: 100}}]
+        benefit: 2
+        expected_effect: "Transaction servers get the CPU back within a minute"
+      - option: suspend_runaway
+        label: "Suspend {process}"
+        steps: [{catalog_id: tacl.suspend_process, params: {process: "$hot_process"}}]
+        benefit: 2
+        expected_effect: "The CPU drops by the share that process was using"
+    do_nothing: {expected_effect: "The CPU stays saturated", risks: "Servers on that CPU stay slow"}
+    verification:
+      - {metric: "max_cpu_busy", op: "<", value: 90, for_s: 60, text: "Hottest CPU below 90% for 60 sim-seconds"}
+  - id: other
+    name: Unknown
+    label: "Something else"
+    prior: 0.10
+    discriminating_checks: []
+    mitigations: []
+    verification: []

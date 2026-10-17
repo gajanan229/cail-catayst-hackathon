@@ -1,0 +1,47 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: tacl.altpri_process
+title: Change a process's priority
+utility: TACL
+interpreter: null
+template: ALTPRI {process}, {priority}
+description: Changes the execution priority of a process.
+tier: T2
+tier_modifiers:
+- when:
+    process.tag: batch
+  tier: T1
+tier_rules: T1 if batch; otherwise T2
+params:
+  process:
+    type: process
+    source: inventory.processes
+  priority:
+    type: int
+    min: 1
+    max: 199
+reversible: true
+undo:
+  catalog_id: tacl.altpri_process
+  params:
+    process: '{process}'
+    priority: '{previous.priority}'
+undo_template: ALTPRI {process}, {previous.priority}
+parser: tacl_ack
+param_class: process_tag
+side_effects: The process gets more or less CPU relative to others
+risks: Too low a priority can starve the process
+facts: Priority
+examples:
+- utterance: lower the priority of $RPT2 to 100
+  params:
+    process: $RPT2
+    priority: 100
+aliases:
+- altpri
+- priority
+- lower priority
+- raise priority
+syntax_status: simulated
+preconditions: []
+doc_refs: []
+internal: false

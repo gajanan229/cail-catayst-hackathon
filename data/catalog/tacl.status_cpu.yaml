@@ -1,0 +1,37 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: tacl.status_cpu
+title: Processes on a CPU
+utility: TACL
+interpreter: null
+template: STATUS *, CPU {cpu}
+description: Lists the processes running in one processor with their priority and busy share.
+tier: T0
+params:
+  cpu:
+    type: cpu
+    min: 0
+    max: 7
+    state: up
+parser: tacl_status_cpu
+facts: Processes, priorities
+examples:
+- utterance: what is running on cpu 5
+  params:
+    cpu: 5
+- utterance: list processes in cpu 6
+  params:
+    cpu: 6
+aliases:
+- processes on cpu
+- what is running on
+- status cpu
+- top processes
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; negligible load
+doc_refs: []
+param_class: any
+internal: false

@@ -1,0 +1,31 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: baton.n1_headroom
+title: N-1 headroom
+utility: Baton
+interpreter: null
+template: null
+internal: true
+description: Worst single-CPU loss and the busiest survivor it would leave (Baton check).
+tier: T0
+params: {}
+parser: internal
+facts: Worst lost CPU, worst survivor busy
+examples:
+- utterance: can we survive losing a cpu
+  params: {}
+- utterance: n-1 headroom
+  params: {}
+aliases:
+- n-1
+- n1
+- headroom
+- survive losing a cpu
+- redundancy
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; negligible load
+doc_refs: []
+param_class: any

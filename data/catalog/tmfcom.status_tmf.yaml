@@ -1,0 +1,31 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: tmfcom.status_tmf
+title: TMF status
+utility: TMFCOM
+interpreter: TMFCOM
+template: STATUS TMF
+description: TMF state, transactions per second and abort rate.
+tier: T0
+params: {}
+parser: tmfcom_status_tmf
+facts: State, transactions per second, aborts
+examples:
+- utterance: is TMF ok
+  params: {}
+- utterance: tmf status
+  params: {}
+aliases:
+- tmf status
+- status tmf
+- transactions per second
+- aborts
+- transaction monitor
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; negligible load
+doc_refs: []
+param_class: any
+internal: false

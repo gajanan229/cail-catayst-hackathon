@@ -1,0 +1,31 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: tmfcom.stop_tmf
+title: Stop TMF
+utility: TMFCOM
+interpreter: TMFCOM
+template: STOP TMF
+description: Stops the transaction monitor. Human-only, outside Baton.
+tier: T3
+blocked: true
+params: {}
+parser: none
+escalation: Call the TMF expert (Maria); never stop TMF to relieve audit pressure (C-009)
+side_effects: All transactions stop
+risks: 'Destructive or outage-capable: human-only, outside Baton'
+facts: none
+examples:
+- utterance: stop tmf
+  params: {}
+- utterance: shut down the transaction monitor
+  params: {}
+aliases:
+- stop tmf
+- shut down tmf
+- disable tmf
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+doc_refs: []
+param_class: any
+internal: false

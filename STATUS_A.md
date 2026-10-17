@@ -2,9 +2,9 @@
 
 ## Gate
 
-**G1 passed**: S1 runs; the situation arrives over the WebSocket within 2 s of the fault
-(`tests/test_g1_situation.py`; in practice it is published on the same sim-second as the halt). G0 passed earlier.
-Working toward G2.
+**G2 passed**: `make golden` passes with `BATON_LLM_PROVIDER=none` (about 8 s headless). `scripts/record_ws.py` ships
+and `contracts/recordings/golden_s1.json` is a real recording of Flows B, C and A. G0 and G1 passed earlier.
+Working toward G3 (Nemotron model nodes, embeddings, integration with the UI).
 
 ## Done
 
@@ -31,13 +31,29 @@ Working toward G2.
   {"fault":"cpu_halt","params":{"cpu":3},"actor":"u_priya"}`).
 - Nemotron 120B smoke test (`test_model_apis_langGraph/modular_langgraph.py --model nemotron120`) answers `LANGGRAPH_OK`.
 
+- Commands: 21-entry catalog (`data/catalog/*.yaml`, all `syntax_status: simulated`), validator (NUMSTATIC ≤ MAXSERVERS
+  per PATHWAY 2049, protected list, inventory), renderer, simulator handlers with fixtures-style layouts, parsers, execution
+  tokens (HMAC, single use, 120 s), ghost typing (`terminal.ghost` → output after typing time), manual terminal input.
+- Governance: `data/policies/policy.yaml` (deny overrides allow), ledger with Appendix B seed, promotion candidates,
+  grants/revocations, demotion, approvals incl. two-person and edit-and-approve, undo stack, hash-chained audit.
+- Agents (LangGraph 1.2, AsyncSqliteSaver in `var/checkpoints.db`): supervisor (rules → router model → keywords),
+  Command, Ask, Investigate (with Learn nodes). Interrupts for every approval; resume via `Command(resume=...)`.
+- Diagnosis: failure modes, observations, scorer reproduces §12.2 (0.54/0.30 → 0.86 → 0.94 → 0.95), batch next-best
+  checks (status_server + cpu_busy auto, TMF rule-out needs approval), stop rule, options A/B/A+B/C/do-nothing with
+  playbook/claim recommenders and risks, verification (60 sim-s window), postmortem and two claims (templates).
+- Knowledge: content pack ingested (195 chunks incl. site facts and catalog), FTS5 BM25 + vectors (bge-small, numpy
+  cosine) + RRF + authority; exact pins for message numbers and `$` names; expert card; review queue with hot indexing.
+- Model gateway: Nemotron 120B via `langchain-nvidia-ai-endpoints`, JSON validated in the gateway, one repair retry,
+  20 s timeout, replay cache `data/replay/*.jsonl`, `model_calls` log. With `BATON_LLM_PROVIDER=none` every node uses
+  its fallback and the trace shows "fallback".
+
 ## In progress
 
-- Catalog, validator, renderer, tokens, policy, ledger, approvals; Command and Investigate graphs (deterministic).
+- Turning on Nemotron model nodes and testing them; embeddings on by default (`make seed` pre-builds the cache).
 
 ## Next
 
-- Learn graph with templates, `make golden` (G2), `scripts/record_ws.py`.
+- G3 integration with B's UI; S3 + eval runner; `make record` (replay cache).
 
 ## Blocked
 
@@ -45,7 +61,16 @@ Working toward G2.
 
 ## Requests to B
 
-- A-REQ-1: Please build mocks from `contracts/examples/`. Notes that matter for the UI:
+- A-REQ-2: When you switch to the real backend, please try `contracts/recordings/golden_s1.json` (see
+  `contracts/recordings/README.md`) as the mock timeline; it is a real run. Notes from the real backend:
+  - The incident thread is created by Baton (`incident.thread_id`); subscribe to `thread:{id}` once the incident appears.
+  - Decision card: approve by `POST /api/approvals/{decision.body.approval_id}/decide` with `option_ids` (e.g. `["opt_ab"]`).
+    Baton creates one approval per included option; their IDs appear on the options (`approval_id`) and as
+    `approval.upsert` events. The second approver approves the option approval (e.g. B) directly.
+  - Manual terminal input: `POST /api/terminal/input`. T0 runs at once; T1+ returns `card_id`/`thread_id` of a
+    confirm card in the persona's terminal thread.
+  - `Not in Baton's catalog` requests are logged as catalog requests automatically (no extra endpoint in 1.0.0).
+- A-REQ-1 (resolved: acknowledged by B): Please build mocks from `contracts/examples/`. Notes that matter for the UI:
   - Card JSON uses the key `for` (not `for_`) in hypotheses.
   - `card.upsert` replaces the whole card by `id`; render cards sorted by `seq` within a thread.
   - Terminal: show `terminal.ghost.label` on its own line, type `text` at `ms_per_char`, then append `terminal.output.lines`
@@ -55,9 +80,12 @@ Working toward G2.
 
 ## Answers to B
 
-- (none yet)
+- No B-REQ items open in STATUS_B.md as of G2.
 
 ## Notes for humans
+
+- Knowledge vectors use numpy cosine over an in-memory matrix (allowed fallback in §5.1); sqlite-vec is installed but not
+  used. The corpus is about 200 chunks, so this costs nothing.
 
 - Calibration gap: after both S1 actions ATM p95 settles near 100 ms (spec §6.2 says 200–260 ms). It is inside the
   band (below band_high), so verification passes; the chart line sits under the band rather than inside it.

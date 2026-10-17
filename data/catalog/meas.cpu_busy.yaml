@@ -1,0 +1,35 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: meas.cpu_busy
+title: CPU busy per processor
+utility: MEASCOM
+interpreter: MEASCOM
+template: LIST CPU *, BUSY
+description: Measure report of busy percentage and state for every processor.
+tier: T0
+params: {}
+parser: meas_cpu
+facts: Busy and state per CPU
+examples:
+- utterance: how busy are the CPUs
+  params: {}
+- utterance: show cpu busy
+  params: {}
+- utterance: which processor is hottest
+  params: {}
+aliases:
+- cpu busy
+- processor busy
+- cpu load
+- cpu utilization
+- measure cpu
+- hottest cpu
+- busy cpus
+syntax_status: simulated
+reversible: false
+undo: null
+preconditions: []
+side_effects: None (read-only)
+risks: Read-only; negligible load
+doc_refs: []
+param_class: any
+internal: false

@@ -1,0 +1,47 @@
+# Simulated syntax modeled on HPE utilities; verify against the manuals (MVP spec Appendix D).
+id: tacl.suspend_process
+title: Suspend a process
+utility: TACL
+interpreter: null
+template: SUSPEND {process}
+description: Suspends a process; it does no work until ACTIVATE.
+tier: T2
+tier_modifiers:
+- when:
+    process.tag: batch
+  tier: T1
+tier_rules: T1 if batch; denied if protected; otherwise T2
+params:
+  process:
+    type: process
+    source: inventory.processes
+    state: RUNNING
+reversible: true
+undo:
+  catalog_id: tacl.activate_process
+  params:
+    process: '{process}'
+undo_template: ACTIVATE {process}
+parser: tacl_ack
+param_class: process_tag
+side_effects: The process stops consuming CPU until it is activated
+risks: Work done by the process waits until ACTIVATE
+facts: State
+examples:
+- utterance: suspend the statement batch
+  params:
+    process: $STMT1
+- utterance: pause $RPT2
+  params:
+    process: $RPT2
+aliases:
+- suspend
+- pause process
+- hold process
+- freeze batch
+doc_refs:
+- label: Operator Messages ch. 68 (OMF)
+  url: https://ftp.hp.com/pub/softlib/NonStopOpMsgsMnl/ch68.html
+syntax_status: simulated
+preconditions: []
+internal: false
