@@ -191,7 +191,8 @@ class CommandService:
             return ["tacl.altpri_process"]
         if re.search(r"\b(suspend|pause|hold|freeze)\b", low):
             return ["tacl.suspend_process"]
-        if re.search(r"\b(activate|resume|unsuspend)\b", low):
+        if re.search(r"\b(activate|resume|unsuspend)\b", low) or \
+                ("process" in ents and re.search(r"\b(restart|bring back|start up)\b", low)):
             return ["tacl.activate_process"]
         if re.search(r"\b(stop|kill|terminate)\b", low) and "process" in ents:
             return ["tacl.stop_process"]

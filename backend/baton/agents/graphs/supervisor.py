@@ -9,6 +9,11 @@ CATALOG_VERBS = ("status", "show", "list", "suspend", "activate", "resume", "alt
                  "pause", "set", "raise", "lower", "add", "check", "info", "stats", "kill", "restart", "run", "start")
 QUESTION = re.compile(r"^(what|why|how|when|where|who|which|is|are|does|do|can|should|explain|tell me|difference)\b|\?$",
                       re.IGNORECASE)
+# Questions that are really requests to look at the live system: run a read-only check rather than search documents.
+STRONG_COMMAND = re.compile(
+    r"\b(keeping up|how busy|how full|how many|running on|is .* running|status of|what happened|recent events|"
+    r"last \d+ min|is (the )?(tmf|audit ?trail|pathmon|\$\w+|cpu \d|processor \d|atm[- ]auth|pos[- ]auth)\b.*\b(ok|okay|healthy|up|fine))",
+    re.IGNORECASE)
 BRIEF = re.compile(r"\b(brief|briefing|status report|shift report|handover|how are we doing|how is the system doing|"
                    r"how('s| is) everything|sitrep)\b", re.IGNORECASE)
 SYMPTOM = re.compile(r"\b(slow|down|failing|failed|errors?|timeouts?|what'?s going on|what is going on|problem|broken|issue)\b",
@@ -27,7 +32,7 @@ def keyword_route(text: str) -> str:
     first = re.split(r"\W+", low, maxsplit=1)[0]
     if first in CATALOG_VERBS:
         return "command"
-    if re.search(r"\b(keeping up|how busy|how full|how many|running on|is .* running|is tmf ok|status of)\b", low):
+    if STRONG_COMMAND.search(low):
         return "command"
     if QUESTION.search(low):
         return "ask"
@@ -42,7 +47,7 @@ async def route(rt, thread: dict, text: str, actor: str) -> tuple[str, str | Non
     if BRIEF.search(low):
         return "brief", incident_id or (active_incident(rt) or {}).get("id")
     inc = rt.incidents.get(incident_id) if incident_id else None
-    if first in CATALOG_VERBS and not QUESTION.search(low[:4]):
+    if (first in CATALOG_VERBS and not QUESTION.search(low[:4])) or STRONG_COMMAND.search(low):
         return "command", incident_id or (active_incident(rt) or {}).get("id")
     if inc is None:
         live = active_incident(rt)
@@ -55,8 +60,5 @@ async def route(rt, thread: dict, text: str, actor: str) -> tuple[str, str | Non
                                                                            last_mode=thread.get("mode")), P.RouterOut,
                                            stable_key=text.strip().lower())
         if out and out["intent"] in ("ask", "command") and out.get("confidence", 0) >= 0.6:
-            if out["intent"] == "ask" and keyword_route(text) == "command" and re.search(
-                    r"\b(keeping up|how busy|how full|how many)\b", low):
-                return "command", None
             return out["intent"], None
     return keyword_route(text), None

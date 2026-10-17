@@ -76,9 +76,42 @@ async def telemetry(state: AskState, config) -> dict:
                                       f"{q:.0f} ATM requests queued; timeouts {v.get(f'svc.{svc}.timeout_pct', 0):.1f}%"})
             s.summary = f"{len(facts)} incident facts"
         else:
-            s.summary = "No incident: knowledge only"
+            facts = live_entity_facts(rt, state["text"])
+            s.summary = f"{len(facts)} live facts for the names in the question" if facts else "No incident: knowledge only"
         s.tools = ["telemetry"] if facts else []
     return {"facts": facts}
+
+
+def live_entity_facts(rt, text: str) -> list[dict]:
+    """Read-only telemetry facts for a CPU, server class or service named in a question (spec §11.1 Ask)."""
+    from ...commands.parsers import tacl_status_cpu
+    from ...sim.handlers import h_status_cpu
+    m = rt.sim.model
+    if m is None:
+        return []
+    ents = rt.commands.entities(text)
+    v = rt.health.values
+    facts = []
+    if "cpu" in ents and 0 <= ents["cpu"] < m.cpu_count:
+        c = ents["cpu"]
+        if not m.cpu_up[c]:
+            facts.append({"id": f"evidence:cpu{c}", "title": f"CPU {c}", "text": f"CPU {c} is down"})
+        else:
+            procs = tacl_status_cpu(h_status_cpu(rt.sim, {"cpu": c}))[0].get("processes", [])[:3]
+            top = ", ".join(f"{p['name']} {p['busy']:.0f}%" for p in procs)
+            facts.append({"id": f"evidence:cpu{c}", "title": f"CPU {c}",
+                          "text": f"CPU {c} is {m.cpu_busy[c]:.0f}% busy; the largest users are {top}"})
+    cls = ents.get("server_class")
+    if cls and f"sc.{cls}.running" in v:
+        facts.append({"id": f"evidence:{cls}", "title": cls,
+                      "text": f"{cls} has {v[f'sc.{cls}.running']:.0f} of {v[f'sc.{cls}.max']:.0f} servers running and "
+                              f"{v[f'sc.{cls}.queued']:.0f} requests queued"})
+        svc = {"ATM-AUTH": "atm", "POS-AUTH": "pos"}.get(cls)
+        if svc:
+            facts.append({"id": f"evidence:svc-{svc}", "title": f"{svc.upper()} latency",
+                          "text": f"{svc.upper()} p95 is {v.get(f'svc.{svc}.p95_ms', 0):.0f} ms against a "
+                                  f"{v.get(f'svc.{svc}.band_low', 0):.0f}–{v.get(f'svc.{svc}.band_high', 0):.0f} ms band"})
+    return facts
 
 
 def fallback_answer(state: AskState) -> dict:
@@ -100,6 +133,12 @@ def fallback_answer(state: AskState) -> dict:
         if msg:
             sentences.append({"text": _first_sentence(msg["text"]), "citation_ids": [msg["id"]]})
         return {"sentences": sentences[:4], "unknown": False, "ask_whom": None}
+    if state.get("facts"):   # live facts for the names in the question come first, then one supporting document
+        sentences = [{"text": f["text"] + ".", "citation_ids": [f["id"]]} for f in state["facts"]]
+        doc = next((p for p in state.get("pack", []) if p["doc_type"] in ("claim", "concept", "site_fact", "playbook")), None)
+        if doc:
+            sentences.append({"text": _first_sentence(doc["text"]), "citation_ids": [doc["id"]]})
+        return {"sentences": sentences, "unknown": False, "ask_whom": None}
     pack = state.get("pack", [])[:3]
     if not pack:
         return {"sentences": [{"text": "Baton's knowledge base has nothing on this yet.", "citation_ids": []}], "unknown": True,
