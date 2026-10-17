@@ -14,6 +14,7 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 import re
 import time
 from pathlib import Path
@@ -90,10 +91,35 @@ def skeleton(schema: dict, defs: dict | None = None) -> Any:
     return None
 
 
+class RateLimiter:
+    """Sliding-window limit on requests per minute (the NVIDIA endpoint allows 40/min; we stay under it)."""
+
+    def __init__(self, per_minute: int):
+        self.per_minute = per_minute
+        self.stamps: list[float] = []
+        self.lock = asyncio.Lock()
+
+    async def acquire(self, max_wait: float) -> bool:
+        """Wait for a slot; False if none frees up within max_wait seconds (caller falls back)."""
+        deadline = time.monotonic() + max_wait
+        while True:
+            async with self.lock:
+                now = time.monotonic()
+                self.stamps = [t for t in self.stamps if now - t < 60.0]
+                if len(self.stamps) < self.per_minute:
+                    self.stamps.append(now)
+                    return True
+                wait = 60.0 - (now - self.stamps[0]) + 0.05
+            if time.monotonic() + wait > deadline:
+                return False
+            await asyncio.sleep(wait)
+
+
 class NemotronClient:
     """Thin async wrapper around ChatNVIDIA (same endpoint, model and key as test_model_apis_langGraph/nemotron120.py)."""
 
-    def __init__(self, base_url: str, api_key: str, thinking: bool):
+    def __init__(self, base_url: str, api_key: str, thinking: bool, per_minute: int = 34):
+        self.limiter = RateLimiter(per_minute)
         from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
         self._ChatNVIDIA = ChatNVIDIA
@@ -112,6 +138,8 @@ class NemotronClient:
     async def complete(self, model: str, system: str, user: str) -> str:
         """Stream and keep only final text blocks, as test_model_apis_langGraph/modular_langgraph.py does
         (the endpoint has returned 500 for non-streaming calls while streaming worked)."""
+        if not await self.limiter.acquire(max_wait=8.0):
+            raise TimeoutError("rate limit: no request slot within 8 s")
         parts: list[str] = []
         async for chunk in self.client(model).astream([{"role": "system", "content": system}, {"role": "user", "content": user}]):
             for block in getattr(chunk, "content_blocks", None) or []:
@@ -130,7 +158,8 @@ class Gateway:
         self.client: NemotronClient | None = None
         if config.models_enabled:
             try:
-                self.client = NemotronClient(config.nvidia_base_url, config.nvidia_api_key, config.nemotron_thinking)
+                self.client = NemotronClient(config.nvidia_base_url, config.nvidia_api_key, config.nemotron_thinking,
+                                             int(os.environ.get("BATON_MODEL_RPM", "34")))
             except Exception as e:
                 log.warning("Nemotron client unavailable: %s", e)
         self._load_cache()
@@ -144,6 +173,8 @@ class Gateway:
                 try:
                     rec = json.loads(line)
                     self.cache[rec["key"]] = rec
+                    if rec.get("stable_key"):
+                        self.cache[rec["stable_key"]] = rec
                 except (json.JSONDecodeError, KeyError):
                     continue
 
@@ -162,16 +193,22 @@ class Gateway:
         return source
 
     async def complete(self, task: str, system: str, prompt: str, schema: type[BaseModel], *, run_id: str | None = None,
-                       node: str | None = None) -> tuple[dict | None, str, str]:
-        """Returns (validated output or None, source, prompt hash). source: model ID, 'replay' or 'fallback'."""
+                       node: str | None = None, stable_key: str | None = None) -> tuple[dict | None, str, str]:
+        """Returns (validated output or None, source, prompt hash). source: model ID, 'replay' or 'fallback'.
+
+        Replay looks up the exact key first (sha256 of model + prompt + schema). Callers whose output carries no live
+        numbers (router, planner, knowledge answers) also pass `stable_key`, a run-independent description of the
+        request, so recordings still hit when sim values in the prompt differ between runs."""
         model = self.model_for(task)
         schema_json = json.dumps(schema.model_json_schema(), sort_keys=True)
         full = f"{system}\n\n{prompt}"
         phash = prompt_hash(full)
         key = hashlib.sha256((model + full + schema_json).encode("utf-8")).hexdigest()
+        skey = hashlib.sha256((model + task + "|" + stable_key).encode("utf-8")).hexdigest() if stable_key else None
         t0 = time.monotonic()
-        if self.mode == "replay" and key in self.cache:
-            out = self.cache[key]["output"]
+        hit = key if key in self.cache else skey if skey and skey in self.cache else None
+        if self.mode == "replay" and hit:
+            out = self.cache[hit]["output"]
             try:
                 schema.model_validate(out)
                 self._log(run_id, node, task, model, phash, t0, "replay")
@@ -192,7 +229,7 @@ class Gateway:
             self._log(run_id, node, task, model, phash, t0, "fallback", error=str(e)[:300])
             return None, "fallback", phash
         if self.mode == "record":
-            self._record(key, task, model, phash, out)
+            self._record(key, task, model, phash, out, skey)
         self._log(run_id, node, task, model, phash, t0, "live")
         return out, model, phash
 
@@ -200,8 +237,8 @@ class Gateway:
         try:
             return await self.client.complete(model, system, prompt)
         except Exception as e:  # one retry on transient server errors (e.g. 500/503 from the endpoint)
-            if any(code in str(e) for code in ("500", "502", "503", "504", "overload")):
-                await asyncio.sleep(0.5)
+            if any(code in str(e) for code in ("429", "500", "502", "503", "504", "overload")):
+                await asyncio.sleep(2.0 if "429" in str(e) else 0.5)
                 return await self.client.complete(model, system, prompt)
             raise
 
@@ -218,12 +255,15 @@ class Gateway:
             reply2 = await self._complete_retry(model, system, repair)
             return schema.model_validate(extract_json(reply2)).model_dump(mode="json")
 
-    def _record(self, key: str, task: str, model: str, phash: str, out: dict) -> None:
+    def _record(self, key: str, task: str, model: str, phash: str, out: dict, stable_key: str | None = None) -> None:
         self.replay_dir.mkdir(parents=True, exist_ok=True)
-        rec = {"key": key, "task": task, "model": model, "prompt_hash": phash, "output": out, "recorded_at": wall_now()}
+        rec = {"key": key, "stable_key": stable_key, "task": task, "model": model, "prompt_hash": phash, "output": out,
+               "recorded_at": wall_now()}
         with (self.replay_dir / f"{task}.jsonl").open("a", encoding="utf-8") as f:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
         self.cache[key] = rec
+        if stable_key:
+            self.cache[stable_key] = rec
 
     def _log(self, run_id, node, task, model, phash, t0, hit, error: str | None = None) -> None:
         try:

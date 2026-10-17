@@ -30,7 +30,7 @@ CPU-only PyTorch keeps the install small: `.venv\Scripts\python.exe -m pip insta
 | `make test` | All unit tests |
 | `make golden` | Headless S1 acceptance test (`tests/test_golden_s1.py`, models off) |
 | `make eval` | Command, safety and diagnosis suites; results on the Eval page |
-| `make record` | Two golden runs with `BATON_REPLAY=record` to fill `data/replay/` |
+| `make record` | Two golden runs (Flows B, C, A) with Nemotron and `BATON_REPLAY=record` to fill `data/replay/` |
 | `make record-ws` | Record a real golden run into frontend mock fixture format (`scripts/record_ws.py`) |
 | `make contracts` | Regenerate `contracts/` from the Pydantic models |
 
@@ -47,6 +47,8 @@ Put secrets in the project-root `.env` (never committed).
 | `BATON_NVIDIA_BASE_URL` | URL | `https://integrate.api.nvidia.com/v1` | |
 | `BATON_NEMOTRON_THINKING` | `0`, `1` | `0` | Enable Nemotron reasoning mode (slower) |
 | `BATON_REPLAY` | `off`, `record`, `replay` | `replay` | Replay cache in `data/replay/*.jsonl` |
+| `BATON_MODEL_RPM` | integer | `34` | Client-side request cap per minute (the NVIDIA endpoint allows 40) |
+| `BATON_LIVE_MODELS` | `0`, `1` | `0` | Tests only: `1` runs the models-on golden test |
 | `BATON_EMBEDDINGS` | `local`, `none` | `local` | `none` = BM25 only |
 | `BATON_SEED` | integer | `42` | |
 | `BATON_DB` | path | `var/baton.db` | |

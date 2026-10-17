@@ -85,8 +85,10 @@ async def plan(state: CommandState, config) -> dict:
             site = {"server_classes": list(rt.sim.site and [s_["name"] for s_ in rt.sim.site["server_classes"]]),
                     "batch_processes": [p["name"] for p in rt.sim.site["processes"] if "batch" in (p.get("tags") or [])]}
             out, source_m, phash = await rt.gateway.complete("planner", P.SYSTEM, P.render(
-                "planner", candidates=cand_desc, entities=state.get("entities", {}), site=site, request=state["text"]),
-                P.PlannerOut, run_id=c["run_id"], node="plan")
+                "planner", candidates=cand_desc, entities=state.get("entities", {}), site=site, request=state["text"],
+                hint=[{"catalog_id": st.catalog_id, "params": st.params} for st in fb.steps] or "none"),
+                P.PlannerOut, run_id=c["run_id"], node="plan",
+                stable_key=state["text"].strip().lower())
             s.prompt_hash = phash
             if out is not None:
                 good = [st for st in out["steps"] if st["catalog_id"] in cand_ids][:MAX_STEPS]
@@ -246,7 +248,7 @@ async def _execute(state: CommandState, config, st: dict, approval: dict | None)
     acts = ["undo"] if ex.get("undo_entry_id") else []
     patch(st["card_id"], status="done" if ex["status"] == "done" else "failed", actions=acts,
           body={"execution": execution_block(rt, ex, summary, "fallback"), "params": p.validation.params,
-                "rendered": p.validation.rendered})
+                "rendered": p.validation.rendered or p.entry.title})
     return {**st, "status": ex["status"], "exec_id": ex["id"], "params": p.validation.params}
 
 

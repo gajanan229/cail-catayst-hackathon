@@ -63,7 +63,7 @@ def render_template(template: str, params: dict[str, Any]) -> str:
     values = {}
     for k, v in params.items():
         s = str(v)
-        if not SAFE_VALUE.match(s):
+        if not SAFE_VALUE.fullmatch(s):
             raise ValueError(f"unsafe value for {k}: {s!r}")
         values[k] = s
     return template.format(**values)
@@ -97,7 +97,7 @@ def validate(entry: CatalogEntry, raw_params: dict[str, Any], inv: Inventory) ->
                 value = str(value).strip().upper()
                 if not value.startswith("$"):
                     value = "$" + value
-                if not PROCESS_RE.match(value):
+                if not PROCESS_RE.fullmatch(value):
                     errors.append(f"'{value}' is not a valid process name")
                 elif value not in inv.processes:
                     errors.append(f"Process {value} does not exist on \\TORBANK")

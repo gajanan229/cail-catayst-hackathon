@@ -2,9 +2,11 @@
 
 ## Gate
 
-**G2 passed**: `make golden` passes with `BATON_LLM_PROVIDER=none` (about 8 s headless). `scripts/record_ws.py` ships
-and `contracts/recordings/golden_s1.json` is a real recording of Flows B, C and A. G0 and G1 passed earlier.
-Working toward G3 (Nemotron model nodes, embeddings, integration with the UI).
+**G3 (backend side) passed.** Golden path with models off: `make golden` (about 8 s). With Nemotron 120B on:
+`BATON_LIVE_MODELS=1` + `pytest tests/test_golden_s1.py::test_golden_s1_models_on` passes (about 50 s), and a scripted
+Flows B, C and A run completes with model-written plan, interpretation, answers, diagnosis narrative, postmortem and
+claims. B confirmed models-off in the real UI; models-on in the UI is waiting on B's re-run after the B-REQ-4 fix.
+Replay cache recorded early (`make record`, two runs); re-record at G4 after any prompt change.
 
 ## Done
 
@@ -49,12 +51,20 @@ Working toward G3 (Nemotron model nodes, embeddings, integration with the UI).
 
 ## In progress
 
+- Eval runner (`make eval`, `/api/eval/run`; `backend/baton/eval/runner.py` is still a stub), then S3, then P1 items.
+
+## Earlier notes on models
+
 - Nemotron model nodes: gateway now streams (non-streaming calls returned HTTP 500 while streaming worked), shows the
   model a JSON example shape instead of the raw schema, retries once on 5xx. Planner and router return valid JSON in
   about 0.5–2.5 s; the answerer has timed out at 20 s, so it falls back. The endpoint is intermittently slow or 500s;
   plan on the replay cache (`make record`) for the demo.
-- Not done yet: models-on golden run, `make record`, eval runner (`backend/baton/eval/runner.py` is a stub), S3 eval,
-  `scripts/fetch_opmsgs.py` (B-REQ-2), `make seed` with embeddings on (embedding model downloads fine).
+- Gateway rate limit: sliding window, 34 requests/min by default (`BATON_MODEL_RPM`; the endpoint allows 40). A call
+  that cannot get a slot within 8 s falls back. Retries once on 429/5xx.
+- Replay: exact key (sha256 of model + prompt + schema) first. Router, planner and knowledge answers also store a
+  stable key (the request text) because live sim numbers in prompts change between runs. Outputs that quote live
+  numbers (incident answers, interpreter, narrative, postmortem, claims) replay only on an exact match; otherwise they
+  run live or fall back, so the demo never shows stale numbers.
 
 ## Next
 
@@ -93,6 +103,13 @@ Working toward G3 (Nemotron model nodes, embeddings, integration with the UI).
 - B-REQ-1: resolved (decision protocol confirmed by B's live run).
 - B-REQ-2: open. The manual fetcher is not written yet; the Appendix A fallback (20 records) is in use.
 - B-REQ-3: resolved. Recording to `frontend/src/mocks/recordings/` is fine.
+- B-REQ-4: fixed. A model plan that picks an internal Baton check (no template) left `rendered` null on the card update;
+  it now uses the entry title. The planner also gets the catalog rules' plan as a hint, so "Is ATM auth keeping up?"
+  plans status + stats with models on; the replay cache holds that plan. Please re-run the models-on UI check.
+- B-REQ-5: fixed. The renderer and process-name checks use `fullmatch`, so a trailing newline is rejected. I removed the
+  strict xfail marker from `tests/test_unit_commands.py::test_renderer_rejects_trailing_newline` (now passes).
+- B-REQ-6: accepted as a known calibration gap (see Notes for humans); keep the strict xfail. Not fixing before G4.
+- Thanks for the three side tasks; all received. Seed now has 325 chunks with the 150-record operator-message pack.
 
 ## Notes for humans
 

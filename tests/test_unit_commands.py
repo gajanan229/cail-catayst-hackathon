@@ -30,7 +30,6 @@ def test_renderer_rejects_shell_separators_and_whitespace(value):
         render_template("SUSPEND {process}", {"process": value})
 
 
-@pytest.mark.xfail(reason="B-REQ-5: SAFE_VALUE.match accepts a final newline because of regex $", strict=True)
 def test_renderer_rejects_trailing_newline():
     with pytest.raises(ValueError, match="unsafe value"):
         render_template("SUSPEND {process}", {"process": "$STMT1\n"})

@@ -5,6 +5,7 @@ tmfcom.status_audittrail; audit chain valid. Every WebSocket envelope must match
 from __future__ import annotations
 
 import asyncio
+import os
 import time
 from urllib.parse import quote
 
@@ -32,7 +33,23 @@ async def until(fn, timeout=60.0, step=0.05, what="condition"):
 
 @pytest.mark.asyncio
 async def test_golden_s1(tmp_path):
-    async with runtime(tmp_path, time_scale=8.0) as rt:
+    await run_golden(tmp_path, time_scale=8.0)
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(os.environ.get("BATON_LIVE_MODELS") != "1" or not os.environ.get("NVIDIA_API_KEY"),
+                    reason="set BATON_LIVE_MODELS=1 (and NVIDIA_API_KEY) to run with Nemotron")
+async def test_golden_s1_models_on(tmp_path):
+    """Same acceptance checks with Nemotron 120B behind the gateway. Slower sim so model calls fit in sim time;
+    with BATON_REPLAY=record it also fills data/replay/."""
+    mode = os.environ.get("BATON_REPLAY", "off")
+    sources = await run_golden(tmp_path, time_scale=2.0, llm_provider="nemotron", replay=mode, step_timeout=240.0)
+    # at least some model nodes must have produced real output (not only fallbacks)
+    assert any(s not in (None, "fallback") for s in sources), sources
+
+
+async def run_golden(tmp_path, step_timeout: float = 60.0, **overrides) -> list:
+    async with runtime(tmp_path, **overrides) as rt:
         bad, types = [], {}
 
         def check(env):
@@ -52,7 +69,7 @@ async def test_golden_s1(tmp_path):
             async def incident():
                 incs = (await api.get("/api/incidents")).json()["incidents"]
                 return incs[0] if incs and incs[0].get("thread_id") else None
-            inc = await until(incident, 60, what="incident")
+            inc = await until(incident, step_timeout * 1.00, what="incident")
             sits = (await api.get("/api/situations")).json()["situations"]
             assert sits[0]["template"] == "cpu_loss_cascade" and sits[0]["incident_id"] == inc["id"]
             assert inc["display_id"] == "INC-0001"
@@ -62,7 +79,7 @@ async def test_golden_s1(tmp_path):
             async def tmf_approval():
                 aps = (await api.get("/api/approvals", params={"status": "pending"})).json()["approvals"]
                 return next((a for a in aps if a["rendered"] == ["TMFCOM; STATUS AUDITTRAIL"]), None)
-            tmf = await until(tmf_approval, 60, what="TMF approval")
+            tmf = await until(tmf_approval, step_timeout * 1.00, what="TMF approval")
             detail = (await api.get(f"/api/threads/{thread}")).json()
             cmd_cards = [c for c in detail["cards"] if c["type"] == "command"]
             auto = [c for c in cmd_cards if c["status"] == "done" and c["body"]["policy"]["effect"] == "allow_auto"]
@@ -86,7 +103,7 @@ async def test_golden_s1(tmp_path):
                 d = (await api.get(f"/api/threads/{thread}")).json()
                 dc = next((c for c in d["cards"] if c["type"] == "decision" and c["body"].get("approval_id")), None)
                 return dc
-            dc = await until(decision, 60, what="decision card")
+            dc = await until(decision, step_timeout * 1.00, what="decision card")
             opts = {o["id"]: o for o in dc["body"]["options"]}
             steps = {s["catalog_id"] for o in opts.values() for s in o.get("steps", [])}
             assert {"tacl.suspend_process", "pathcom.alter_numstatic"} <= steps
@@ -97,7 +114,12 @@ async def test_golden_s1(tmp_path):
             hyp = next(c for c in d["cards"] if c["type"] == "hypotheses")
             assert hyp["body"]["hypotheses"][0]["p"] >= 0.85 and hyp["body"]["stop_rule"]["met"]
             assert any(c["type"] == "expert" and c["body"]["id"] == "PB-CPU-LOSS-PEAK" for c in d["cards"])
-            assert any(c["type"] == "text" and c["incident_id"] == inc["id"] and c["body"].get("link") for c in d["cards"])
+            async def answer():
+                d = (await api.get(f"/api/threads/{thread}")).json()
+                return next((c for c in d["cards"] if c["type"] == "text" and c["incident_id"] == inc["id"]
+                             and c["body"].get("link")), None)
+            ans = await until(answer, step_timeout * 0.5, what="A5 answer card")
+            assert ans["citations"], ans
 
             # A9: Priya approves A+B; Sam approves B
             r = await api.post(f"/api/approvals/{dc['body']['approval_id']}/decide",
@@ -108,7 +130,7 @@ async def test_golden_s1(tmp_path):
             async def b_partial():
                 aps = (await api.get("/api/approvals", params={"status": "partially_approved"})).json()["approvals"]
                 return next((a for a in aps if "NUMSTATIC 28" in a["rendered"][0]), None)
-            b = await until(b_partial, 30, what="B partially approved")
+            b = await until(b_partial, step_timeout * 0.50, what="B partially approved")
             assert b["progress_text"] == "1 of 2: needs Senior or Expert"
             r = await api.post(f"/api/approvals/{b['id']}/decide", json={"decision": "approve", "actor": "u_priya"})
             assert r.status_code == 403   # same person twice
@@ -119,7 +141,7 @@ async def test_golden_s1(tmp_path):
             async def resolved():
                 i = (await api.get(f"/api/incidents/{inc['id']}")).json()
                 return i if i["status"] == "resolved" else None
-            done = await until(resolved, 90, what="resolved incident")
+            done = await until(resolved, step_timeout * 1.50, what="resolved incident")
             recovered_at = parse_sim(done["resolved_at"])
             assert (recovered_at - first_action_sim).total_seconds() <= 240
             assert [u["label"] for u in done["undo_stack"]][:2] == ["ALTER ... NUMSTATIC 20", "ACTIVATE $STMT1"]
@@ -129,7 +151,7 @@ async def test_golden_s1(tmp_path):
                 cl = (await api.get("/api/claims", params={"status": "pending_review"})).json()["claims"]
                 runtime_claims = [c for c in cl if c["provenance"]["source_type"] == "incident"]
                 return runtime_claims if len(runtime_claims) == 2 else None
-            claims = await until(learned, 30, what="two drafted claims")
+            claims = await until(learned, step_timeout * 0.50, what="two drafted claims")
             pm = (await api.get(f"/api/incidents/{inc['id']}/postmortem")).json()
             assert pm["summary"] and pm["follow_ups"]
             ledger = (await api.get("/api/ledger")).json()["entries"]
@@ -156,7 +178,9 @@ async def test_golden_s1(tmp_path):
             assert v["valid"] and v["entries"] > 10
 
         await asyncio.sleep(0.1)
+        sources = [r["cache_hit"] for r in rt.store.query("SELECT cache_hit FROM model_calls")]
         assert not bad, bad[:3]
         for t in ("card.upsert", "node.started", "node.ended", "approval.upsert", "interrupt.raised", "terminal.ghost",
                   "terminal.output", "ledger.promotion_candidate", "claim.upsert", "run.completed"):
             assert t in types, (t, sorted(types))
+        return sources

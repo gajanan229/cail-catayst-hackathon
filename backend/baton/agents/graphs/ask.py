@@ -121,7 +121,9 @@ async def answer(state: AskState, config) -> dict:
     async with node(config, "answer", "Answer") as s:
         evidence = [{"id": x["id"], "title": x["title"], "text": x["text"]} for x in state.get("facts", []) + state.get("pack", [])]
         out, src, phash = await rt.gateway.complete("answerer", P.SYSTEM, P.render("answerer", question=state["text"], evidence=evidence),
-                                                    P.AnswererOut, run_id=c["run_id"], node="answer")
+                                                    P.AnswererOut, run_id=c["run_id"], node="answer",
+                                                    stable_key=None if state.get("facts") else
+                                                    state["text"].strip().lower())
         s.prompt_hash = phash
         if out:
             ans, source = out, src

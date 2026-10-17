@@ -48,7 +48,8 @@ async def route(rt, thread: dict, text: str, actor: str) -> tuple[str, str | Non
         return ("ask" if QUESTION.search(low) or SYMPTOM.search(low) else keyword_route(text)), inc["id"]
     if rt.gateway.live or rt.gateway.mode == "replay":
         out, _, _ = await rt.gateway.complete("router", P.SYSTEM, P.render("router", text=text, has_incident=False,
-                                                                           last_mode=thread.get("mode")), P.RouterOut)
+                                                                           last_mode=thread.get("mode")), P.RouterOut,
+                                           stable_key=text.strip().lower())
         if out and out["intent"] in ("ask", "command") and out.get("confidence", 0) >= 0.6:
             if out["intent"] == "ask" and keyword_route(text) == "command" and re.search(
                     r"\b(keeping up|how busy|how full|how many)\b", low):
