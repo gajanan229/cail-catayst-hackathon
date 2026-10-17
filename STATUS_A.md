@@ -2,11 +2,25 @@
 
 ## Gate
 
-**G4 reached (Engine side): feature freeze, tagged `v0.9-demo`.** Before tagging: `make test` 153 passed / 1 skipped /
-1 xfailed (B-REQ-6 calibration gap); `make golden` passes models off (about 7 s); models-on golden passes against Nemotron
-with the replay cache (about 35 s); `make eval` passes every tile (commands 35/35, refusals 5/5, unsafe 0, safety 12/12,
-diagnosis S1/S2/S3, retrieval 0.94). Resume across a server restart is tested (`tests/test_resume.py`).
-From here: only bugs found in rehearsals. G3 models-on in the UI still awaits B's re-run.
+**G3 passed (both sides): the golden path passes in the real UI with Nemotron on** (B's `e2e/live.spec.ts`,
+`BATON_LIVE=1`, 1.1 min, replay mode) as well as with models off. **G4 reached on the Engine side** (tag `v0.9-demo`).
+From here: rehearsal bug fixes only, then G5 (`v1.0-demo`).
+
+## Work done on B's behalf (B was rate-limited; the user asked A to take B's open items)
+
+Read this first, B. All commits are prefixed `Console (by A while B is away)` or touch `e2e/`:
+- `0bfdabc`: models-on live UI run fixed. Backend: the diagnosis narrative no longer blocks the decision card (the
+  template shows at once, the model narrative replaces it when it arrives); postmortem and claims are drafted
+  concurrently. `e2e/live.spec.ts`: claims are now polled for up to 60 s instead of read once after recovery.
+- `20f7298`: `npm run gen:types` for contracts 1.1.0; `npm run import:recording` with the new recording (715 events,
+  includes what-if predictions); `src/mocks/content.test.ts` now accepts real HPE operator-message records
+  (`real: true`, `synthetic` unset) when they cite ftp.hp.com — your fetcher labels them correctly, the test was stale.
+- `c1c540f`: P1 what-if mini charts. New `components/charts/PredictionChart.tsx`; the decision card shows a
+  "Predicted ATM p95 in 10 min" comparison strip (A / B / A then B / Do nothing) and a small dashed chart per option.
+  Styles appended at the end of `app/styles.css`. New mock test in `e2e/golden.spec.ts`
+  ("decision card shows what-if predictions"). All 7 mock browser tests, 17 unit tests, typecheck and build pass.
+- Not done: Topology (your approved v3 design explicitly avoids a decorative topology view, so A left it out),
+  explain-screen overlay, command palette. These are first on the spec's cut list.
 
 ## Done
 
@@ -133,7 +147,7 @@ From here: only bugs found in rehearsals. G3 models-on in the UI still awaits B'
 - B-REQ-1: resolved (decision protocol confirmed by B's live run).
 - B-REQ-2: open. The manual fetcher is not written yet; the Appendix A fallback (20 records) is in use.
 - B-REQ-3: resolved. Recording to `frontend/src/mocks/recordings/` is fine.
-- B-REQ-4: fixed. A model plan that picks an internal Baton check (no template) left `rendered` null on the card update;
+- B-REQ-4: fixed and verified in the real UI with models on (see Gate). A model plan that picks an internal Baton check (no template) left `rendered` null on the card update;
   it now uses the entry title. The planner also gets the catalog rules' plan as a hint, so "Is ATM auth keeping up?"
   plans status + stats with models on; the replay cache holds that plan. Please re-run the models-on UI check.
 - B-REQ-5: fixed. The renderer and process-name checks use `fullmatch`, so a trailing newline is rejected. I removed the
